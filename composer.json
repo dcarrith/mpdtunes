@@ -1,0 +1,48 @@
+{
+	"require": {
+                "laravel/framework": "4.0.*",
+		"Dcarrith/CIFirePHP": "dev-master",
+                "Dcarrith/CIZip": "dev-master",
+		"way/generators": "dev-master",
+		"jonob/html": "1.1.*",
+		"juy/profiler" : "dev-master"	
+	},
+        "repositories": [
+                {
+                        "type": "vcs",
+                        "url": "https://github.com/dcarrith/cifirephp"
+                },
+                {
+                        "type": "vcs",
+                        "url": "https://github.com/dcarrith/cizip"
+                }
+        ],
+	"autoload": {
+		"classmap": [
+			"app/commands",
+			"app/controllers",
+			"app/libraries",
+			"app/models",
+			"app/models/services",
+			"app/database/migrations",
+			"app/database/seeds",
+			"app/tests/TestCase.php"
+		]
+	},
+	"scripts": {
+		"pre-update-cmd": [
+			"php artisan clear-compiled"
+		],
+		"post-install-cmd": [
+			"php artisan optimize"
+		],
+		"post-update-cmd": [
+			"php artisan optimize"
+		]
+	},
+	"config": {
+		"preferred-install": "dist"
+	},
+
+	"minimum-stability": "dev"
+}

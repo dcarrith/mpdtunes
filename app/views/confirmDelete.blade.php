@@ -1,0 +1,29 @@
+<div data-role="dialog" id="confirm_delete" data-theme="{{ $theme_body }}" data-close-btn="none">
+
+    <div data-role="header" role="banner" data-theme="{{ $theme_bars }}" class="ui-corner-top ui-header ui-bar-{{ $theme_bars }}">
+	<h1>{{ $confirm_delete_i18n }}</h1>
+    </div>
+
+    <div data-role="content" data-theme="{{ $theme_body }}">
+
+        <input id="item_type" name="item_type" type="hidden" value="{{ $item_type }}" />
+        <input id="item_name" name="item_name" type="hidden" value="{{ $item_name }}" />
+        <input id="item_id" name="item_id" type="hidden" value="{{ $item_id }}" />
+
+        <p>{{ $are_you_sure_i18n }}</p>
+        <p><small>{{ $note_gone_forever_i18n }}</small></p>
+
+        <a href="#" id="confirm_delete_yes" data-role="button" class="ui-btn ui-btn-corner-all ui-shadow ui-btn-up-{{ $theme_alert }}" data-theme="{{ $theme_alert }}" data-direction="reverse" data-transition="{{ $default_alert_transition }}">
+            <span class="ui-btn-inner ui-btn-corner-all">
+                    <span class="ui-btn-text">{{ $yes_i18n }}</span>
+            </span>
+        </a>
+        <a href="#" id="confirm_delete_no" data-role="button" class="ui-btn ui-btn-corner-all ui-shadow ui-btn-up-{{ $theme_buttons }}" data-theme="{{ $theme_buttons }}" data-direction="reverse" data-transition="{{ $default_alert_transition }}">
+            <span class="ui-btn-inner ui-btn-corner-all">
+                <span class="ui-btn-text">{{ $no_i18n }}</span>
+            </span>
+        </a>
+    </div>
+
+    <div data-role="footer" data-theme="{{ $theme_bars }}">&nbsp;</div>
+</div>

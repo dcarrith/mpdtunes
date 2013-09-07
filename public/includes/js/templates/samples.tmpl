@@ -1,0 +1,395 @@
+<!-- These are some examples of the templates that can be used for lazyloading listviews -->
+<!-- queue list templates -->
+
+<!-- JSON2HTML -->
+
+<script id="queueJson2htmlTemplate" type="text/x-json2html-template">
+    {"tag":"li","class":"ui-li-has-thumb queued_track${playlist_index}","children":[
+        {"tag":"a","href":"","data-icon":"none","onclick":(function(e){ bump_track( e.obj.playlist_index ); }),"class":"ui-link-inherit","title":"Bump to top of queue","children":[
+            {"tag":"img","src":"${art}","class":"ui-li-thumb track-item-image","html":""},
+            {"tag":"h3","class":"track-title-heading ui-li-heading","html":"${title}"},
+            {"tag":"p","class":"ui-li-aside ui-li-desc","html":"${time}"}
+        ]},
+        {"tag":"a","href":"","data-icon":"delete","onclick":(function(e){ remove_queued_track( e.obj.playlist_index, e.obj.title, e.obj.symbolic_link_filename ); }),"class":"ui-li-link-alt ui-btn ui-btn-up-${theme_buttons} remove_queued_track","data-theme":"${theme_buttons}","title":"Remove from queue","html":"Remove from queue"}
+    ]}
+</script>
+
+<!-- ICANHAZ -->
+
+<script id="queueIcanhazTemplate" type="text/x-icanhaz-template">
+    {{#json}}
+        <li class='ui-li-has-thumb queued_track{{ playlist_index }}'>
+            <a href='' data-icon='none' onclick='bump_track( {{ playlist_index }} );' class='ui-link-inherit' title='Bump to top of queue'>
+                <img src='{{ art }}' class='ui-li-thumb track-item-image' />
+                <h3 class='track-title-heading ui-li-heading'>{{ title }}</h3>
+                <p class='ui-li-aside ui-li-desc'>{{ time }}</p>
+            </a>
+            <a href='' data-icon='delete' onclick='remove_queued_track( {{ playlist_index }}, \"{{ title }}\", \"{{ symbolic_link_filename }}\" );' class='ui-li-link-alt ui-btn ui-btn-up-{{ theme_buttons }} remove_queued_track' data-theme='{{ theme_buttons }}' title='Remove from queue'>Remove from queue</a>
+        </li>
+    {{/json}}
+</script>
+
+<!-- HANDLEBARS -->
+
+<script id="queueHandlebarsTemplate" type="text/x-handlebars-template">
+    {{#json}}
+        <li class='ui-li-has-thumb queued_track{{ playlist_index }}'>
+            <a href='' data-icon='none' onclick='bump_track( {{ playlist_index }} );' class='ui-link-inherit' title='Bump to top of queue'>
+                <img src='{{ art }}' class='ui-li-thumb track-item-image' />
+                <h3 class='track-title-heading ui-li-heading'>{{ title }}</h3>
+                <p class='ui-li-aside ui-li-desc'>{{ time }}</p>
+            </a>
+            <a href='' data-icon='delete' onclick='remove_queued_track( {{ playlist_index }}, \"{{ title }}\", \"{{ symbolic_link_filename }}\" );' class='ui-li-link-alt ui-btn ui-btn-up-{{ theme_buttons }} remove_queued_track' data-theme='{{ theme_buttons }}' title='Remove from queue'>Remove from queue</a>
+        </li>
+    {{/json}}
+</script>
+
+<!-- HANDLEBARS PRECOMPILED -->
+<script src="includes/js/templates/handlebars/queue.tmpl.js"></script>
+
+<!-- DUST -->
+
+<script id="queueDustTemplate" type="text/x-dust-template">
+    {#json}
+        <li id='{id}' style='position:relative;' class='ui-li-has-thumb' data-queue-track-index='{playlist_index}' data-queue-track-title='{title}' data-queue-track-file='{file}' data-queue-track-link='{symbolic_link_filename}' class='ui-li-has-thumb ui-btn ui-btn-icon-right'>
+            <a href='#queueTrackPopupMenu' data-rel="popup" data-icon="none" class="ui-link-inherit">
+                <img src='{art}' class='ui-li-thumb track-item-image' />
+                <h3 class='track-title-heading ui-li-heading'>{title}</h3>
+                <p class='ui-li-aside ui-li-desc'>{time}</p>
+            </a>
+            <a href='' data-icon='move' class='ui-li-link-alt ui-btn ui-btn-up-{theme_buttons} move' data-theme='{theme_buttons}' title='{move_tooltip}'>{move_tooltip}</a>
+        </li>
+    {/json}
+</script>
+
+<!-- DOT -->
+
+<script id="queueDotTemplate" type="text/x-dot-template">
+    {{~it.json :record}}
+        <li class='ui-li-has-thumb queued_track{{=record.playlist_index}}'>
+            <a href='' data-icon='none' onclick='bump_track( {{=record.playlist_index}} );' class='ui-link-inherit' title='Bump to top of queue'>
+                <img src='{{=record.art}}' class='ui-li-thumb track-item-image' />
+                <h3 class='track-title-heading ui-li-heading'>{{=record.title}}</h3>
+                <p class='ui-li-aside ui-li-desc'>{{=record.time}}</p>
+            </a>
+            <a href='' data-icon='delete' onclick='remove_queued_track( {{=record.playlist_index}}, \"{{=record.title}}\", \"{{=record.symbolic_link_filename}}\" );' class='ui-li-link-alt ui-btn ui-btn-up-{{=record.theme_buttons}} remove_queued_track' data-theme='{{=record.theme_buttons}}' title='Remove from queue'>Remove from queue</a>
+        </li>
+    {{~}}
+</script>
+
+<!-- artist list templates -->
+
+<!-- JSON2HTML -->
+
+<script id="artistsJson2htmlTemplate" type="text/x-json2html-template">
+    { "tag":"li", "children" : [
+        { "tag":"a", "href":"${href}", "data-transition":"${transition}", "html":"${name}", "children" : [
+            { "tag":"span", "class":"ui-li-count ui-btn-up-${theme_buttons} ui-btn-corner-all", "html":"${count_bubble_value}" }
+        ]} 
+    ]}
+</script>
+
+<script id="artistsJson2htmlTemplate" type="text/x-json2html-template">
+    { "tag":"li", "children" : [
+        { "tag":"a", "href":"${href}", "data-transition":"${transition}", "html":"${name}" } 
+    ]}
+</script>
+
+<!-- ICANHAZ -->
+
+<script id="artistsIcanhazTemplate" type="text/x-icanhaz-template">
+    {{#json}}
+        <li>
+            <a href='{{ href }}' data-transition='{{ transition }}'>{{ name }}
+                <span class='ui-li-count ui-btn-up-{{ theme_buttons }} ui-btn-corner-all'>{{ count_bubble_value }}</span>
+            </a>
+        </li>
+    {{/json}}
+</script>
+
+<script id="artistsIcanhazTemplate" type="text/x-icanhaz-template">
+    {{#json}}
+        <li>
+            <a href='{{ href }}' data-transition='{{ transition }}'>{{ name }}</a>
+        </li>
+    {{/json}}
+</script>
+
+<!-- HANDLEBARS -->
+
+<script id="artistsHandlebarsTemplate" type="text/x-handlebars-template">
+    {{#json}}
+        <li>
+            <a href='{{ href }}' data-transition='{{ transition }}'>{{ name }}
+                <span class='ui-li-count ui-btn-up-{{ theme_buttons }} ui-btn-corner-all'>{{ count_bubble_value }}</span>
+            </a>
+        </li>
+    {{/json}}
+</script>
+
+<script id="artistsHandlebarsTemplate" type="text/x-handlebars-template">
+    {{#json}}
+        <li>
+            <a href='{{ href }}' data-transition='{{ transition }}'>{{ name }}</a>
+        </li>
+    {{/json}}
+</script>
+
+<!-- HANDLEBARS PRECOMPILED -->
+
+<script src="includes/js/templates/handlebars/artists.tmpl.js"></script>
+
+<!-- DUST -->
+
+<script id="artistsDustTemplate" type="text/x-dust-template">
+    {#json}
+        <li>
+            <a href='{href}' data-transition='{transition}'>{name}
+                <span class='ui-li-count ui-btn-up-{theme_buttons} ui-btn-corner-all'>{count_bubble_value}</span>
+            </a>
+        </li>
+    {/json}
+</script>
+
+<script id="artistsDustTemplate" type="text/x-dust-template">
+    {#json}
+        <li>
+            <a href='{href}' data-transition='{transition}'>{name}</a>
+        </li>
+    {/json}
+</script>
+
+
+<!-- DOT -->
+
+<script id="artistsDotTemplate" type="text/x-dot-template">
+    {{~it.json :record}}
+        <li>
+            <a href='{{=record.href}}' data-transition='{{=record.transition}}'>{{=record.name}}
+                <span class='ui-li-count ui-btn-up-{{=record.theme_buttons}} ui-btn-corner-all'>{{=record.count_bubble_value}}</span>
+            </a>
+        </li>
+    {{~}}
+</script>
+
+<script id="artistsDotTemplate" type="text/x-dot-template">
+    {{~it.json :record}}
+        <li>
+            <a href='{{=record.href}}' data-transition='{{=record.transition}}'>{{=record.name}}</a>
+        </li>
+    {{~}}
+</script>
+
+<!-- album list templates -->
+
+<!-- JSON2HTML -->
+
+<script id="albumsJson2htmlTemplate" type="text/x-json2html-template">
+    { "tag":"li", "class":"ui-li-has-thumb", "children" : [
+        { "tag":"a", "href":"${href}", "data-transition":"${transition}", "html":"", "children" : [
+            { "tag":"img", "src":"${art}", "class":"ui-li-thumb album-art-img" },
+            { "tag":"h3", "class":"ui-li-heading", "html":"${name}" },
+            { "tag":"span", "class":"ui-li-count ui-btn-up-${theme_buttons} ui-btn-corner-all", "html":"${count_bubble_value}" },
+            { "tag":"p", "class":"ui-li-aside ui-li-desc", "html":"${total_length}" }
+        ]} 
+    ]}
+</script>
+
+<script id="albumsJson2htmlTemplate" type="text/x-json2html-template">
+    { "tag":"li", "class":"ui-li-has-thumb", "children" : [
+        { "tag":"a", "href":"${href}", "data-transition":"${transition}", "html":"", "children" : [
+            { "tag":"img", "src":"${art}", "class":"ui-li-thumb album-art-img" },
+            { "tag":"h3", "class":"ui-li-heading", "html":"${name}" }
+        ]} 
+    ]}
+</script>
+
+<!-- ICANHAZ -->
+
+<script id="albumsIcanhazTemplate" type="text/x-icanhaz-template">
+    {{#json}}
+        <li class='ui-li-has-thumb'>
+            <a href='{{ href }}' class='ui-link-inherit' data-transition='{{ transition }}'>
+                <img src='{{ art }}' class='ui-li-thumb album-art-img' />
+                <h3 class='ui-li-heading album-name-heading'>{{ name }}</h3>
+                <span class='ui-li-count ui-btn-up-{{ theme_buttons }} ui-btn-corner-all'>{{ count_bubble_value }}</span>
+                <p class='ui-li-aside ui-li-desc'>{{ total_length }}</p>
+            </a>
+        </li>
+    {{/json}}
+</script>
+
+<script id="albumsIcanhazTemplate" type="text/x-icanhaz-template">
+    {{#json}}
+        <li class='ui-li-has-thumb'>
+            <a href='{{ href }}' class='ui-link-inherit' data-transition='{{ transition }}'>
+                <img src='{{ art }}' class='ui-li-thumb album-art-img' />
+                <h3 class='ui-li-heading album-name-heading'>{{ name }}</h3>
+            </a>
+        </li>
+    {{/json}}
+</script>
+
+<!-- HANDLEBARS -->
+
+<script id="albumsHandlebarsTemplate" type="text/x-handlebars-template">
+    {{#json}}
+        <li class='ui-li-has-thumb'>
+            <a href='{{ href }}' class='ui-link-inherit' data-transition='{{ transition }}'>
+                <img src='{{ art }}' class='ui-li-thumb album-art-img' />
+                <h3 class='ui-li-heading album-name-heading'>{{ name }}</h3>
+                <span class='ui-li-count ui-btn-up-{{ theme_buttons }} ui-btn-corner-all'>{{ count_bubble_value }}</span>
+                <p class='ui-li-aside ui-li-desc'>{{ total_length }}</p>
+            </a>
+        </li>
+    {{/json}}
+</script>
+
+<script id="albumsHandlebarsTemplate" type="text/x-handlebars-template">
+    {{#json}}
+        <li class='ui-li-has-thumb'>
+            <a href='{{ href }}' class='ui-link-inherit' data-transition='{{ transition }}'>
+                <img src='{{ art }}' class='ui-li-thumb album-art-img' />
+                <h3 class='ui-li-heading album-name-heading'>{{ name }}</h3>
+            </a>
+        </li>
+    {{/json}}
+</script>
+
+<!-- HANDLEBARS PRECOMPILED -->
+
+<script src="includes/js/templates/handlebars/albums.tmpl.js"></script>
+
+<!-- DUST -->
+
+<script id="albumsDustTemplate" type="text/x-dust-template">
+    {#json}
+        <li class='ui-li-has-thumb'>
+            <a href='{href}' class='ui-link-inherit' data-transition='{transition}'>
+                <img src='{art}' class='ui-li-thumb album-art-img' />
+                <h3 class='ui-li-heading album-name-heading'>{name}</h3>
+                <span class='ui-li-count ui-btn-up-{theme_buttons} ui-btn-corner-all'>{count_bubble_value}</span>
+                <p class='ui-li-aside ui-li-desc'>{total_length}</p>
+            </a>
+        </li>
+    {/json}
+</script>
+
+<script id="albumsDustTemplate" type="text/x-dust-template">
+    {#json}
+        <li class='ui-li-has-thumb'>
+            <a href='{href}' class='ui-link-inherit' data-transition='{transition}'>
+                <img src='{art}' class='ui-li-thumb album-art-img' />
+                <h3 class='ui-li-heading album-name-heading'>{name}</h3>
+            </a>
+        </li>
+    {/json}
+</script>
+
+<!-- DUST PRECOMPILED -->
+
+<script src="includes/js/templates/dust/albums.tmpl.js"></script>         
+
+<!-- DOT -->
+
+<script id="albumsDotTemplate" type="text/x-dot-template">
+    {{~it.json :record}}
+        <li class='ui-li-has-thumb'>
+            <a href='{{=record.href}}' class='ui-link-inherit' data-transition='{{=record.transition}}'>
+                <img src='{{=record.art}}' class='ui-li-thumb album-art-img' />
+                <h3 class='ui-li-heading album-name-heading'>{{=record.name}}</h3>
+                <span class='ui-li-count ui-btn-up-{{=record.theme_buttons}} ui-btn-corner-all'>{{=record.count_bubble_value}}</span>
+                <p class='ui-li-aside ui-li-desc'>{{=record.total_length}}</p>
+            </a>
+        </li>
+    {{~}}
+</script>
+
+<script id="albumsDotTemplate" type="text/x-dot-template">
+    {{~it.json :record}}
+        <li class='ui-li-has-thumb'>
+            <a href='{{=record.href}}' class='ui-link-inherit' data-transition='{{=record.transition}}'>
+                <img src='{{=record.art}}' class='ui-li-thumb album-art-img' />
+                <h3 class='ui-li-heading album-name-heading'>{{=record.name}}</h3>
+            </a>
+        </li>
+    {{~}}
+</script>
+
+<!-- track list templates -->
+
+<!-- JSON2HTML -->
+
+<script id="tracksJson2htmlTemplate" type="text/x-json2html-template">
+    { "tag":"li", "class":"ui-li-has-thumb", "data-icon":"plus", "children" : [
+        { "tag":"a", "href":"", "onclick":"(function(e){ post = { \"parameters\" : [ { \"file\" : e.obj.file } ] }; control_mpd(\"add\", post.parameters[0]);})", "class":"ui-link-inherit", "title":"${title}", "html":"", "children" : [
+            { "tag":"img", "src":"${art}", "class":"ui-li-thumb album-art-img" },
+            { "tag":"h3", "class":"ui-li-heading", "html":"${name}" },
+            { "tag":"p", "class":"ui-li-aside ui-li-desc", "html":"${length}" }
+        ]}
+    ]}
+</script>
+
+<!-- ICANHAZ -->
+
+<script id="tracksIcanhazTemplate" type="text/x-icanhaz-template">
+    {{#json}}
+        <li class='ui-li-has-thumb' data-icon='plus'>
+            <a href='' onclick='post = { "parameters" : [ { "file" : "{{ file }}" } ] }; control_mpd( "add", post.parameters[0]);' class='ui-link-inherit' title='{{ title }}'>
+                <img src='{{ art }}' class='ui-li-thumb track-item-image' />
+                <h3 class='track-title-heading ui-li-heading'>{{ name }}</h3>
+                <p class='ui-li-aside ui-li-desc'>{{ length }}</p>
+            </a>
+        </li>
+    {{/json}}
+</script>
+
+<!-- HANDLEBARS -->
+
+<script id="tracksHandlebarsTemplate" type="text/x-handlebars-template">
+    {{#json}}
+        <li class='ui-li-has-thumb' data-icon='plus'>
+            <a href='' onclick='post = { "parameters" : [ { "file" : "{{ file }}" } ] }; control_mpd( "add", post.parameters[0]);' class='ui-link-inherit' title='{{ title }}'>
+                <img src='{{ art }}' class='ui-li-thumb track-item-image' />
+                <h3 class='track-title-heading ui-li-heading'>{{ name }}</h3>
+                <p class='ui-li-aside ui-li-desc'>{{ length }}</p>
+            </a>
+        </li>
+    {{/json}}
+</script>
+
+<!-- HANDLEBARS PRECOMPILED -->
+
+<script src="includes/js/templates/handlebars/tracks.tmpl.js"></script>
+
+<!-- DUST -->
+
+<script id="tracksDustTemplate" type="text/x-dust-template">
+    {#json}
+        <li class='ui-li-has-thumb' data-icon='plus'>
+            <a href='' onclick='post = { "parameters" : [ { "file" : "{file}" } ] }; control_mpd( "add", post.parameters[0] );' class='ui-link-inherit' title='{title}'>
+                <img src='{art}' class='ui-li-thumb track-item-image' />
+                <h3 class='track-title-heading ui-li-heading'>{name}</h3>
+                <p class='ui-li-aside ui-li-desc'>{length}</p>
+            </a>
+        </li>
+    {/json}
+</script>
+
+<!-- DUST PRECOMPILED -->
+
+<script src="includes/js/templates/dust/tracks.tmpl.js"></script>
+
+<!-- DOT -->
+
+<script id="tracksDotTemplate" type="text/x-dot-template">
+    {{~it.json :record}}
+        <li class='ui-li-has-thumb' data-icon='plus'>
+            <a href='' onclick='post = { "parameters" : [ { "file" : "{{=record.file}}" } ] }; control_mpd( "add", post.parameters[0] );' class='ui-link-inherit' title='{{=record.title}}'>
+                <img src='{{=record.art}}' class='ui-li-thumb track-item-image' />
+                <h3 class='track-title-heading ui-li-heading'>{{=record.name}}</h3>
+                <p class='ui-li-aside ui-li-desc'>{{=record.length}}</p>
+            </a>
+        </li>
+    {{~}}
+</script>

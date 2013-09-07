@@ -1,0 +1,35 @@
+{
+  "name": "MPDTunes",
+  "version": "2.0.0",
+  "description": "A touch-optimized web-based client for MPD (Music Player Daemon - a flexible, powerful, server-side application for playing and streaming music) that works on most smartphone, tablet, and desktop platforms.",
+  "main": "Gruntfile.js",
+  "dependencies": {
+    "grunt": "~0.4.1"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-contrib-jshint": "~0.6.0",
+    "grunt-contrib-nodeunit": "~0.2.0",
+    "grunt-contrib-uglify": "~0.2.2"
+  },
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dcarrith/musxc.git"
+  },
+  "keywords": [
+    "MPDTunes",
+    "The",
+    "Musxc",
+    "Project",
+    "Music",
+    "Streaming"
+  ],
+  "author": "Dave Carrithers",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dcarrith/musxc/issues"
+  }
+}
