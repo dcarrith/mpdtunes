@@ -82,6 +82,8 @@ class RegisterController extends BaseController {
 		$password       	= Request::get('password');
 		$password_confirmation 	= Request::get('password_confirmation');
 
+		$this->firephp->log($this->data, "this->data");
+
 		$this->firephp->log($first_name, "first name");
 		$this->firephp->log($last_name, "last name");
 		$this->firephp->log($email, "username");
@@ -251,7 +253,16 @@ class RegisterController extends BaseController {
 					$mpd_dir                = $user_directories['mpd_dir'];
 					$music_dir              = $user_directories['music_dir']; 
 					$mpd_server_ip  	= $this->data['default_mpd_server_ip'];
-                                
+                               
+					$audio_local_output_type 	= $this->data['audio_local_output_type'];
+					$audio_buffer_size		= $this->data['audio_buffer_size'];
+					$buffer_before_play		= $this->data['buffer_before_play'];
+					$connection_timeout		= $this->data['connection_timeout'];
+					$max_connections		= $this->data['max_connections'];
+					$max_playlist_length		= $this->data['max_playlist_length'];
+					$max_command_list_size		= $this->data['max_command_list_size'];
+					$max_output_buffer_size		= $this->data['max_output_buffer_size'];
+ 
                                     	$mpd_instance_parameters    = array(	"document_root"			=>$document_root,
 										"mpd_dir" 			=>$mpd_dir,
                                                                                 "music_dir" 			=>$music_dir,

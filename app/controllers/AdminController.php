@@ -533,6 +533,8 @@ class AdminController extends MPDTunesController {
 
                         if (isset($user_id) && $user_id != '') {
 
+				require_once('includes/php/library/config.helper.inc.php');
+
                                 $this->firephp->log($user_id, "user_id");
 
 				if ($user_id > 1) {
