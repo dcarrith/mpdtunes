@@ -1247,6 +1247,7 @@ $( 'body' ).on( 'click', '#playpause', function( evt ) {
 
 	} else { // it must have just loaded, or played and then paused
 
+		/*
 		// Update the current track information like album art, track name, duration, load progress, etc.
 		updateCurrentTrackInfo( playlist.tracks[ track_position ] );
 
@@ -1263,6 +1264,9 @@ $( 'body' ).on( 'click', '#playpause', function( evt ) {
 		control_mpd('play');
 
 		playing = true;
+		*/
+
+		skipto( "same" );
 	}
 });
 

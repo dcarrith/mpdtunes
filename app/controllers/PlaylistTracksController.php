@@ -88,24 +88,46 @@ class PlaylistTracksController extends MPDTunesController {
 
 				$this->firephp->log($playlistTracks[$i], "playlistTrack");
 
-				$trackra = explode("/", $playlistTracks[$i][1]);
+			  	if (strpos($playlistTracks[$i][1], "http://") === 0) {				
 
-				$this->firephp->log($trackra, "trackra");
-				
-				$tracks[$i][0] = $playlistTracks[$i][0];
-				$tracks[$i][1] = $playlistTracks[$i][1];
+					// We need to get the station details and populate the tracks data for showing as a playlist track	
+					$tracks[$i][0] = $playlistTracks[$i][0];
+					$tracks[$i][1] = $playlistTracks[$i][1];
+					$tracks[$i][2] = 0;
 					
-				$song = $playlistTracks[$i][1];
+					$station = DB::table('stations')->where('url_hash', hash('sha512', $tracks[$i][1]))->where('creator_id', Auth::user()->id)->first();
+					$tracks[$i][0] = $station->name;
 
-				$artist_name = $trackra[0];
-				$album_name = $trackra[1];
-				$album_art_file = Request::root()."/".get_album_art	(	$song, 
-												$artist_name, 
-												$album_name, 
-												$configs	);
+					$stationsIcon = StationsIcon::find($station->icon_id);
+				
+					$album_art_file = URL::to( $stationsIcon->baseurl . $stationsIcon->filename );
+	
+					$tracks[$i][3] = $album_art_file;
 
-				$tracks[$i][2] = 0;
-				$tracks[$i][3] = $album_art_file;
+				} else {
+
+					$trackra = explode("/", $playlistTracks[$i][1]);
+	
+					$this->firephp->log($trackra, "trackra");
+				
+					$tracks[$i][0] = $playlistTracks[$i][0];
+					$tracks[$i][1] = $playlistTracks[$i][1];
+					
+					$song = $playlistTracks[$i][1];
+
+					$artist_name = $trackra[0];
+					$album_name = $trackra[1];
+
+				
+			
+					$album_art_file = Request::root()."/".get_album_art	(	$song, 
+													$artist_name, 
+													$album_name, 
+													$configs	);
+
+					$tracks[$i][2] = 0;
+					$tracks[$i][3] = $album_art_file;
+				}
 			}
 
 			$this->data['tracks'] = $tracks;

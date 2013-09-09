@@ -37,14 +37,6 @@ class CreateUsersStationsTable extends Migration {
 
                         array(
                                 'user_id' => '1',
-                                'station_id' => '1'
-                        )
-                );
-
-                DB::table('users_stations')->insert(
-
-                        array(
-                                'user_id' => '1',
                                 'station_id' => '2'
                         )
                 );

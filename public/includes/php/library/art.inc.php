@@ -236,16 +236,16 @@ function get_album_art($filepath, $artist, $album, $configs, $firephp=null) {
                 }
             }
 
-	    if( file_exists($art_file) ) {
+		if( file_exists($art_file) ) {
 
-            	chmod($art_file, 0777);
+        	    	chmod($art_file, 0777);
 
-            	image_convert($art_file, 'jpeg', 100);
+            		image_convert($art_file, 'jpeg', 100);
 
-            	//image_constrain($art_file, 64, 64);
+            		//image_constrain($art_file, 64, 64);
 
-            	create_thumbnail($art_file, 'jpeg');
-	    }
+            		create_thumbnail($art_file, 'jpeg');
+		}
 
         } catch (Exception $error) { 
         

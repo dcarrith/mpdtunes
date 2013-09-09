@@ -82,6 +82,8 @@ class StationsController extends MPDTunesController {
 
         public function getStation() {
 
+		$user = Auth::user();
+	
 		// Default these to blank and null so we know whether or not it gets set
                 $station_id = null;
                 $station_url = "";
@@ -130,14 +132,57 @@ class StationsController extends MPDTunesController {
 					
 					// Update the url special note to say that it can't be changed
 					$this->data['url_special_note_i18n'] = $this->data['cant_be_changed_i18n'];
-				} 
+				}
 
-				$this->data['deletable'] = true;
+				//$users_station = DB::table('users_stations')->where('user_id', $user->id)->where('station_id', $station_id)->get();
+				//var_dump($users_station);
+				//exit();
+
+				$this->firephp->log($user->stations->toArray(), "user's stations");
+
+				$this->data['deletable'] = false;
 	
-				// We don't want anyone to delete their own station
-				if( $station_id == $users_station_id ) {
+				// We don't want anyone to be able to edit anyone's station
+				$allowed_to_edit = false;
 
-					$this->data['deletable'] = false;
+				$user_owns_station = false;
+
+				$users_stations = $user->stations->toArray();
+
+				foreach($users_stations as $user_station) {
+
+					// If the station being edited is one of the stations the user created, then let them edit it
+					if ($user_station['id'] == $station_id) {
+						
+						$user_owns_station = true;			
+
+						break;
+					}
+				}
+
+				if(( $station_id == $users_station_id) || (Auth::user()->role_id == 1) || $user_owns_station) {
+
+					$allowed_to_edit = true;
+				}
+			
+				if ( $user_owns_station ) {
+
+					$this->data['deletable'] = true;				
+				}
+				
+				if ( !$allowed_to_edit ) {
+
+					// Disable the station url text field so it can't be changed
+					$this->data['station_url_input_disabled'] = array( "readonly"=>"readonly" );
+					
+					// Update the url special note to say that it can't be changed
+					$this->data['url_special_note_i18n'] = $this->data['cant_be_changed_i18n'];
+
+					$this->data['station_image_file_disabled'] = 'disabled="disabled"';
+					$this->data['station_name_input_disabled'] = array( "readonly"=>"readonly" );
+					$this->data['station_description_input_disabled'] = array( "readonly"=>"readonly" );
+					$this->data['station_visibility_input_options'] = array( "readonly"=>"readonly" );
+					$this->data['station_save_button_disabled'] = array( "disabled"=>"disabled" );
 				}
 	
         			// Retrieve the station being edited 
@@ -194,12 +239,51 @@ class StationsController extends MPDTunesController {
 					$this->data['url_special_note_i18n'] = $this->data['cant_be_changed_i18n'];
 				} 
 
-				$this->data['deletable'] = true;
-	
-				// We don't want anyone to delete their own station
-				if( $station_id == $users_station_id ) {
+				$this->firephp->log($user->stations->toArray(), "user's stations");
 
-					$this->data['deletable'] = false;
+				$this->data['deletable'] = false;
+	
+				// We don't want anyone to be able to edit anyone's station
+				$allowed_to_edit = false;
+
+				$user_owns_station = false;
+
+				$users_stations = $user->stations->toArray();
+
+				foreach($users_stations as $user_station) {
+
+					// If the station being edited is one of the stations the user created, then let them edit it
+					if ($user_station['id'] == $station_id) {
+						
+						$user_owns_station = true;			
+
+						break;
+					}
+				}
+
+				if(( $station_id == $users_station_id) || (Auth::user()->role_id == 1) || $user_owns_station) {
+
+					$allowed_to_edit = true;
+				}
+			
+				if ( $user_owns_station ) {
+
+					$this->data['deletable'] = true;				
+				}
+				
+				if ( !$allowed_to_edit ) {
+
+					// Disable the station url text field so it can't be changed
+					$this->data['station_url_input_disabled'] = array( "readonly"=>"readonly" );
+					
+					// Update the url special note to say that it can't be changed
+					$this->data['url_special_note_i18n'] = $this->data['cant_be_changed_i18n'];
+
+					$this->data['station_image_file_disabled'] = 'disabled="disabled"';
+					$this->data['station_name_input_disabled'] = array( "readonly"=>"readonly" );
+					$this->data['station_description_input_disabled'] = array( "readonly"=>"readonly" );
+					$this->data['station_visibility_input_options'] = array( "readonly"=>"readonly" );
+					$this->data['station_save_button_disabled'] = array( "disabled"=>"disabled" );
 				}
 
 				// We shouldn't need to do this
@@ -291,7 +375,8 @@ class StationsController extends MPDTunesController {
 
 	public function postStation() {
 
-		$user_id = Auth::user()->id;
+		$user = Auth::user();
+		$user_id = $user->id;
 	                			
 		// Create a null station
 		$station = null;
@@ -347,10 +432,42 @@ class StationsController extends MPDTunesController {
 				// Get the id of the station to edit from the URL
 				$edit_station_id = Request::segment(3);
 
+
+
+				$users_station_id = $user->station_id;
+
 				$this->firephp->log($edit_station_id, "edit_station_id");
 
-				// Load in the existing station so we can update it
-				$station = Station::find($edit_station_id);
+				$this->firephp->log($user->stations->toArray(), "user's stations");
+	
+				// We don't want anyone to be able to edit anyone's station
+				$allowed_to_edit = false;
+
+				$user_owns_station = false;
+
+				$users_stations = $user->stations->toArray();
+
+				foreach($users_stations as $user_station) {
+
+					// If the station being edited is one of the stations the user created, then let them edit it
+					if ($user_station['id'] == $edit_station_id) {
+						
+						$user_owns_station = true;			
+
+						break;
+					}
+				}
+
+				if(( $edit_station_id == $users_station_id) || ($user->role_id == 1) || $user_owns_station) {
+
+					$allowed_to_edit = true;
+				}
+
+				if( $allowed_to_edit ) {
+
+					// Load in the existing station so we can update it
+					$station = Station::find($edit_station_id);
+				}
 
 				$validate->edit();
 			}
