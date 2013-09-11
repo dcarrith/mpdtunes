@@ -3,26 +3,9 @@ function get_timer_display( timer_input ) {
 	minutes = "-";
 	seconds = "--";
 
-	if ( timer_input > 0 ) {
-
-		minutes = Math.floor( timer_input / 60 );
-
-		seconds = Math.floor( timer_input % 60 );
-
-		if ( seconds < 10 ) {
-			
-			seconds = "0" + seconds;
-		}
-	}
-
 	time_display = minutes+':'+seconds;
 
-	if (( time_display == "0:01" ) || ( time_display == "0:00" )) {
-
-		time_display = "-:--";
-	}
-
-	if ( time_display == "Infinity:NaN" ) {
+	if ( timer_input == "Infinity:NaN" ) {
 		
 		time_display = "<font style='font-size:12px;'>∞</font>";
 
@@ -40,6 +23,27 @@ function get_timer_display( timer_input ) {
 		}
 
 		$( '#streamProgressDiv' ).css( 'background-color', backgroundColor );
+
+		return time_display;
+	}
+
+	if ( timer_input > 0 ) {
+
+		minutes = Math.floor( timer_input / 60 );
+
+		seconds = Math.floor( timer_input % 60 );
+
+		if ( seconds < 10 ) {
+			
+			seconds = "0" + seconds;
+		}
+	}
+
+	time_display = minutes+':'+seconds;
+
+	if (( time_display == "0:01" ) || ( time_display == "0:00" )) {
+
+		time_display = "-:--";
 	}
 
 	return time_display;
@@ -552,6 +556,9 @@ function updateCurrentTrackInfo( currentTrack ){
 
 		$( '#streamProgressDiv' ).css( 'width', "100%" );
 		$( '#streamProgressDiv' ).css( 'background', 'rgba(0, 0, 0, .4)' );
+	} else {
+
+		$( '#streamProgressDiv' ).css( 'width', "0" );
 	} 
 }
 

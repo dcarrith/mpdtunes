@@ -135,6 +135,11 @@ $( document ).ready( function() {
 							currentTime = event.jPlayer.status.currentTime;
 							totalDuration = event.jPlayer.status.duration;
 
+							if ( playlist.tracks[ track_position ].url.indexOf( "http://" ) === 0) {
+	
+								totalDuration = "Infinity:NaN";
+							}
+
 							// Let's try to use the absolute percent first
 							playProgress = event.jPlayer.status.currentPercentAbsolute;
 							
@@ -361,6 +366,11 @@ $( document ).ready( function() {
 							// These two variables are used throughout the timeupdate handler
 							currentTime = event.jPlayer.status.currentTime;
 							totalDuration = event.jPlayer.status.duration;
+							
+							if ( playlist.tracks[ track_position ].url.indexOf( "http://" ) === 0) {
+	
+								totalDuration = "Infinity:NaN";
+							}
 							
 							// Let's try to use the absolute percent first
 							playProgress = event.jPlayer.status.currentPercentAbsolute;
