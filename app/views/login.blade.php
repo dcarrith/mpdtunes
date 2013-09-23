@@ -8,7 +8,9 @@
 
 		<div data-role="header" role="banner" class="mpdtunes-logo-banner-header width-hundred-percent ui-bar-{{ $theme_bars }} ui-header"></div>
 		<div data-role="header" role="banner" class="mpdtunes-logo-banner-main width-hundred-percent align-center ui-bar-{{ $theme_bars }} ui-header">
-			<img class="mpdtunes-logo-img" src="/images/mpdtunes_header_logo.png">
+			<div class="mpdtunes-logo-div-outer">
+				<div class="mpdtunes-logo-div"></div>
+			</div>
 		</div>
 	</div>
 

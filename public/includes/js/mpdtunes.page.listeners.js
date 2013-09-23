@@ -2178,10 +2178,24 @@ $('body').on('click', '#close_user', function(evt, ui) {
 // Device orientation change event handlers
 // **********************************************************************************
 
-$('body').on('orientationchange', '#index', function(event, ui) {
+//$('body').on('orientationchange', '#index', function(event, ui) {
+$( window ).on( 'orientationchange', function( event ) {
 
-	$('#playerCurrentlyPlayingDiv').css('max-width', ($(window).width() * .9));
-	$('#playerCurrentlyPlayingDiv').width( $( window ).width() * .9 );
+	setTimeout(function() {
+	
+		//alert( "This device is in " + event.orientation + " mode!\n window.width(): "+$(window).width()+"\n index.width(): "+$('#index').width() );
+	
+		$('#playerCurrentlyPlayingDiv').css('max-width', ($(window).width() * .9));
+		//$('#playerCurrentlyPlayingDiv').css('max-width', ($(window).width() * .9)).trigger( 'updatelayout' );
+	
+		//alert( $('#playerCurrentlyPlayingDiv').css('max-width') );
+
+		$('#playerCurrentlyPlayingDiv').width( $( window ).width() * .9 );
+
+		//alert( $('#playerCurrentlyPlayingDiv').width() );
+
+	}, 400);
+
 });
 
 // **********************************************************************************
