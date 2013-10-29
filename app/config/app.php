@@ -68,7 +68,7 @@ return array(
 	*/
 
 	'key' => 'mSvgWo%UGKDp@q#EIgY5_t3ki56wBsA!',
-	
+
 	/*
 	|--------------------------------------------------------------------------
 	| Autoloaded Service Providers
@@ -115,11 +115,13 @@ return array(
 		'Illuminate\Validation\ValidationServiceProvider',
 		'Illuminate\View\ViewServiceProvider',
 		'Illuminate\Workbench\WorkbenchServiceProvider',
- 		'Jonob\HTML\HTMLServiceProvider',
+ 	/*	'Jonob\HTML\HTMLServiceProvider', */
  		'Dcarrith\CIFirePHP\CIFirePHPServiceProvider',
  		'Dcarrith\CIZip\CIZipServiceProvider',
  		'Way\Generators\GeneratorsServiceProvider',
-		'Juy\Profiler\Providers\ProfilerServiceProvider',
+		'Barryvdh\Debugbar\ServiceProvider',
+		'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
+	/*	'Juy\Profiler\Providers\ProfilerServiceProvider',*/
 
 	),
 
@@ -185,10 +187,11 @@ return array(
 		'URL'             => 'Illuminate\Support\Facades\URL',
 		'Validator'       => 'Illuminate\Support\Facades\Validator',
 		'View'            => 'Illuminate\Support\Facades\View',
- 		'HTML'       	  => 'Jonob\HTML\HTMLFacade',
+ 		/*'HTML'       	  => 'Jonob\HTML\HTMLFacade', */
  		'CIFirePHP'	  => 'Dcarrith\CIFirePHP\CIFirePHP',
  		'CIZip'		  => 'Dcarrith\CIZip\CIZip',
-		'Profiler'        => 'Juy\Profiler\Facades\Profiler',
+		/*'Profiler'        => 'Juy\Profiler\Facades\Profiler',*/
+		'Debugbar' 	  => 'Barryvdh\Debugbar\Facade',
 	),
 
 );
