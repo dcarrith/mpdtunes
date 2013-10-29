@@ -4,8 +4,9 @@
 		"Dcarrith/CIFirePHP": "dev-master",
                 "Dcarrith/CIZip": "dev-master",
 		"way/generators": "dev-master",
-		"jonob/html": "1.1.*",
-		"juy/profiler" : "dev-master"	
+		"barryvdh/laravel-debugbar": "dev-master",	
+		"barryvdh/laravel-ide-helper": "1.*",
+		"mockery/mockery": "dev-master"	
 	},
         "repositories": [
                 {
@@ -34,10 +35,14 @@
 			"php artisan clear-compiled"
 		],
 		"post-install-cmd": [
-			"php artisan optimize"
+    			"php artisan ide-helper:generate",
+    			"php artisan debugbar:publish",
+			"php artisan optimize"	
 		],
 		"post-update-cmd": [
-			"php artisan optimize"
+    			"php artisan ide-helper:generate",
+    			"php artisan debugbar:publish",
+			"php artisan optimize"	
 		]
 	},
 	"config": {

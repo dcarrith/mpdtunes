@@ -113,6 +113,11 @@ class MigrationGenerator extends Generator {
                 $fields = $this->fields ? $this->setFields('addColumn') : '';
                 break;
 
+            case 'destroy':
+                $upMethod = $this->file->get(__DIR__ . '/templates/migration/migration-up-drop.txt');
+                $fields = $this->fields ? $this->setFields('dropColumn') : '';
+                break;
+
             case 'create':
             case 'make':
             default:
@@ -148,6 +153,12 @@ class MigrationGenerator extends Generator {
           case 'delete':
             // then we need to add the columns in reverse
             $downMethod = $this->file->get(__DIR__ . '/templates/migration/migration-down.txt');
+            $fields = $this->fields ? $this->setFields('addColumn') : '';
+            break;
+
+          case 'destroy':
+            // then we need to create the table in reverse
+            $downMethod = $this->file->get(__DIR__ . '/templates/migration/migration-down-create.txt');
             $fields = $this->fields ? $this->setFields('addColumn') : '';
             break;
 

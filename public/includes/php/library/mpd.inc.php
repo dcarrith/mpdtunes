@@ -1,7 +1,7 @@
 <?php 
 
-require_once('includes/php/library/art.inc.php');
-require_once('includes/php/library/stations.inc.php');
+require_once($this->data['document_root'].'includes/php/library/art.inc.php');
+require_once($this->data['document_root'].'includes/php/library/stations.inc.php');
 
 function get_mpd_playlist_as_json($mpd, $configs, $firephp=null, $listed_so_far=0, $items_to_retrieve=0, $playlist_index_offset=0) {
 

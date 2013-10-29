@@ -10,6 +10,12 @@ class MPDTunesController extends BaseController {
 		parent::__construct();
 
 		$this->data['demo_user_id'] = 3;
+
+		// If not logged in, then redirect to login
+                /*if (!Auth::check()) {
+                        return Redirect::to('login');
+                        exit();
+                }*/
 	
 		// Retrieve the User from the Auth object, then get the role
 		$role = Auth::user()->role;
@@ -82,8 +88,8 @@ class MPDTunesController extends BaseController {
 		// default current_volume_fade to whatever was the default or in the user preferences
 		$this->data['current_volume_fade'] = $this->data['volume_fade'];
 
-                require_once('includes/php/classes/mpd.class.php');
-                require_once('includes/php/library/mpd.inc.php');
+                require_once($this->data['document_root'].'includes/php/classes/mpd.class.php');
+                require_once($this->data['document_root'].'includes/php/library/mpd.inc.php');
                 
                 // Instantiate the MPD object to be used by the derived controllers             
                 $this->MPD = new mpd(   $this->data['mpd_host'],

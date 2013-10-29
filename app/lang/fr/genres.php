@@ -3,5 +3,5 @@ $lang = array();
 
 $lang['genres'] = "Genres";
 
-$return $lang;
+return $lang;
 ?> 

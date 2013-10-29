@@ -94,7 +94,7 @@
 				  	$current_album 	= $this->MPD->playlist[$current_track_id]['Album'];
 				    	$current_track 	= $this->MPD->playlist[$current_track_id]['Title'];
 
-				  	require_once('includes/php/library/art.inc.php');
+				  	require_once($this->data['document_root'].'includes/php/library/art.inc.php');
 
 					$configs['music_dir'] 				= $this->data['music_dir'];
 					$configs['art_dir'] 				= $this->data['art_dir'];

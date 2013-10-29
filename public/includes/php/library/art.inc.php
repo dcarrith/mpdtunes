@@ -1,5 +1,5 @@
 <?php 
-require_once('includes/php/modules/getid3/getid3/getid3.php');
+require_once($this->data['document_root'].'includes/php/modules/getid3/getid3/getid3.php');
 
 function get_album_art($filepath, $artist, $album, $configs, $firephp=null) {
 
