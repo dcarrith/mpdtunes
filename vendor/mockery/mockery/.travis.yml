@@ -1,0 +1,15 @@
+language: php
+php:
+  - 5.3
+  - 5.4
+  - 5.5
+before_script:
+  - composer install --dev
+  - pecl install redis
+  - echo "extension = mongo.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+  - phpenv rehash
+script: phpunit -v --colors --coverage-text 
+notifications:
+    email:
+        - padraic.brady@gmail.com
+        - dave@atstsolutions.co.uk
