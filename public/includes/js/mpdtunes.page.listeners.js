@@ -21,7 +21,7 @@ $("body").on("lazyloaderdoneloading", "#index", function ( evt ){
 
 	//alert("lazyloaderdoneloading called!\n\nevt.instances: "+JSON.stringify(evt));
 
-	$.mobile.hidePageLoadingMsg();
+	$.mobile.loading( "hide" );
 	$.mobile.loadingMessage = "Loading";
 });
 
@@ -29,7 +29,7 @@ $("body").on("lazyloaderalldone", "#index", function ( evt ){
 
 	//alert("lazyloaderalldone called!\n\nevt.instances: "+JSON.stringify(evt));
 
-	$.mobile.hidePageLoadingMsg();
+	$.mobile.loading( "hide" );
 	$.mobile.loadingMessage = "Loading";
 });
 
@@ -37,7 +37,7 @@ $("body").on("lazyloaderbusy", "#index", function ( evt ){
 
 	//alert("lazyloaderalldone called!\n\nevt.instances: "+JSON.stringify(evt));
 
-	$.mobile.hidePageLoadingMsg();
+	$.mobile.loading( "hide" );
 	$.mobile.loadingMessage = "Loading";
 });
 
@@ -149,7 +149,7 @@ $( 'body' ).on( 'pageinit', '#queue', function( evt, ui ) {
 				    	revert: true,
 				    	placeholder: 'ui-state-highlight-sortable',
 				    	items: 'li',
-				    	handle: 'a.move .ui-btn-inner',
+				    	handle: 'a.move',
 				    	delay: 800 	};
 
 	$( "#queueTracksList" ).sortable( sortable_options );
@@ -300,7 +300,7 @@ $('body').on('pageinit', '#playlistTracksPage', function(evt, ui) {
 				    	revert: true,
 				    	placeholder: 'ui-state-highlight-sortable',
 				    	items: 'li',
-				    	handle: 'a.move .ui-btn-inner',
+				    	handle: 'a.move',
 				    	delay: 800 	};
 
 	$( "#playlistTracks" ).sortable( sortable_options );
@@ -515,7 +515,7 @@ $('body').on('pageshow', '#index', function(evt, ui) {
 
 		} else {
 		
-			$.mobile.hidePageLoadingMsg();
+			$.mobile.loading( "hide" );
 
 			//setTimeout(function() {
 
@@ -561,7 +561,7 @@ $('body').on('pageshow', '#index', function(evt, ui) {
 		if (ui.prevPage[0].id == 'apply_settings') {
 
 		    // hide the loading message
-		    $.mobile.hidePageLoadingMsg();
+		    $.mobile.loading( "hide" );
 
 		    $.mobile.loadingMessage = 'Loading';
 
@@ -605,24 +605,24 @@ $('body').on('pageshow', '#artists', function(event, ui) {
 
 	//$( "#albumsList" ).lazy( "reset", "albums" );
 
-	$.mobile.hidePageLoadingMsg();
+	$.mobile.loading( "hide" );
 });
 
 $('body').on('pageshow', '#genres', function(event, ui) {
 	
 	$( "#index" ).lazyloader( "reset", "artists" );
 
-	$.mobile.hidePageLoadingMsg();
+	$.mobile.loading( "hide" );
 });
 
 $('body').on('pageshow', '#playlists', function(event, ui) {
 
-	$.mobile.hidePageLoadingMsg(); 
+	$.mobile.loading( "hide" ); 
 });
 
 $('body').on('pageshow', '#stations', function(event, ui) {
 
-	$.mobile.hidePageLoadingMsg(); 
+	$.mobile.loading( "hide" ); 
 
 	/* Stations are not being lazyloaded at the moment
 
@@ -661,7 +661,7 @@ $('body').on('pageshow', '#stations', function(event, ui) {
 
 $('body').on('pageshow', '#queue', function(event, ui) {
 
-	$.mobile.hidePageLoadingMsg(); 
+	$.mobile.loading( "hide" ); 
 
 	$('#currentlyPlayingArtistDiv').css('max-width', ($(window).width() * .6));
 	$('#currentlyPlayingAlbumDiv').css('max-width', ($(window).width() * .6));
@@ -670,25 +670,25 @@ $('body').on('pageshow', '#queue', function(event, ui) {
 
 $('body').on('pageshow', '#admin', function(evt, ui) {
 
-	$.mobile.hidePageLoadingMsg();
+	$.mobile.loading( "hide" );
 	
 	if (typeof ui.prevPage[0] != 'undefined') {
 		
 		if (ui.prevPage[0].id == 'edit_user_config') {
 
-			$.mobile.hidePageLoadingMsg();
+			$.mobile.loading( "hide" );
 
 		} else if (ui.prevPage[0].id == 'edit_site_config') {
 
-			$.mobile.hidePageLoadingMsg();
+			$.mobile.loading( "hide" );
 
 		} else if (ui.prevPage[0].id == 'users') {
 
-			$.mobile.hidePageLoadingMsg();
+			$.mobile.loading( "hide" );
 
 		} else {
 		
-			$.mobile.hidePageLoadingMsg();
+			$.mobile.loading( "hide" );
 		}
 	}
 
@@ -700,7 +700,7 @@ $('body').on('pageshow', '#admin', function(evt, ui) {
 
 $('body').on('pageshow', '#setup', function(evt, ui) {
 
-    $.mobile.hidePageLoadingMsg();
+    $.mobile.loading( "hide" );
 
     $('body').attr('class', 'ui-mobile-viewport ui-overlay-' + theme.body);
 
@@ -743,11 +743,11 @@ $('body').on('pageshow', '#save_playlist', function(evt, ui) {
 			if (success) {
 
 				$.mobile.loadingMessage = 'Please wait';
-				$.mobile.showPageLoadingMsg();
+				$.mobile.loading( "show" );
 
 				goBackTimer = setTimeout(function() {
 				
-					$.mobile.hidePageLoadingMsg();
+					$.mobile.loading( "hide" );
 					$.mobile.loadingMessage = 'Please wait';
 	
 					history.go(-1);	
@@ -954,7 +954,7 @@ $('body').on('pageshow', '#station', function(evt, ui) {
 		start: function (e) {
 
 			$.mobile.loadingMessage = "Uploading image";
-			$.mobile.showPageLoadingMsg(); 
+			$.mobile.loading( "show" ); 
 
 			consoleLog("File upload started");
 		},
@@ -979,14 +979,14 @@ $('body').on('pageshow', '#station', function(evt, ui) {
 			// We need to set the hidden input for station_icon_id to the new id
 			$('#station_icon_id').val( data.result.id );	
 				
-			$.mobile.hidePageLoadingMsg(); 
+			$.mobile.loading( "hide" ); 
 			$.mobile.loadingMessage = "Loading";
 		},
 		fail: function( e, data ) {
 			
 			consoleLog("File upload failed");
 
-			$.mobile.hidePageLoadingMsg(); 
+			$.mobile.loading( "hide" ); 
 			$.mobile.loadingMessage = "Loading";
 		}
 	});
@@ -1048,10 +1048,10 @@ $('body').on('pagebeforeshow', '#station', function(evt, ui) {
 		if (ui.prevPage[0].id == 'station') {
 
 			// Removing previous item from urlHistory stack (tracks page with ui-dialog hash)
-			$.mobile.urlHistory.stack.pop();
+			//$.mobile.urlHistory.stack.pop();
 
 			// Decrement urlHistory activeIndex 
-			$.mobile.urlHistory.activeIndex = $.mobile.urlHistory.activeIndex - 1; 
+			//$.mobile.urlHistory.activeIndex = $.mobile.urlHistory.activeIndex - 1; 
 		}
 	}
 });
@@ -1216,7 +1216,7 @@ $( 'body' ).on( 'click', '#playpause', function( evt ) {
 
 	evt.preventDefault();
 
-	$.mobile.hidePageLoadingMsg(); 
+	$.mobile.loading( "hide" ); 
    	$.mobile.loadingMessage = "Loading";
 
 	if ( playing ) {
@@ -1292,9 +1292,9 @@ $( 'body' ).on( 'click', '#repeat', function( evt ) {
 	
 	if ( !repeat_track ) {
 		
-		$.mobile.showPageLoadingMsg( theme.bars, "Repeat On", true );
+		$.mobile.loading( "show", theme.bars, "Repeat On", true );
 		
-		setTimeout( function() { $.mobile.hidePageLoadingMsg(); }, 3000 );
+		setTimeout( function() { $.mobile.loading( "hide" ); }, 3000 );
 
 		repeat_track = true;
 
@@ -1311,9 +1311,9 @@ $( 'body' ).on( 'click', '#repeat', function( evt ) {
 
 	} else {
 	
-		$.mobile.showPageLoadingMsg( theme.bars, "Repeat Off", true );
+		$.mobile.loading( "show", theme.bars, "Repeat Off", true );
 		
-		setTimeout( function() { $.mobile.hidePageLoadingMsg(); }, 3000 );
+		setTimeout( function() { $.mobile.loading( "hide" ); }, 3000 );
 
 		repeat_track = false;
 
@@ -1338,8 +1338,7 @@ $( 'body' ).on( 'click', '#repeat', function( evt ) {
 		$("#playerTwo").jPlayer("loop", !repeat);
 	}*/
 
-	$( activePlayerSelector ).jPlayer("loop", !repeat);
-
+	$( activePlayerSelector ).jPlayer( "loop", repeat_track );
 });
 
 $( 'body' ).on( 'click', '#shuffle', function( evt ) {
@@ -1350,7 +1349,7 @@ $( 'body' ).on( 'click', '#shuffle', function( evt ) {
 
 			if ( !shuffle_queue ) {
 
-				$.mobile.showPageLoadingMsg( theme.bars, "Shuffling the playlist", true );
+				$.mobile.loading( "show", theme.bars, "Shuffling the playlist", true );
 
 				//current_audio_element.loop = false;
 				//repeat_track = false;
@@ -1366,11 +1365,11 @@ $( 'body' ).on( 'click', '#shuffle', function( evt ) {
 				
 				playlist = $.parseJSON( shuffle_playlist( JSON.stringify( playlist ) ) );
 
-				setTimeout(function() { $.mobile.hidePageLoadingMsg(); }, 2000);
+				setTimeout(function() { $.mobile.loading( "hide" ); }, 2000);
 
 			} else {
 
-				$.mobile.showPageLoadingMsg(theme.bars, "Unshuffling the playlist", true);
+				$.mobile.loading( "show", theme.bars, "Unshuffling the playlist", true);
 				
 				shuffle_queue = false;
 				
@@ -1389,21 +1388,21 @@ $( 'body' ).on( 'click', '#shuffle', function( evt ) {
 				
 				playlist = unshuffle_playlist();
 
-				setTimeout( function() { $.mobile.hidePageLoadingMsg(); }, 2000 );
+				setTimeout( function() { $.mobile.loading( "hide" ); }, 2000 );
 			}
 
 		} else {
 			
 			//alert('You will be able to shuffle it up after you add some tracks to your queue.');
-			$.mobile.showPageLoadingMsg( theme.bars, "Nothing to shuffle", true );
-			setTimeout( function() { $.mobile.hidePageLoadingMsg(); }, 2000 );
+			$.mobile.loading( "show", theme.bars, "Nothing to shuffle", true );
+			setTimeout( function() { $.mobile.loading( "hide" ); }, 2000 );
 		}
 
 	} else {
 		
 		//alert('You will be able to shuffle it up after you add some tracks to your queue.');
-		$.mobile.showPageLoadingMsg( theme.bars, "Nothing to shuffle", true );
-		setTimeout( function() { $.mobile.hidePageLoadingMsg(); }, 2000 );
+		$.mobile.loading( "show", theme.bars, "Nothing to shuffle", true );
+		setTimeout( function() { $.mobile.loading( "hide" ); }, 2000 );
 	}
 });
 
@@ -1441,7 +1440,7 @@ $( 'body' ).on( 'click', '#settings_form_save', function( evt, ui ) {
 		((typeof new_language_id 	!= "undefined") && (new_language_id 	!= ''))	) {
 
 		$.mobile.loadingMessage = 'Saving Settings';
-		$.mobile.showPageLoadingMsg();
+		$.mobile.loading( "show" );
 
 		$.ajax({
 			type: "POST",
@@ -1617,7 +1616,7 @@ $( 'body' ).on( 'click', '#settings_form_save', function( evt, ui ) {
 			    							.addClass('ui-bar-' + theme.bars);
 
 			    	// hide the loading message
-			    	$.mobile.hidePageLoadingMsg();
+			    	$.mobile.loading( "hide" );
 
 			    	$.mobile.loadingMessage = 'Loading';
 
@@ -1679,7 +1678,7 @@ $('body').on('click', '#confirm_delete_yes', function() {
 		//alert("station_id: "+station_id);
 
 		$.mobile.loadingMessage = 'Deleting Station'; 
-		$.mobile.showPageLoadingMsg();
+		$.mobile.loading( "show" );
 
 		$.ajax({
 
@@ -1690,7 +1689,7 @@ $('body').on('click', '#confirm_delete_yes', function() {
 		   
 		   success: function(msg){
 
-				$.mobile.hidePageLoadingMsg();
+				$.mobile.loading( "hide" );
 				$.mobile.loadingMessage = 'Loading';
 
 		   		// go back to the stations page
@@ -1716,7 +1715,7 @@ $('body').on('click', '#confirm_delete_yes', function() {
 		//alert("user_id: "+user_id);
 
 		$.mobile.loadingMessage = 'Deleting User Account'; 
-		$.mobile.showPageLoadingMsg();
+		$.mobile.loading( "show" );
 
 		$.ajax({
 
@@ -1727,7 +1726,7 @@ $('body').on('click', '#confirm_delete_yes', function() {
 		   
 		   success: function(msg){
 
-				$.mobile.hidePageLoadingMsg();
+				$.mobile.loading( "hide" );
 				$.mobile.loadingMessage = 'Loading';
 
 		   		// go back to the users page
@@ -1777,7 +1776,7 @@ $('body').on('click', '#apply_settings_yes', function() {
 	setTimeout(function(){
 
 		$.mobile.loadingMessage = 'Please wait';
-		$.mobile.showPageLoadingMsg();
+		$.mobile.loading( "show" );
 
 		setTimeout(function() {
 		
@@ -1800,6 +1799,7 @@ $('body').on('click', '#create_theme_save', function(evt, ui) {
 	evt.preventDefault();
 
 	var theme_name 			= $('#theme_name').val();
+	var icon_color			= $('#icon_color').val();
 	var bars_letter_code 		= $('#bars_letter_code').val();
 	var buttons_letter_code 	= $('#buttons_letter_code').val();
 	var body_letter_code 		= $('#body_letter_code').val();
@@ -1810,16 +1810,16 @@ $('body').on('click', '#create_theme_save', function(evt, ui) {
 	if ((typeof theme_name != "undefined") && (theme_name != '')) {
 
 		$.mobile.loadingMessage = 'Saving Theme';
-		$.mobile.showPageLoadingMsg();
+		$.mobile.loading( "show" );
 
 		$.ajax({
 		   type: "POST",
 		   url: "/settings/create/theme",
 		   async: true,
-		   data: "theme_name="+theme_name+"&bars_letter_code="+bars_letter_code+"&buttons_letter_code="+buttons_letter_code+"&body_letter_code="+body_letter_code+"&controls_letter_code="+controls_letter_code+"&action_letter_code="+action_letter_code+"&active_state_letter_code="+active_state_letter_code,
+		   data: "theme_name="+theme_name+"&icon_color="+icon_color+"&bars_letter_code="+bars_letter_code+"&buttons_letter_code="+buttons_letter_code+"&body_letter_code="+body_letter_code+"&controls_letter_code="+controls_letter_code+"&action_letter_code="+action_letter_code+"&active_state_letter_code="+active_state_letter_code,
 		   success: function(msg){
 
-				$.mobile.hidePageLoadingMsg();
+				$.mobile.loading( "hide" );
 				$.mobile.loadingMessage = 'Loading';
 
 		   		// go back to the stations page
@@ -1892,7 +1892,7 @@ $('body').on('click', '#create_theme_save', function(evt, ui) {
 		((typeof paypal_api_signature != "undefined") && (paypal_api_signature != ''))) {
 
 		$.mobile.loadingMessage = 'Saving'; 
-		$.mobile.showPageLoadingMsg();
+		$.mobile.loading( "show" );
 
 		$.ajax({
 
@@ -1903,7 +1903,7 @@ $('body').on('click', '#create_theme_save', function(evt, ui) {
 		   
 		   success: function(msg){
 
-				$.mobile.hidePageLoadingMsg();
+				$.mobile.loading( "hide" );
 				$.mobile.loadingMessage = 'Loading';
 
 		   		// go back to the stations page
@@ -2131,7 +2131,7 @@ $('body').on('click', '#close_user', function(evt, ui) {
 		((typeof station_description != "undefined") && (station_description != ''))) {
 
 		$.mobile.loadingMessage = 'Saving Station'; 
-		$.mobile.showPageLoadingMsg();
+		$.mobile.loading( "show" );
 
 		$.ajax({
 
@@ -2142,7 +2142,7 @@ $('body').on('click', '#close_user', function(evt, ui) {
 		   
 		   success: function(msg){
 
-				$.mobile.hidePageLoadingMsg();
+				$.mobile.loading( "hide" );
 				$.mobile.loadingMessage = 'Loading';
 
 		   		// go back to the stations page
@@ -2273,7 +2273,7 @@ $( 'body' ).on( 'click', '#volume_crossfade_form_save', function( evt, ui ) {
 	}
 
 	$.mobile.loadingMessage = 'Saving Settings';
-	$.mobile.showPageLoadingMsg();
+	$.mobile.loading( "show" );
 
 	$.ajax({
 		type: "POST",
@@ -2285,7 +2285,7 @@ $( 'body' ).on( 'click', '#volume_crossfade_form_save', function( evt, ui ) {
 			saved = $.parseJSON(msg);
 
 			// hide the loading message
-			$.mobile.hidePageLoadingMsg();
+			$.mobile.loading( "hide" );
 
 			$.mobile.loadingMessage = 'Loading';
 
@@ -2322,7 +2322,7 @@ $( 'body' ).on( 'click', '#settingsPopupMenu ul div[data-role="collapsible-set"]
 		if ( typeof dataItemId != "undefined" ) {
 
 			$.mobile.loadingMessage = 'Setting Language';
-			$.mobile.showPageLoadingMsg();
+			$.mobile.loading( "show" );
 
 			var currently_selected_theme_id = $( '#currently_selected_theme_id' ).val();
 
@@ -2353,7 +2353,7 @@ $( 'body' ).on( 'click', '#settingsPopupMenu ul div[data-role="collapsible-set"]
 				});
 
 				// hide the loading message
-				$.mobile.hidePageLoadingMsg();
+				$.mobile.loading( "hide" );
 
 				$.mobile.loadingMessage = 'Loading';
 
@@ -2387,7 +2387,7 @@ $( 'body' ).on( 'click', '#settingsPopupMenu ul div[data-role="collapsible-set"]
 			if ( typeof dataItemId != "undefined" ) {
 
 				$.mobile.loadingMessage = 'Applying Theme';
-				$.mobile.showPageLoadingMsg();
+				$.mobile.loading( "show" );
 
 				var currently_selected_language_id = $( '#currently_selected_language_id' ).val();
 
@@ -2600,7 +2600,7 @@ $( 'body' ).on( 'click', '#settingsPopupMenu ul div[data-role="collapsible-set"]
 					});
 
 					// hide the loading message
-					$.mobile.hidePageLoadingMsg();
+					$.mobile.loading( "hide" );
 
 					$.mobile.loadingMessage = 'Loading';
 				    }
@@ -3201,7 +3201,7 @@ $('body').on('focusin', '#artists input[data-type="search"], #albums input[data-
 
 	$.mobile.loadingMessage = "Retrieving all";
 
-	$.mobile.showPageLoadingMsg();
+	$.mobile.loading( "show" );
 
 	// Set the retrieve option to all so it pulls the rest of the items to lazy load
 	$( "#index" ).lazyloader( "option", "retrieve", "all" )

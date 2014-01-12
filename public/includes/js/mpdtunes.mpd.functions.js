@@ -135,11 +135,11 @@ function control_mpd(action, parameters) {
 		if (timeout == 0) {
 	
 			$.mobile.loadingMessage = message;
-			$.mobile.showPageLoadingMsg('a', message, hide_spinner);
+			$.mobile.loading( "show", "a", message, hide_spinner );
 
 		} else {
 
-			$.mobile.showPageLoadingMsg('a', message, hide_spinner); 
+			$.mobile.loading( "show", "a", message, hide_spinner ); 
 		}
 	}
 
@@ -162,27 +162,27 @@ function control_mpd(action, parameters) {
 				if( result.message != "" ) {
 
 					// Hide and reshow with the new message
-					$.mobile.hidePageLoadingMsg();
+					$.mobile.loading( "hide" );
 					$.mobile.loadingMessage = result.message;
 		
 					// Make sure to use the red theme if the server-side operation was unsuccessful
-					$.mobile.showPageLoadingMsg((result.success ? theme.body : 'r'), result.message, hide_spinner);
+					$.mobile.loading( "show", (result.success ? theme.body : "r"), result.message, hide_spinner);
 				
 					timeout = 3000;
 					go_back = false;
 
-					setTimeout( function() { $.mobile.hidePageLoadingMsg(); $.mobile.loadingMessage = 'Loading';}, timeout );
+					setTimeout( function() { $.mobile.loading( "hide" ); $.mobile.loadingMessage = 'Loading';}, timeout );
 
 				} else {
 	
 					if ( timeout == 0 ) {
 		
-						$.mobile.hidePageLoadingMsg();
+						$.mobile.loading( "hide" );
 						$.mobile.loadingMessage = 'Loading';
 
 					} else {
 
-						setTimeout( function() { $.mobile.hidePageLoadingMsg(); }, timeout );
+						setTimeout( function() { $.mobile.loading( "hide" ); }, timeout );
 					}
 				}
 			}

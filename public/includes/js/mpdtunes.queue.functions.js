@@ -1,6 +1,6 @@
 function clearQueue() {
 	
-	$.mobile.showPageLoadingMsg();
+	$.mobile.loading( "show" );
 
 	track_position = 0;
 
@@ -64,7 +64,7 @@ function clearQueue() {
 		$('#trackProgressDiv').slideUp('slow');
 		$('#playerCurrentlyPlayingDiv').slideUp('slow', function() {
 		
-			$.mobile.hidePageLoadingMsg();
+			$.mobile.loading( "hide" );
 		});
 
 		initialize_timer_display();

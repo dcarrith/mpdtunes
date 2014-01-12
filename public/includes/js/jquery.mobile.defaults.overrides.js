@@ -61,7 +61,8 @@ $(document).bind("mobileinit", function() {
     $.mobile.minScrollBack = 0;
 
     // We do not use cached pages, so we'd rather have this set to zero so that there is no delay
-    $.mobile.loadPage.defaults.loadMsgDelay = 75;
+    //$.mobile.loadPage.defaults.loadMsgDelay = 75;
+    //$.mobile.pageContainer.defaults.loadMsgDelay = 75;
 
     // Turn off the tap to toggle functionality for fixed toolbars
     //$.mobile.fixedtoolbar.tapToggle = false;

@@ -276,13 +276,13 @@ function processTimeUpdate( currentTime, totalDuration, playProgress ) {
 
 	if( currentTime > 1 ) {
 
-		$.mobile.hidePageLoadingMsg(); 
+		$.mobile.loading( "hide" ); 
 		$.mobile.loadingMessage = "Loading";
 	}
 
 	updatePlayProgressDisplay( currentTime, totalDuration, playProgress );
 
-	if (( totalDuration > 0 ) && ( currentTime > 0 )) {
+	if (( totalDuration > 0 ) && ( currentTime > 0 ) && (!repeat_track)) {
 
 		// Crossfade into the next song rather than just waiting for the 'ended' event to trigger next
 		if (	(( totalDuration - currentTime ) <= max_crossfade ) && 
@@ -326,13 +326,11 @@ function updatePlayerDisplay( playing, action ) {
 	
 	if (( playing ) && ( action == "pause" )) {
 
+		// adjust the image sprite to show the play button instead of the pause button, since the user just clicked pause
 		$( '#jukebox #playpause' ).attr( 'data-icon', 'play' );
 		$( '#jukebox #playpause' ).buttonMarkup( 'refresh' );
-
-		$( '#playpause-span-one' ).attr( 'class', 'play ui-btn-inner ui-btn-corner-all' );
-		$( '#playpause-span-two' ).attr( 'class', 'play ui-btn-text' );
-		$( '#playpause-span-three' ).attr( 'class', 'play-inner ui-icon ui-icon-play ui-icon-shadow' );
-
+		$( '#jukebox #playpause' ).removeClass( 'ui-icon-pause' ).addClass( 'ui-icon-play' );
+		
 		$( "#playerCurrentlyPlayingDiv" ).slideUp({
 
 			duration: default_easout_duration,
@@ -352,15 +350,12 @@ function updatePlayerDisplay( playing, action ) {
 	
 	} else {
 
+		// adjust the image sprite to show the pause button instead of the play button, since the user just clicked play
+		$( '#jukebox #playpause' ).attr( 'data-icon', 'pause' );
+		$( '#jukebox #playpause' ).buttonMarkup( 'refresh' );
+		$( '#jukebox #playpause' ).removeClass( 'ui-icon-play' ).addClass( 'ui-icon-pause' );
+
 		if ( $( '#playerCurrentlyPlayingDiv' ).css( 'display' ) == 'none' ) {
-
-			// adjust the image sprite to show the pause button instead of the play button, since the user just clicked play
-			$( '#jukebox #playpause' ).attr( 'data-icon', 'pause' );
-			$( '#jukebox #playpause' ).buttonMarkup( 'refresh' );
-
-			$( '#playpause-span-one' ).attr( 'class', 'pause ui-btn-inner ui-btn-corner-all' );
-    			$( '#playpause-span-two' ).attr( 'class', 'pause ui-btn-text' );
-    			$( '#playpause-span-three' ).attr( 'class', 'pause-inner ui-icon ui-icon-pause ui-icon-shadow' );
 
 			// use the oncomplete function to adjust the fixed toolbars after the sideDown event finishes
 			$( '#playerCurrentlyPlayingDiv' ).slideDown({
@@ -379,23 +374,13 @@ function updatePlayerDisplay( playing, action ) {
 					});
 				}
 			});
-	
-		} else {
-
-			// adjust the image sprite to show the pause button instead of the play button, since the user just clicked play
-			$( '#jukebox #playpause' ).attr( 'data-icon', 'pause' );
-			$( '#jukebox #playpause' ).buttonMarkup( 'refresh' );
-
-			$( '#playpause-span-one' ).attr( 'class', 'pause ui-btn-inner ui-btn-corner-all' );
-    			$( '#playpause-span-two' ).attr( 'class', 'pause ui-btn-text' );
-    			$( '#playpause-span-three' ).attr( 'class', 'pause-inner ui-icon ui-icon-pause ui-icon-shadow' );
-		}
+		}	
 	}
 }
 
 function skipto( destination ){
 
-	$.mobile.hidePageLoadingMsg(); 
+	$.mobile.loading( "hide" ); 
    	$.mobile.loadingMessage = "Loading";
 
    	initialize_timer_display();

@@ -1,0 +1,12 @@
+2222c2222
+< 			if(this.scrollParent[0] !== document && this.scrollParent[0].tagName !== "HTML") {
+---
+> 			/*if(this.scrollParent[0] !== document && this.scrollParent[0].tagName !== "HTML") {
+2236c2236
+< 			} else {
+---
+> 			} else {*/
+2250c2250
+< 			}
+---
+> 			//}

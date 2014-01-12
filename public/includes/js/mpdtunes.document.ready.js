@@ -42,7 +42,7 @@ $( document ).ready( function() {
 
 						if (( playing ) && ( primary_player == 1 )) {	
 						
-							$.mobile.showPageLoadingMsg( theme.bars, "Stalled" );	
+							$.mobile.loading( "show", theme.bars, "Stalled" );	
 						}
 					},
 					waiting : function( event ) {
@@ -51,14 +51,14 @@ $( document ).ready( function() {
 
 							consoleLog( "Inside waiting event handler", event );
 
-							$.mobile.showPageLoadingMsg( theme.bars, "Waiting" );	
+							$.mobile.loading( "show", theme.bars, "Waiting" );	
 						}
 					},
 					abort : function( event ) {
 
 						if ( primary_player == 1 ) {
 	
-							$.mobile.showPageLoadingMsg(theme.bars, "Aborting");
+							$.mobile.loading( "show", theme.bars, "Aborting" );
 						}
 					},
 					error : function( event ) {
@@ -84,11 +84,11 @@ $( document ).ready( function() {
 										(( event.jPlayer.status.src == playlist.tracks[ track_position ].oggurl ) || ( event.jPlayer.status.src == playlist.tracks[ track_position ].url ))) && 
 										( !shuffle_queue )	) {
 					
-										$.mobile.showPageLoadingMsg( theme.bars, "Resuming" );
+										$.mobile.loading( "show", theme.bars, "Resuming" );
 
 									} else {
 					
-										$.mobile.showPageLoadingMsg( theme.bars, "Loading" );
+										$.mobile.loading( "show", theme.bars, "Loading" );
 									}
 								}
 							}
@@ -100,7 +100,7 @@ $( document ).ready( function() {
 							
 							consoleLog( "Inside loadedmetadata event handler", event );
 	
-							$.mobile.showPageLoadingMsg( theme.bars, "Metadata loaded" );
+							$.mobile.loading( "show", theme.bars, "Metadata loaded" );
 						
 							//$( '#trackTotalDuration' ).html( get_timer_display( event.jPlayer.status.duration ));
 						}
@@ -111,7 +111,7 @@ $( document ).ready( function() {
 
 						/*if ( primary_player == 1 ) {	
 							
-							$.mobile.showPageLoadingMsg( theme.bars, "Duration changed" );
+							$.mobile.loading( "show", theme.bars, "Duration changed" );
 
 							$( '#trackTotalDuration' ).html( get_timer_display( event.jPlayer.status.duration ));
 						}*/
@@ -122,7 +122,7 @@ $( document ).ready( function() {
 
 							consoleLog( "Inside playing event handler", event );
 
-							$.mobile.showPageLoadingMsg( theme.bars, "Playing" );
+							$.mobile.loading( "show", theme.bars, "Playing" );
 						}
 					},
 					timeupdate : function( event ) {
@@ -274,7 +274,7 @@ $( document ).ready( function() {
 
 						if (( playing ) && ( primary_player == 2 )) {	
 						
-							$.mobile.showPageLoadingMsg( theme.bars, "Stalled" );	
+							$.mobile.loading( "show", theme.bars, "Stalled" );	
 						}
 					},
 					waiting : function( event ) {
@@ -283,14 +283,14 @@ $( document ).ready( function() {
 
 							consoleLog( "Inside waiting event handler", event );
 
-							$.mobile.showPageLoadingMsg( theme.bars, "Waiting" );	
+							$.mobile.loading( "show", theme.bars, "Waiting" );	
 						}
 					},
 					abort : function( event ) {
 
 						if ( primary_player == 2 ) {
 	
-							$.mobile.showPageLoadingMsg(theme.bars, "Aborting");
+							$.mobile.loading( "show", theme.bars, "Aborting" );
 						}
 					},
 					error : function( event ) {
@@ -316,11 +316,11 @@ $( document ).ready( function() {
 										(( event.jPlayer.status.src == playlist.tracks[ track_position ].oggurl ) || ( event.jPlayer.status.src == playlist.tracks[ track_position ].url ))) && 
 										( !shuffle_queue )	) {
 						
-										$.mobile.showPageLoadingMsg( theme.bars, "Resuming" );
+										$.mobile.loading( "show", theme.bars, "Resuming" );
 	
 									} else {
 						
-										$.mobile.showPageLoadingMsg( theme.bars, "Loading" );
+										$.mobile.loading( "show", theme.bars, "Loading" );
 									}
 								}
 							}
@@ -332,7 +332,7 @@ $( document ).ready( function() {
 						
 							consoleLog( "Inside loadedmetadata event handler", event );	
 	
-							$.mobile.showPageLoadingMsg( theme.bars, "Metadata loaded" );
+							$.mobile.loading( "show", theme.bars, "Metadata loaded" );
 						
 							//$( '#trackTotalDuration' ).html( get_timer_display( event.jPlayer.status.duration ));
 						}
@@ -343,7 +343,7 @@ $( document ).ready( function() {
 	
 						/*if ( primary_player == 2 ) {	
 							
-							$.mobile.showPageLoadingMsg( theme.bars, "Duration changed" );
+							$.mobile.loading( "show", theme.bars, "Duration changed" );
 
 							$( '#trackTotalDuration' ).html( get_timer_display( event.jPlayer.status.duration ));
 						}*/
@@ -354,7 +354,7 @@ $( document ).ready( function() {
 							
 							consoleLog( "Inside playing event handler", event );	
 
-							$.mobile.showPageLoadingMsg( theme.bars, "Playing" );
+							$.mobile.loading( "show", theme.bars, "Playing" );
 						}
 					},
 					timeupdate : function( event ) {

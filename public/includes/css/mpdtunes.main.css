@@ -283,7 +283,7 @@
 .station-field-divs {
 	width:90%; 
 	vertical-align:middle; 
-	height:80px; 
+	height:120px; 
 	padding-top:0px; 
 	padding-bottom:0px; 
 	margin-left:5px; 
@@ -298,8 +298,9 @@
 	margin:0px;
 }
 .station-image-fields-table {
-	width:100%;
-	height:70px;
+	width:94%;
+	height:150px;
+	position:absolute;
 }
 .station-image-field-cell {
 	width:64px;

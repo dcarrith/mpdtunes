@@ -1116,8 +1116,8 @@
     });
 
     //auto self-init widgets
-    $( document ).bind( "pagecreate create", function( e ){
+    /*$( document ).bind( "pagecreate create", function( e ){
         $.mobile.lazyloader.prototype.enhanceWithin( e.target );
-    });
+    });*/
 
 } )( jQuery );
