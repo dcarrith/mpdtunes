@@ -33,7 +33,8 @@ class CreateThemesTable extends Migration {
                 Schema::create('themes', function($table) {
 
                         $table->increments('id');
-                        $table->string('bars', 3)->default('a');
+                        $table->string('icon', 1)->default('b');
+			$table->string('bars', 3)->default('a');
                         $table->string('buttons', 3)->default('a');
                         $table->string('body', 3)->default('a');
                         $table->string('controls', 3)->default('a');
