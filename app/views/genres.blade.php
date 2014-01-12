@@ -7,10 +7,12 @@
 	@include('partials.header')
 
 	<div data-role="content">
+	
+		<form class="ui-filterable">
+    			<input id="genresListFilter" data-type="search">
+		</form>
 
-		<div class="padding-bottom-fifteen-pixels"></div>
-		
-		<ul id="genresList" data-role="listview" data-filter="true" data-inset="true" data-theme="{{ $theme_buttons }}" data-divider-theme="{{ $theme_bars }}"> 
+		<ul id="genresList" data-role="listview" data-filter="true" data-input="#genresListFilter" data-inset="true" data-theme="{{ $theme_buttons }}" data-divider-theme="{{ $theme_bars }}"> 
 			<li data-role="list-divider">{{ $genres_i18n }}</li>
 
 			<?php if (isset($genres) && (count($genres) > 0) && $genres != '') : ?>

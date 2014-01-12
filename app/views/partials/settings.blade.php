@@ -17,9 +17,14 @@
 
 			<div data-role="collapsible-set" data-collapsed-icon="arrow-r" data-expanded-icon="arrow-d" data-iconpos="right" data-theme="{{ $theme_action }}" data-item-name="Languages">
 				<div data-role="collapsible" data-inset="true" data-collapsed="true">
+
+					<form class="ui-filterable">
+    						<input id="languagesListFilter" data-type="search">
+					</form>
+
 					<h2>{{ $languages_i18n }}</h2>
 
-					<ul id="availableLanguages" data-role="listview" data-theme="{{ $theme_action }}">
+					<ul id="availableLanguages" data-role="listview" data-filter="true" data-input="#languagesListFilter" data-theme="{{ $theme_action }}">
 
 						@if (isset($language_options) && (count($language_options) > 0) && $language_options != '') 
 
@@ -36,9 +41,14 @@
 
 			<div data-role="collapsible-set" data-collapsed-icon="arrow-r" data-expanded-icon="arrow-d" data-iconpos="right" data-theme="{{ $theme_action }}" data-item-name="Themes">
 				<div data-role="collapsible" data-inset="true" data-collapsed="true">
+
+					<form class="ui-filterable">
+    						<input id="themesListFilter" data-type="search">
+					</form>
+
 					<h2>{{ $themes_i18n }}</h2>
 
-					<ul id="availableThemes" data-role="listview" data-theme="{{ $theme_action }}">
+					<ul id="availableThemes" data-role="listview" data-filter="true" data-input="#themesListFilter" data-theme="{{ $theme_action }}">
 
 						@if (isset($theme_options) && (count($theme_options) > 0) && $theme_options != '')
 

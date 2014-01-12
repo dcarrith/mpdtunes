@@ -22,10 +22,13 @@
                         </span>
                 </a>
 
-		<br />
-		<ul id="stationsList" data-role="listview" data-inset="true" data-filter="true" data-divider-theme="{{ $theme_bars }}" data-theme="{{ $theme_buttons }}"> 
+		<form class="ui-filterable">
+    			<input id="stationsListFilter" data-type="search">
+		</form>
 
-			<li data-role="list-divider" data-icon="plus">{{ $stations_i18n }}</li>
+		<ul id="stationsList" data-filter="true" data-input="#stationsListFilter" data-role="listview" data-inset="true" data-filter="true" data-divider-theme="{{ $theme_bars }}" data-theme="{{ $theme_buttons }}"> 
+
+			<li data-role="list-divider">{{ $stations_i18n }}</li>
 
                         @foreach($stations as $station)
 

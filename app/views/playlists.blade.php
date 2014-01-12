@@ -7,10 +7,12 @@
 	@include('partials.header')
 
 	<div data-role="content">
-		
-		<div class="padding-bottom-fifteen-pixels"></div>
 
-		<ul id="playlistsList" data-role="listview" data-filter="true" data-inset="true" data-theme="{{ $theme_buttons }}" data-divider-theme="{{ $theme_bars }}"> 
+		<form class="ui-filterable">
+    			<input id="playlistsListFilter" data-type="search">
+		</form>
+
+		<ul id="playlistsList" data-role="listview" data-filter="true" data-input="#playlistsListFilter" data-inset="true" data-theme="{{ $theme_buttons }}" data-divider-theme="{{ $theme_bars }}"> 
 
 			<li data-role="list-divider">{{ $playlists_i18n }}</li>
 

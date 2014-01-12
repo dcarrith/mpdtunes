@@ -7,12 +7,6 @@
 	@include('partials.header')
 
 	<div data-role="content">
-		
-		<?php if ($artist_name == "Stock Music Boutique") : ?>
-
-			<p>Music used with permission from <a href="http://stockmusicboutique.com">http://stockmusicboutique.com</a></p>
-
-		<?php endif; ?>
 
 		<ul data-role="listview" data-inset="true" data-divider-theme="{{ $theme_bars }}" data-theme="{{ $theme_buttons }}"> 
 
@@ -58,9 +52,13 @@
 			</span>
 		</a>
 
+		<form class="ui-filterable">
+    			<input id="albumTracksListFilter" data-type="search">
+		</form>
+ 
 		<input type="hidden" id="param_one" name="param_one" value="{{ $album_name }}" />
 
-		<ul id="{{ $tracksUlId }}" data-role="listview" data-inset="true" data-divider-theme="{{ $theme_bars }}" data-theme="{{ $theme_buttons }}" <?php echo $dataNameAttribute; ?>> 
+		<ul id="{{ $tracksUlId }}" data-role="listview" data-filter="true" data-input="#albumTracksListFilter" data-inset="true" data-divider-theme="{{ $theme_bars }}" data-theme="{{ $theme_buttons }}" <?php echo $dataNameAttribute; ?>> 
 
 			<li data-role="list-divider" data-icon="plus"><{{ $tracks_i18n }}</li>
 			

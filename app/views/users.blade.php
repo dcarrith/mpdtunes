@@ -8,9 +8,11 @@
 	
 	<div data-role="content">
 
-		<div class="padding-bottom-fifteen-pixels"></div>
-		
-		<ul id="usersList" data-role="listview" data-filter="true" data-inset="true" data-theme="{{ $theme_buttons }}" data-divider-theme="{{ $theme_bars }}"> 
+		<form class="ui-filterable">
+    			<input id="usersListFilter" data-type="search">
+		</form>
+
+		<ul id="usersList" data-role="listview" data-filter="true" data-input="#usersListFilter" data-inset="true" data-theme="{{ $theme_buttons }}" data-divider-theme="{{ $theme_bars }}"> 
 
 			<li data-role="list-divider">{{ $users_i18n }}</li>
 

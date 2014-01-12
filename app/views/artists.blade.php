@@ -8,11 +8,13 @@
 	
 	<div data-role="content">
 
-		<div class="padding-bottom-fifteen-pixels"></div>
+		<form class="ui-filterable">
+    			<input id="artistsListFilter" data-type="search">
+		</form>
 		
 		<input type="hidden" id="param_one" name="param_one" value="{{ $selected_genre }}" />
 
-		<ul id="artistsList" data-role="listview" role="lazyloader" data-filter="true" data-inset="true" data-theme="{{ $theme_buttons }}" data-divider-theme="{{ $theme_bars }}"> 
+		<ul id="artistsList" data-role="listview" data-filter="true" data-input="#artistsListFilter" data-inset="true" data-theme="{{ $theme_buttons }}" data-divider-theme="{{ $theme_bars }}"> 
 
 			<li data-role="list-divider">{{ $artists_i18n }}</li>
 
