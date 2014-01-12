@@ -29,7 +29,7 @@ class Index extends AbstractAsset implements Constraint
      *
      * @var Identifier[]
      */
-    protected $_columns;
+    protected $_columns = array();
 
     /**
      * @var boolean
@@ -80,7 +80,7 @@ class Index extends AbstractAsset implements Constraint
      */
     protected function _addColumn($column)
     {
-        if(is_string($column)) {
+        if (is_string($column)) {
             $this->_columns[$column] = new Identifier($column);
         } else {
             throw new \InvalidArgumentException("Expecting a string as Index Column");
@@ -204,9 +204,9 @@ class Index extends AbstractAsset implements Constraint
                 // overlaps. This means a primary or unique index can always fulfill the requirements of just an
                 // index that has no constraints.
                 return true;
-            } else if ($other->isPrimary() != $this->isPrimary()) {
+            } elseif ($other->isPrimary() != $this->isPrimary()) {
                 return false;
-            } else if ($other->isUnique() != $this->isUnique()) {
+            } elseif ($other->isUnique() != $this->isUnique()) {
                 return false;
             }
 
@@ -227,7 +227,7 @@ class Index extends AbstractAsset implements Constraint
     {
         if ($other->isPrimary()) {
             return false;
-        } else if ($this->isSimpleIndex() && $other->isUnique()) {
+        } elseif ($this->isSimpleIndex() && $other->isUnique()) {
             return false;
         }
 
@@ -259,7 +259,7 @@ class Index extends AbstractAsset implements Constraint
      */
     public function addFlag($flag)
     {
-        $this->flags[strtolower($flag)] = true;
+        $this->_flags[strtolower($flag)] = true;
 
         return $this;
     }
@@ -273,7 +273,7 @@ class Index extends AbstractAsset implements Constraint
      */
     public function hasFlag($flag)
     {
-        return isset($this->flags[strtolower($flag)]);
+        return isset($this->_flags[strtolower($flag)]);
     }
 
     /**
@@ -285,6 +285,6 @@ class Index extends AbstractAsset implements Constraint
      */
     public function removeFlag($flag)
     {
-        unset($this->flags[strtolower($flag)]);
+        unset($this->_flags[strtolower($flag)]);
     }
 }

@@ -24,6 +24,7 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Schema\Constraint;
 
 /**
@@ -128,6 +129,22 @@ class SqlitePlatform extends AbstractPlatform
     public function getDateDiffExpression($date1, $date2)
     {
         return 'ROUND(JULIANDAY('.$date1 . ')-JULIANDAY('.$date2.'))';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getDateAddHourExpression($date, $hours)
+    {
+        return "DATETIME(" . $date . ",'+". $hours . " hour')";
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getDateSubHourExpression($date, $hours)
+    {
+        return "DATETIME(" . $date . ",'-". $hours . " hour')";
     }
 
     /**
@@ -342,6 +359,30 @@ class SqlitePlatform extends AbstractPlatform
     {
         return $fixed ? ($length ? 'CHAR(' . $length . ')' : 'CHAR(255)')
                 : ($length ? 'VARCHAR(' . $length . ')' : 'TEXT');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getBinaryTypeDeclarationSQLSnippet($length, $fixed)
+    {
+        return 'BLOB';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBinaryMaxLength()
+    {
+        return 0;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBinaryDefaultLength()
+    {
+        return 0;
     }
 
     /**
@@ -787,7 +828,7 @@ class SqlitePlatform extends AbstractPlatform
             $sql[] = $this->getDropTableSQL($dataTable);
 
             if ($diff->newName && $diff->newName != $diff->name) {
-                $renamedTable = new Table($diff->newName);
+                $renamedTable = new Identifier($diff->newName);
                 $sql[] = 'ALTER TABLE '.$newTable->getQuotedName($this).' RENAME TO '.$renamedTable->getQuotedName($this);
             }
 
@@ -807,6 +848,7 @@ class SqlitePlatform extends AbstractPlatform
         if ( ! empty($diff->renamedColumns) || ! empty($diff->addedForeignKeys) || ! empty($diff->addedIndexes)
                 || ! empty($diff->changedColumns) || ! empty($diff->changedForeignKeys) || ! empty($diff->changedIndexes)
                 || ! empty($diff->removedColumns) || ! empty($diff->removedForeignKeys) || ! empty($diff->removedIndexes)
+                || ! empty($diff->renamedIndexes)
         ) {
             return false;
         }
@@ -842,7 +884,7 @@ class SqlitePlatform extends AbstractPlatform
 
         if ( ! $this->onSchemaAlterTable($diff, $tableSql)) {
             if ($diff->newName !== false) {
-                $newTable = new Table($diff->newName);
+                $newTable = new Identifier($diff->newName);
                 $sql[] = 'ALTER TABLE '.$table->getQuotedName($this).' RENAME TO '.$newTable->getQuotedName($this);
             }
         }
@@ -927,7 +969,7 @@ class SqlitePlatform extends AbstractPlatform
             }
         }
 
-        foreach (array_merge($diff->changedIndexes, $diff->addedIndexes) as $index) {
+        foreach (array_merge($diff->changedIndexes, $diff->addedIndexes, $diff->renamedIndexes) as $index) {
             $indexName = strtolower($index->getName());
             if (strlen($indexName)) {
                 $indexes[$indexName] = $index;
@@ -1007,4 +1049,3 @@ class SqlitePlatform extends AbstractPlatform
         return $primaryIndex;
     }
 }
-

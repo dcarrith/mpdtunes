@@ -25,6 +25,7 @@ use Doctrine\DBAL\Schema\Sequence;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Types\BinaryType;
 
 /**
  * OraclePlatform.
@@ -113,6 +114,22 @@ class OraclePlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    public function getDateAddHourExpression($date, $hours)
+    {
+        return '(' . $date . '+' . $hours . '/24)';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getDateSubHourExpression($date, $hours)
+    {
+        return '(' . $date . '-' . $hours . '/24)';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getDateAddDaysExpression($date, $days)
     {
         return '(' . $date . '+' . $days . ')';
@@ -172,7 +189,8 @@ class OraclePlatform extends AbstractPlatform
         return 'CREATE SEQUENCE ' . $sequence->getQuotedName($this) .
                ' START WITH ' . $sequence->getInitialValue() .
                ' MINVALUE ' . $sequence->getInitialValue() .
-               ' INCREMENT BY ' . $sequence->getAllocationSize();
+               ' INCREMENT BY ' . $sequence->getAllocationSize() .
+               $this->getSequenceCacheSQL($sequence);
     }
 
     /**
@@ -181,7 +199,26 @@ class OraclePlatform extends AbstractPlatform
     public function getAlterSequenceSQL(\Doctrine\DBAL\Schema\Sequence $sequence)
     {
         return 'ALTER SEQUENCE ' . $sequence->getQuotedName($this) .
-               ' INCREMENT BY ' . $sequence->getAllocationSize();
+               ' INCREMENT BY ' . $sequence->getAllocationSize()
+               . $this->getSequenceCacheSQL($sequence);
+    }
+
+    /**
+     * Cache definition for sequences
+     *
+     * @return string
+     */
+    private function getSequenceCacheSQL(\Doctrine\DBAL\Schema\Sequence $sequence)
+    {
+        if ($sequence->getCache() === 0) {
+            return ' NOCACHE';
+        } else if ($sequence->getCache() === 1) {
+            return ' NOCACHE';
+        } else if ($sequence->getCache() > 1) {
+            return ' CACHE ' . $sequence->getCache();
+        }
+
+        return '';
     }
 
     /**
@@ -297,6 +334,22 @@ class OraclePlatform extends AbstractPlatform
     {
         return $fixed ? ($length ? 'CHAR(' . $length . ')' : 'CHAR(2000)')
                 : ($length ? 'VARCHAR2(' . $length . ')' : 'VARCHAR2(4000)');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getBinaryTypeDeclarationSQLSnippet($length, $fixed)
+    {
+        return 'RAW(' . ($length ?: $this->getBinaryMaxLength()) . ')';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBinaryMaxLength()
+    {
+        return 2000;
     }
 
     /**
@@ -432,7 +485,7 @@ BEGIN
   END IF;
 END;';
 
-        $sequenceName = $table . '_' . $name . '_SEQ';
+        $sequenceName = $this->getIdentitySequenceName($table, $name);
         $sequence = new Sequence($sequenceName, $start);
         $sql[] = $this->getCreateSequenceSQL($sequence);
 
@@ -526,16 +579,18 @@ LEFT JOIN user_cons_columns r_cols
         $table = strtoupper($table);
 
         $tabColumnsTableName = "user_tab_columns";
+        $colCommentsTableName = "user_col_comments";
         $ownerCondition = '';
 
-        if (null !== $database){
+        if (null !== $database) {
             $database = strtoupper($database);
             $tabColumnsTableName = "all_tab_columns";
+            $colCommentsTableName = "all_col_comments";
             $ownerCondition = "AND c.owner = '".$database."'";
         }
 
         return "SELECT c.*, d.comments FROM $tabColumnsTableName c ".
-               "INNER JOIN user_col_comments d ON d.TABLE_NAME = c.TABLE_NAME AND d.COLUMN_NAME = c.COLUMN_NAME ".
+               "INNER JOIN " . $colCommentsTableName . " d ON d.TABLE_NAME = c.TABLE_NAME AND d.COLUMN_NAME = c.COLUMN_NAME ".
                "WHERE c.table_name = '" . $table . "' ".$ownerCondition." ORDER BY c.column_name";
     }
 
@@ -598,7 +653,7 @@ LEFT JOIN user_cons_columns r_cols
         }
 
         if (count($fields)) {
-            $sql[] = 'ALTER TABLE ' . $diff->name . ' ADD (' . implode(', ', $fields) . ')';
+            $sql[] = 'ALTER TABLE ' . $diff->getName()->getQuotedName($this) . ' ADD (' . implode(', ', $fields) . ')';
         }
 
         $fields = array();
@@ -607,7 +662,19 @@ LEFT JOIN user_cons_columns r_cols
                 continue;
             }
 
+            /* @var $columnDiff \Doctrine\DBAL\Schema\ColumnDiff */
             $column = $columnDiff->column;
+
+            // Do not generate column alteration clause if type is binary and only fixed property has changed.
+            // Oracle only supports binary type columns with variable length.
+            // Avoids unnecessary table alteration statements.
+            if ($column->getType() instanceof BinaryType &&
+                $columnDiff->hasChanged('fixed') &&
+                count($columnDiff->changedProperties) === 1
+            ) {
+                continue;
+            }
+
             $columnHasChangedComment = $columnDiff->hasChanged('comment');
 
             /**
@@ -620,7 +687,7 @@ LEFT JOIN user_cons_columns r_cols
                     $columnInfo['notnull'] = false;
                 }
 
-                $fields[] = $column->getQuotedName($this) . ' ' . $this->getColumnDeclarationSQL('', $columnInfo);
+                $fields[] = $column->getQuotedName($this) . $this->getColumnDeclarationSQL('', $columnInfo);
             }
 
             if ($columnHasChangedComment) {
@@ -633,7 +700,7 @@ LEFT JOIN user_cons_columns r_cols
         }
 
         if (count($fields)) {
-            $sql[] = 'ALTER TABLE ' . $diff->name . ' MODIFY (' . implode(', ', $fields) . ')';
+            $sql[] = 'ALTER TABLE ' . $diff->getName()->getQuotedName($this) . ' MODIFY (' . implode(', ', $fields) . ')';
         }
 
         foreach ($diff->renamedColumns as $oldColumnName => $column) {
@@ -641,7 +708,7 @@ LEFT JOIN user_cons_columns r_cols
                 continue;
             }
 
-            $sql[] = 'ALTER TABLE ' . $diff->name . ' RENAME COLUMN ' . $oldColumnName .' TO ' . $column->getQuotedName($this);
+            $sql[] = 'ALTER TABLE ' . $diff->getName()->getQuotedName($this) . ' RENAME COLUMN ' . $oldColumnName .' TO ' . $column->getQuotedName($this);
         }
 
         $fields = array();
@@ -654,14 +721,14 @@ LEFT JOIN user_cons_columns r_cols
         }
 
         if (count($fields)) {
-            $sql[] = 'ALTER TABLE ' . $diff->name . ' DROP (' . implode(', ', $fields).')';
+            $sql[] = 'ALTER TABLE ' . $diff->getName()->getQuotedName($this) . ' DROP (' . implode(', ', $fields).')';
         }
 
         $tableSql = array();
 
         if ( ! $this->onSchemaAlterTable($diff, $tableSql)) {
             if ($diff->newName !== false) {
-                $sql[] = 'ALTER TABLE ' . $diff->name . ' RENAME TO ' . $diff->newName;
+                $sql[] = 'ALTER TABLE ' . $diff->getName()->getQuotedName($this) . ' RENAME TO ' . $diff->getNewName()->getQuotedName($this);
             }
 
             $sql = array_merge($sql, $this->_getAlterTableIndexForeignKeySQL($diff), $commentsSQL);
@@ -671,11 +738,60 @@ LEFT JOIN user_cons_columns r_cols
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getColumnDeclarationSQL($name, array $field)
+    {
+        if (isset($field['columnDefinition'])) {
+            $columnDef = $this->getCustomTypeDeclarationSQL($field);
+        } else {
+            $default = $this->getDefaultValueDeclarationSQL($field);
+
+            $notnull = empty($field['notnull']) ? ' NULL' : ' NOT NULL';
+
+            $unique = (isset($field['unique']) && $field['unique']) ?
+                ' ' . $this->getUniqueFieldDeclarationSQL() : '';
+
+            $check = (isset($field['check']) && $field['check']) ?
+                ' ' . $field['check'] : '';
+
+            $typeDecl = $field['type']->getSqlDeclaration($field, $this);
+            $columnDef = $typeDecl . $default . $notnull . $unique . $check;
+        }
+
+        return $name . ' ' . $columnDef;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getRenameIndexSQL($oldIndexName, Index $index, $tableName)
+    {
+        return array('ALTER INDEX ' . $oldIndexName . ' RENAME TO ' . $index->getQuotedName($this));
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function prefersSequences()
     {
         return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function usesSequenceEmulatedIdentityColumns()
+    {
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getIdentitySequenceName($tableName, $columnName)
+    {
+        return $tableName . '_' . $columnName . '_SEQ';
     }
 
     /**
@@ -845,11 +961,13 @@ LEFT JOIN user_cons_columns r_cols
             'timestamp'         => 'datetime',
             'timestamptz'       => 'datetimetz',
             'float'             => 'float',
+            'binary_float'      => 'float',
+            'binary_double'     => 'float',
             'long'              => 'string',
             'clob'              => 'text',
             'nclob'             => 'text',
-            'raw'               => 'text',
-            'long raw'          => 'text',
+            'raw'               => 'binary',
+            'long raw'          => 'blob',
             'rowid'             => 'string',
             'urowid'            => 'string',
             'blob'              => 'blob',

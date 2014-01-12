@@ -292,11 +292,11 @@ class <proxyShortClassName> extends \<className> implements \<baseProxyInterface
         $parentDirectory = dirname($fileName);
 
         if ( ! is_dir($parentDirectory) && (false === @mkdir($parentDirectory, 0775, true))) {
-            throw UnexpectedValueException::proxyDirectoryNotWritable($this->proxyDirectory);
+            throw UnexpectedValueException::proxyDirectoryNotWritable();
         }
 
         if ( ! is_writable($parentDirectory)) {
-            throw UnexpectedValueException::proxyDirectoryNotWritable($this->proxyDirectory);
+            throw UnexpectedValueException::proxyDirectoryNotWritable();
         }
 
         $tmpFileName = $fileName . '.' . uniqid('', true);
@@ -619,13 +619,7 @@ EOT;
 
         /* @var $prop \ReflectionProperty */
         foreach ($class->getReflectionClass()->getProperties() as $prop) {
-            if ($prop->isStatic()) {
-                continue;
-            }
-
-            $allProperties[] = $prop->isPrivate()
-                ? "\0" . $prop->getDeclaringClass()->getName() . "\0" . $prop->getName()
-                : $prop->getName();
+            $allProperties[] = $prop->getName();
         }
 
         $lazyPublicProperties = array_keys($this->getLazyLoadedPublicProperties($class));

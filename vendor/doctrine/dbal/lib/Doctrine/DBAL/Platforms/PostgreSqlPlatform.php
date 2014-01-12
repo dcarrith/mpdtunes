@@ -19,7 +19,12 @@
 
 namespace Doctrine\DBAL\Platforms;
 
+use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\ColumnDiff;
+use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Types\BinaryType;
+use Doctrine\DBAL\Types\BlobType;
 
 /**
  * PostgreSqlPlatform.
@@ -103,6 +108,22 @@ class PostgreSqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    public function getDateAddHourExpression($date, $hours)
+    {
+        return "(" . $date ." + (" . $hours . " || ' hour')::interval)";
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getDateSubHourExpression($date, $hours)
+    {
+        return "(" . $date ." - (" . $hours . " || ' hour')::interval)";
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getDateAddDaysExpression($date, $days)
     {
         return "(" . $date ." + (" . $days . " || ' day')::interval)";
@@ -149,11 +170,35 @@ class PostgreSqlPlatform extends AbstractPlatform
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getDefaultSchemaName()
+    {
+        return 'public';
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function supportsIdentityColumns()
     {
         return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function usesSequenceEmulatedIdentityColumns()
+    {
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getIdentitySequenceName($tableName, $columnName)
+    {
+        return $tableName . '_' . $columnName . '_seq';
     }
 
     /**
@@ -206,7 +251,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getListTablesSQL()
     {
-        return "SELECT tablename AS table_name, schemaname AS schema_name
+        return "SELECT quote_ident(tablename) AS table_name, schemaname AS schema_name
                 FROM pg_tables WHERE schemaname NOT LIKE 'pg_%' AND schemaname != 'information_schema' AND tablename != 'geometry_columns' AND tablename != 'spatial_ref_sys'";
     }
 
@@ -215,7 +260,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getListViewsSQL($database)
     {
-        return 'SELECT viewname, definition FROM pg_views';
+        return 'SELECT quote_ident(viewname) as viewname, schemaname, definition FROM pg_views';
     }
 
     /**
@@ -223,7 +268,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getListTableForeignKeysSQL($table, $database = null)
     {
-        return "SELECT r.conname, pg_catalog.pg_get_constraintdef(r.oid, true) as condef
+        return "SELECT quote_ident(r.conname) as conname, pg_catalog.pg_get_constraintdef(r.oid, true) as condef
                   FROM pg_catalog.pg_constraint r
                   WHERE r.conrelid =
                   (
@@ -256,7 +301,7 @@ class PostgreSqlPlatform extends AbstractPlatform
     public function getListTableConstraintsSQL($table)
     {
         return "SELECT
-                    relname
+                    quote_ident(relname) as relname
                 FROM
                     pg_class
                 WHERE oid IN (
@@ -276,7 +321,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getListTableIndexesSQL($table, $currentDatabase = null)
     {
-        return "SELECT relname, pg_index.indisunique, pg_index.indisprimary,
+        return "SELECT quote_ident(relname) as relname, pg_index.indisunique, pg_index.indisprimary,
                        pg_index.indkey, pg_index.indrelid
                  FROM pg_class, pg_index
                  WHERE oid IN (
@@ -314,7 +359,7 @@ class PostgreSqlPlatform extends AbstractPlatform
     {
         return "SELECT
                     a.attnum,
-                    a.attname AS field,
+                    quote_ident(a.attname) AS field,
                     t.typname AS type,
                     format_type(a.atttypid, a.atttypmod) AS complete_type,
                     (SELECT t1.typname FROM pg_catalog.pg_type t1 WHERE t1.oid = t.typbasetype) AS domain_type,
@@ -397,7 +442,7 @@ class PostgreSqlPlatform extends AbstractPlatform
             }
 
             $query = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
-            $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . $query;
+            $sql[] = 'ALTER TABLE ' . $diff->getName()->getQuotedName($this) . ' ' . $query;
             if ($comment = $this->getColumnComment($column)) {
                 $commentsSQL[] = $this->getCommentOnColumnSQL($diff->name, $column->getName(), $comment);
             }
@@ -409,12 +454,16 @@ class PostgreSqlPlatform extends AbstractPlatform
             }
 
             $query = 'DROP ' . $column->getQuotedName($this);
-            $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . $query;
+            $sql[] = 'ALTER TABLE ' . $diff->getName()->getQuotedName($this) . ' ' . $query;
         }
 
         foreach ($diff->changedColumns as $columnDiff) {
             /** @var $columnDiff \Doctrine\DBAL\Schema\ColumnDiff */
             if ($this->onSchemaAlterTableChangeColumn($columnDiff, $diff, $columnSql)) {
+                continue;
+            }
+
+            if ($this->isUnchangedBinaryColumn($columnDiff)) {
                 continue;
             }
 
@@ -426,7 +475,7 @@ class PostgreSqlPlatform extends AbstractPlatform
 
                 // here was a server version check before, but DBAL API does not support this anymore.
                 $query = 'ALTER ' . $oldColumnName . ' TYPE ' . $type->getSqlDeclaration($column->toArray(), $this);
-                $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . $query;
+                $sql[] = 'ALTER TABLE ' . $diff->getName()->getQuotedName($this) . ' ' . $query;
             }
 
             if ($columnDiff->hasChanged('default')) {
@@ -434,27 +483,27 @@ class PostgreSqlPlatform extends AbstractPlatform
                     ? ' DROP DEFAULT'
                     : ' SET' . $this->getDefaultValueDeclarationSQL($column->toArray());
                 $query = 'ALTER ' . $oldColumnName . $defaultClause;
-                $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . $query;
+                $sql[] = 'ALTER TABLE ' . $diff->getName()->getQuotedName($this) . ' ' . $query;
             }
 
             if ($columnDiff->hasChanged('notnull')) {
                 $query = 'ALTER ' . $oldColumnName . ' ' . ($column->getNotNull() ? 'SET' : 'DROP') . ' NOT NULL';
-                $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . $query;
+                $sql[] = 'ALTER TABLE ' . $diff->getName()->getQuotedName($this) . ' ' . $query;
             }
 
             if ($columnDiff->hasChanged('autoincrement')) {
                 if ($column->getAutoincrement()) {
                     // add autoincrement
-                    $seqName = $diff->name . '_' . $oldColumnName . '_seq';
+                    $seqName = $this->getIdentitySequenceName($diff->name, $oldColumnName);
 
                     $sql[] = "CREATE SEQUENCE " . $seqName;
-                    $sql[] = "SELECT setval('" . $seqName . "', (SELECT MAX(" . $oldColumnName . ") FROM " . $diff->name . "))";
+                    $sql[] = "SELECT setval('" . $seqName . "', (SELECT MAX(" . $oldColumnName . ") FROM " . $diff->getName()->getQuotedName($this) . "))";
                     $query = "ALTER " . $oldColumnName . " SET DEFAULT nextval('" . $seqName . "')";
-                    $sql[] = "ALTER TABLE " . $diff->name . " " . $query;
+                    $sql[] = "ALTER TABLE " . $diff->getName()->getQuotedName($this) . " " . $query;
                 } else {
                     // Drop autoincrement, but do NOT drop the sequence. It might be re-used by other tables or have
                     $query = "ALTER " . $oldColumnName . " " . "DROP DEFAULT";
-                    $sql[] = "ALTER TABLE " . $diff->name . " " . $query;
+                    $sql[] = "ALTER TABLE " . $diff->getName()->getQuotedName($this) . " " . $query;
                 }
             }
 
@@ -468,7 +517,7 @@ class PostgreSqlPlatform extends AbstractPlatform
 
             if ($columnDiff->hasChanged('length')) {
                 $query = 'ALTER ' . $column->getName() . ' TYPE ' . $column->getType()->getSqlDeclaration($column->toArray(), $this);
-                $sql[] = 'ALTER TABLE ' . $diff->name . ' ' . $query;
+                $sql[] = 'ALTER TABLE ' . $diff->getName()->getQuotedName($this) . ' ' . $query;
             }
         }
 
@@ -477,20 +526,69 @@ class PostgreSqlPlatform extends AbstractPlatform
                 continue;
             }
 
-            $sql[] = 'ALTER TABLE ' . $diff->name . ' RENAME COLUMN ' . $oldColumnName . ' TO ' . $column->getQuotedName($this);
+            $sql[] = 'ALTER TABLE ' . $diff->getName()->getQuotedName($this) . ' RENAME COLUMN ' . $oldColumnName . ' TO ' . $column->getQuotedName($this);
         }
 
         $tableSql = array();
 
         if ( ! $this->onSchemaAlterTable($diff, $tableSql)) {
             if ($diff->newName !== false) {
-                $sql[] = 'ALTER TABLE ' . $diff->name . ' RENAME TO ' . $diff->newName;
+                $sql[] = 'ALTER TABLE ' . $diff->getName()->getQuotedName($this) . ' RENAME TO ' . $diff->getNewName()->getQuotedName($this);
             }
 
             $sql = array_merge($this->getPreAlterTableIndexForeignKeySQL($diff), $sql, $this->getPostAlterTableIndexForeignKeySQL($diff), $commentsSQL);
         }
 
         return array_merge($sql, $tableSql, $columnSql);
+    }
+
+    /**
+     * Checks whether a given column diff is a logically unchanged binary type column.
+     *
+     * Used to determine whether a column alteration for a binary type column can be skipped.
+     * Doctrine's {@link \Doctrine\DBAL\Types\BinaryType} and {@link \Doctrine\DBAL\Types\BlobType}
+     * are mapped to the same database column type on this platform as this platform
+     * does not have a native VARBINARY/BINARY column type. Therefore the {@link \Doctrine\DBAL\Schema\Comparator}
+     * might detect differences for binary type columns which do not have to be propagated
+     * to database as there actually is no difference at database level.
+     *
+     * @param ColumnDiff $columnDiff The column diff to check against.
+     *
+     * @return boolean True if the given column diff is an unchanged binary type column, false otherwise.
+     */
+    private function isUnchangedBinaryColumn(ColumnDiff $columnDiff)
+    {
+        $columnType = $columnDiff->column->getType();
+
+        if ( ! $columnType instanceof BinaryType && ! $columnType instanceof BlobType) {
+            return false;
+        }
+
+        $fromColumn = $columnDiff->fromColumn instanceof Column ? $columnDiff->fromColumn : null;
+
+        if ($fromColumn) {
+            $fromColumnType = $fromColumn->getType();
+
+            if ( ! $fromColumnType instanceof BinaryType && ! $fromColumnType instanceof BlobType) {
+                return false;
+            }
+
+            return count(array_diff($columnDiff->changedProperties, array('type', 'length', 'fixed'))) === 0;
+        }
+
+        if ($columnDiff->hasChanged('type')) {
+            return false;
+        }
+
+        return count(array_diff($columnDiff->changedProperties, array('length', 'fixed'))) === 0;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getRenameIndexSQL($oldIndexName, Index $index, $tableName)
+    {
+        return array('ALTER INDEX ' . $oldIndexName . ' RENAME TO ' . $index->getQuotedName($this));
     }
 
     /**
@@ -511,7 +609,8 @@ class PostgreSqlPlatform extends AbstractPlatform
         return 'CREATE SEQUENCE ' . $sequence->getQuotedName($this) .
                ' INCREMENT BY ' . $sequence->getAllocationSize() .
                ' MINVALUE ' . $sequence->getInitialValue() .
-               ' START ' . $sequence->getInitialValue();
+               ' START ' . $sequence->getInitialValue() .
+               $this->getSequenceCacheSQL($sequence);
     }
 
     /**
@@ -520,7 +619,22 @@ class PostgreSqlPlatform extends AbstractPlatform
     public function getAlterSequenceSQL(\Doctrine\DBAL\Schema\Sequence $sequence)
     {
         return 'ALTER SEQUENCE ' . $sequence->getQuotedName($this) .
-               ' INCREMENT BY ' . $sequence->getAllocationSize();
+               ' INCREMENT BY ' . $sequence->getAllocationSize() .
+               $this->getSequenceCacheSQL($sequence);
+    }
+
+    /**
+     * Cache definition for sequences
+     *
+     * @return string
+     */
+    private function getSequenceCacheSQL(\Doctrine\DBAL\Schema\Sequence $sequence)
+    {
+        if ($sequence->getCache() > 1) {
+            return ' CACHE ' . $sequence->getCache();
+        }
+
+        return '';
     }
 
     /**
@@ -532,6 +646,22 @@ class PostgreSqlPlatform extends AbstractPlatform
             $sequence = $sequence->getQuotedName($this);
         }
         return 'DROP SEQUENCE ' . $sequence . ' CASCADE';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getCreateSchemaSQL($schemaName)
+    {
+        return 'CREATE SCHEMA ' . $schemaName;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function schemaNeedsCreation($schemaName)
+    {
+        return !in_array($schemaName, array('default', 'public'));
     }
 
     /**
@@ -721,6 +851,14 @@ class PostgreSqlPlatform extends AbstractPlatform
     }
 
     /**
+     * {@inheritdoc}
+     */
+    protected function getBinaryTypeDeclarationSQLSnippet($length, $fixed)
+    {
+        return 'BYTEA';
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function getClobTypeDeclarationSQL(array $field)
@@ -831,6 +969,22 @@ class PostgreSqlPlatform extends AbstractPlatform
     public function getVarcharMaxLength()
     {
         return 65535;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBinaryMaxLength()
+    {
+        return 0;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBinaryDefaultLength()
+    {
+        return 0;
     }
 
     /**

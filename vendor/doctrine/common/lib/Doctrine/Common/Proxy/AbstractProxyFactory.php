@@ -21,7 +21,6 @@ namespace Doctrine\Common\Proxy;
 
 use Doctrine\Common\Persistence\Mapping\ClassMetadataFactory;
 use Doctrine\Common\Proxy\Exception\InvalidArgumentException;
-use Doctrine\Common\Proxy\Exception\OutOfBoundsException;
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 
@@ -109,8 +108,6 @@ abstract class AbstractProxyFactory
      * @param  array  $identifier
      *
      * @return \Doctrine\Common\Proxy\Proxy
-     *
-     * @throws \Doctrine\Common\Proxy\Exception\OutOfBoundsException
      */
     public function getProxy($className, array $identifier)
     {
@@ -121,10 +118,6 @@ abstract class AbstractProxyFactory
         $proxy      = new $fqcn($definition->initializer, $definition->cloner);
 
         foreach ($definition->identifierFields as $idField) {
-            if (! isset($identifier[$idField])) {
-                throw OutOfBoundsException::missingPrimaryKeyValue($className, $idField);
-            }
-
             $definition->reflectionFields[$idField]->setValue($proxy, $identifier[$idField]);
         }
 

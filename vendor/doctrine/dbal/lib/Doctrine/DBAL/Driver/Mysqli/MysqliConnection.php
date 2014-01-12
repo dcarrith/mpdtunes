@@ -20,11 +20,13 @@
 namespace Doctrine\DBAL\Driver\Mysqli;
 
 use Doctrine\DBAL\Driver\Connection as Connection;
+use Doctrine\DBAL\Driver\PingableConnection;
 
 /**
  * @author Kim Hemsø Rasmussen <kimhemsoe@gmail.com>
+ * @author Till Klampaeckel <till@php.net>
  */
-class MysqliConnection implements Connection
+class MysqliConnection implements Connection, PingableConnection
 {
     /**
      * @var \mysqli
@@ -45,9 +47,19 @@ class MysqliConnection implements Connection
         $socket = isset($params['unix_socket']) ? $params['unix_socket'] : ini_get('mysqli.default_socket');
 
         $this->_conn = mysqli_init();
+
+        $this->setDriverOptions($driverOptions);
+
+        $previousHandler = set_error_handler(function () {
+        });
+
         if ( ! $this->_conn->real_connect($params['host'], $username, $password, $params['dbname'], $port, $socket)) {
+            set_error_handler($previousHandler);
+
             throw new MysqliException($this->_conn->connect_error, $this->_conn->connect_errno);
         }
+
+        set_error_handler($previousHandler);
 
         if (isset($params['charset'])) {
             $this->_conn->set_charset($params['charset']);
@@ -150,5 +162,61 @@ class MysqliConnection implements Connection
     public function errorInfo()
     {
         return $this->_conn->error;
+    }
+
+    /**
+     * Apply the driver options to the connection.
+     *
+     * @param array $driverOptions
+     *
+     * @throws MysqliException When one of of the options is not supported.
+     * @throws MysqliException When applying doesn't work - e.g. due to incorrect value.
+     */
+    private function setDriverOptions(array $driverOptions = array())
+    {
+        $supportedDriverOptions = array(
+            \MYSQLI_OPT_CONNECT_TIMEOUT,
+            \MYSQLI_OPT_LOCAL_INFILE,
+            \MYSQLI_INIT_COMMAND,
+            \MYSQLI_READ_DEFAULT_FILE,
+            \MYSQLI_READ_DEFAULT_GROUP,
+        );
+
+        if (defined('MYSQLI_SERVER_PUBLIC_KEY')) {
+            $supportedDriverOptions[] = \MYSQLI_SERVER_PUBLIC_KEY;
+        }
+
+        $exceptionMsg = "%s option '%s' with value '%s'";
+
+        foreach ($driverOptions as $option => $value) {
+
+            if (!in_array($option, $supportedDriverOptions, true)) {
+                throw new MysqliException(
+                    sprintf($exceptionMsg, 'Unsupported', $option, $value)
+                );
+            }
+
+            if (@mysqli_options($this->_conn, $option, $value)) {
+                continue;
+            }
+
+            $msg  = sprintf($exceptionMsg, 'Failed to set', $option, $value);
+            $msg .= sprintf(', error: %s (%d)', mysqli_error($this->_conn), mysqli_errno($this->_conn));
+
+            throw new MysqliException(
+                $msg,
+                mysqli_errno($this->_conn)
+            );
+        }
+    }
+
+    /**
+     * Pings the server and re-connects when `mysqli.reconnect = 1`
+     *
+     * @return bool
+     */
+    public function ping()
+    {
+        return $this->_conn->ping();
     }
 }

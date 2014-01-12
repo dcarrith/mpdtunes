@@ -1,6 +1,5 @@
 <?php namespace Barryvdh\Debugbar;
 
-use DebugBar\Storage\FileStorage;
 
 class ServiceProvider extends \Illuminate\Support\ServiceProvider {
 
@@ -24,16 +23,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider {
 
             /** @var LaravelDebugbar $debugbar */
             $debugbar = $this->app['debugbar'];
-            if($this->app['config']->get('laravel-debugbar::config.storage.enabled')){
-                $path = $this->app['config']->get('laravel-debugbar::config.storage.path');
-                $debugbar->setStorage($this->getStorage($path));
-            }
-
-            if(!$this->app->runningInConsole() && $this->app['request']->segment(1) !== '_debugbar'){
-                $debugbar->boot();
-            }else{
-                $debugbar->disable();
-            }
+            $debugbar->boot();
 
         }
 
@@ -87,6 +77,10 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider {
 
                 $debugbar = $app['debugbar'];
 
+                if(!$debugbar->isEnabled()){
+                    $this->app->abort('500', 'Debugbar is not enabled');
+                }
+
                 $openHandler = new \DebugBar\OpenHandler($debugbar);
 
                 $data = $openHandler->handle(null, false, false);
@@ -95,21 +89,6 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider {
                     ));
             });
 
-    }
-
-    public function getStorage($path){
-        /** @var \Illuminate\Filesystem\Filesystem $files */
-        $files = $this->app['files'];
-
-        if (!$files->isDirectory($path)) {
-            if($files->makeDirectory($path, 0777, true)){
-                $files->put($path.'/.gitignore', "*\n!.gitignore");
-            }else{
-                throw new \Exception("Cannot create directory '$path'..");
-            }
-        }
-
-        return new FileStorage($path);
     }
 
     /**

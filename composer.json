@@ -10,7 +10,7 @@
 		}
 	],
 	"require": {
-                "laravel/framework": "4.0.*",
+                "laravel/framework": "4.1.*",
 		"Dcarrith/CIFirePHP": "dev-master",
                 "Dcarrith/CIZip": "dev-master",
 		"way/generators": "dev-master",

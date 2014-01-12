@@ -21,6 +21,7 @@ namespace Doctrine\DBAL\Platforms;
 
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Schema\Identifier;
 use Doctrine\DBAL\Types;
 use Doctrine\DBAL\Schema\Constraint;
 use Doctrine\DBAL\Schema\Sequence;
@@ -232,6 +233,28 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Returns the SQL snippet used to declare a BINARY/VARBINARY column type.
+     *
+     * @param array $field The column definition.
+     *
+     * @return string
+     */
+    public function getBinaryTypeDeclarationSQL(array $field)
+    {
+        if ( ! isset($field['length'])) {
+            $field['length'] = $this->getBinaryDefaultLength();
+        }
+
+        $fixed = isset($field['fixed']) ? $field['fixed'] : false;
+
+        if ($field['length'] > $this->getBinaryMaxLength()) {
+            return $this->getBlobTypeDeclarationSQL($field);
+        }
+
+        return $this->getBinaryTypeDeclarationSQLSnippet($field['length'], $fixed);
+    }
+
+    /**
      * Returns the SQL snippet to declare a GUID/UUID field.
      *
      * By default this maps directly to a VARCHAR and only maps to more
@@ -247,6 +270,21 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Returns the SQL snippet to declare a JSON field.
+     *
+     * By default this maps directly to a CLOB and only maps to more
+     * special datatypes when the underlying databases support this datatype.
+     *
+     * @param array $field
+     *
+     * @return string
+     */
+    public function getJsonTypeDeclarationSQL(array $field)
+    {
+        return $this->getClobTypeDeclarationSQL($field);
+    }
+
+    /**
      * @param integer $length
      * @param boolean $fixed
      *
@@ -257,6 +295,21 @@ abstract class AbstractPlatform
     protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
     {
         throw DBALException::notSupported('VARCHARs not supported by Platform.');
+    }
+
+    /**
+     * Returns the SQL snippet used to declare a BINARY/VARBINARY column type.
+     *
+     * @param integer $length The length of the column.
+     * @param boolean $fixed  Whether the column length is fixed.
+     *
+     * @return string
+     *
+     * @throws \Doctrine\DBAL\DBALException If not supported on this platform.
+     */
+    protected function getBinaryTypeDeclarationSQLSnippet($length, $fixed)
+    {
+        throw DBALException::notSupported('BINARY/VARBINARY column types are not supported by this platform.');
     }
 
     /**
@@ -474,6 +527,26 @@ abstract class AbstractPlatform
      * @return integer
      */
     public function getVarcharDefaultLength()
+    {
+        return 255;
+    }
+
+    /**
+     * Gets the maximum length of a binary field.
+     *
+     * @return integer
+     */
+    public function getBinaryMaxLength()
+    {
+        return 4000;
+    }
+
+    /**
+     * Gets the default length of a binary field.
+     *
+     * @return integer
+     */
+    public function getBinaryDefaultLength()
     {
         return 255;
     }
@@ -802,37 +875,6 @@ abstract class AbstractPlatform
     }
 
     /**
-     * Returns the SQL to check if a value is one in a set of given values.
-     *
-     * Accepts an arbitrary number of parameters. The first parameter
-     * must always specify the value that should be matched against. Successive
-     * must contain a logical expression or an array with logical expressions.
-     * These expressions will be matched against the first parameter.
-     *
-     * @param string          $column The value that should be matched against.
-     * @param string|string[] $values The values that will be matched against $column.
-     *
-     * @return string The logical expression.
-     *
-     * @throws \InvalidArgumentException
-     */
-    public function getInExpression($column, $values)
-    {
-        if ( ! is_array($values)) {
-            $values = array($values);
-        }
-
-        // TODO: fix this code: the method does not exist
-        $values = $this->getIdentifiers($values);
-
-        if (count($values) == 0) {
-            throw new \InvalidArgumentException('Values must not be empty.');
-        }
-
-        return $column . ' IN (' . implode(', ', $values) . ')';
-    }
-
-    /**
      * Returns the SQL that checks if an expression is null.
      *
      * @param string $expression The expression that should be compared to null.
@@ -940,6 +982,36 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Returns the SQL to add the number of given hours to a date.
+     *
+     * @param string  $date
+     * @param integer $hours
+     *
+     * @return string
+     *
+     * @throws \Doctrine\DBAL\DBALException If not supported on this platform.
+     */
+    public function getDateAddHourExpression($date, $hours)
+    {
+        throw DBALException::notSupported(__METHOD__);
+    }
+
+    /**
+     * Returns the SQL to subtract the number of given hours to a date.
+     *
+     * @param string  $date
+     * @param integer $hours
+     *
+     * @return string
+     *
+     * @throws \Doctrine\DBAL\DBALException If not supported on this platform.
+     */
+    public function getDateSubHourExpression($date, $hours)
+    {
+        throw DBALException::notSupported(__METHOD__);
+    }
+
+    /**
      * Returns the SQL to add the number of given days to a date.
      *
      * @param string  $date
@@ -1027,7 +1099,7 @@ abstract class AbstractPlatform
 
     /**
      * Returns the FOR UPDATE expression.
-     * 
+     *
      * @return string
      */
     public function getForUpdateSQL()
@@ -1100,7 +1172,7 @@ abstract class AbstractPlatform
 
         if ($table instanceof Table) {
             $table = $table->getQuotedName($this);
-        } else if(!is_string($table)) {
+        } elseif (!is_string($table)) {
             throw new \InvalidArgumentException('getDropTableSQL() expects $table parameter to be string or \Doctrine\DBAL\Schema\Table.');
         }
 
@@ -1142,7 +1214,7 @@ abstract class AbstractPlatform
     {
         if ($index instanceof Index) {
             $index = $index->getQuotedName($this);
-        } else if(!is_string($index)) {
+        } elseif (!is_string($index)) {
             throw new \InvalidArgumentException('AbstractPlatform::getDropIndexSQL() expects $index parameter to be string or \Doctrine\DBAL\Schema\Index.');
         }
 
@@ -1172,7 +1244,7 @@ abstract class AbstractPlatform
 
     /**
      * Returns the SQL to drop a foreign key.
-     * 
+     *
      * @param \Doctrine\DBAL\Schema\ForeignKeyConstraint|string $foreignKey
      * @param \Doctrine\DBAL\Schema\Table|string                $table
      *
@@ -1328,7 +1400,7 @@ abstract class AbstractPlatform
         }
 
         if (isset($options['indexes']) && ! empty($options['indexes'])) {
-            foreach($options['indexes'] as $index => $definition) {
+            foreach ($options['indexes'] as $index => $definition) {
                 $columnListSql .= ', ' . $this->getIndexDeclarationSQL($index, $definition);
             }
         }
@@ -1410,7 +1482,7 @@ abstract class AbstractPlatform
 
         $referencesClause = '';
         if ($constraint instanceof Index) {
-            if($constraint->isPrimary()) {
+            if ($constraint->isPrimary()) {
                 $query .= ' PRIMARY KEY';
             } elseif ($constraint->isUnique()) {
                 $query .= ' UNIQUE';
@@ -1419,7 +1491,7 @@ abstract class AbstractPlatform
                     'Can only create primary or unique constraints, no common indexes with getCreateConstraintSQL().'
                 );
             }
-        } else if ($constraint instanceof ForeignKeyConstraint) {
+        } elseif ($constraint instanceof ForeignKeyConstraint) {
             $query .= ' FOREIGN KEY';
 
             $referencesClause = ' REFERENCES ' . $constraint->getQuotedForeignTableName($this) .
@@ -1485,6 +1557,32 @@ abstract class AbstractPlatform
     public function getCreatePrimaryKeySQL(Index $index, $table)
     {
         return 'ALTER TABLE ' . $table . ' ADD PRIMARY KEY (' . $this->getIndexFieldDeclarationListSQL($index->getQuotedColumns($this)) . ')';
+    }
+
+    /**
+     * Returns the SQL to create a named schema.
+     *
+     * @param string $schemaName
+     *
+     * @return string
+     * @throws \Doctrine\DBAL\DBALException If not supported on this platform.
+     */
+    public function getCreateSchemaSQL($schemaName)
+    {
+        throw DBALException::notSupported(__METHOD__);
+    }
+
+    /**
+     * Checks whether the schema $schemaName needs creating.
+     *
+     * @param string $schemaName
+     *
+     * @return boolean
+     * @throws \Doctrine\DBAL\DBALException If not supported on this platform.
+     */
+    public function schemaNeedsCreation($schemaName)
+    {
+        throw DBALException::notSupported(__METHOD__);
     }
 
     /**
@@ -1692,7 +1790,7 @@ abstract class AbstractPlatform
      */
     protected function getPreAlterTableIndexForeignKeySQL(TableDiff $diff)
     {
-        $tableName = $diff->name;
+        $tableName = $diff->getName()->getQuotedName($this);
 
         $sql = array();
         if ($this->supportsForeignKeyConstraints()) {
@@ -1721,13 +1819,17 @@ abstract class AbstractPlatform
      */
     protected function getPostAlterTableIndexForeignKeySQL(TableDiff $diff)
     {
-        $tableName = false !== $diff->newName ? $diff->newName : $diff->name;
+        $tableName = (false !== $diff->newName)
+            ? $diff->getNewName()->getQuotedName($this)
+            : $diff->getName()->getQuotedName($this);
 
         $sql = array();
+
         if ($this->supportsForeignKeyConstraints()) {
             foreach ($diff->addedForeignKeys as $foreignKey) {
                 $sql[] = $this->getCreateForeignKeySQL($foreignKey, $tableName);
             }
+
             foreach ($diff->changedForeignKeys as $foreignKey) {
                 $sql[] = $this->getCreateForeignKeySQL($foreignKey, $tableName);
             }
@@ -1736,11 +1838,37 @@ abstract class AbstractPlatform
         foreach ($diff->addedIndexes as $index) {
             $sql[] = $this->getCreateIndexSQL($index, $tableName);
         }
+
         foreach ($diff->changedIndexes as $index) {
             $sql[] = $this->getCreateIndexSQL($index, $tableName);
         }
 
+        foreach ($diff->renamedIndexes as $oldIndexName => $index) {
+            $oldIndexName = new Identifier($oldIndexName);
+            $sql          = array_merge(
+                $sql,
+                $this->getRenameIndexSQL($oldIndexName->getQuotedName($this), $index, $tableName)
+            );
+        }
+
         return $sql;
+    }
+
+    /**
+     * Returns the SQL for renaming an index on a table.
+     *
+     * @param string                      $oldIndexName The name of the index to rename from.
+     * @param \Doctrine\DBAL\Schema\Index $index        The definition of the index to rename to.
+     * @param string                      $tableName    The table to rename the given index on.
+     *
+     * @return array The sequence of SQL statements for renaming the given index.
+     */
+    protected function getRenameIndexSQL($oldIndexName, Index $index, $tableName)
+    {
+        return array(
+            $this->getDropIndexSQL($oldIndexName, $tableName),
+            $this->getCreateIndexSQL($index, $tableName)
+        );
     }
 
     /**
@@ -1894,13 +2022,13 @@ abstract class AbstractPlatform
             if (isset($field['type'])) {
                 if (in_array((string)$field['type'], array("Integer", "BigInteger", "SmallInteger"))) {
                     $default = " DEFAULT ".$field['default'];
-                } else if ((string)$field['type'] == 'DateTime' && $field['default'] == $this->getCurrentTimestampSQL()) {
+                } elseif ((string)$field['type'] == 'DateTime' && $field['default'] == $this->getCurrentTimestampSQL()) {
                     $default = " DEFAULT ".$this->getCurrentTimestampSQL();
-                } else if ((string)$field['type'] == 'Time' && $field['default'] == $this->getCurrentTimeSQL()) {
+                } elseif ((string)$field['type'] == 'Time' && $field['default'] == $this->getCurrentTimeSQL()) {
                     $default = " DEFAULT ".$this->getCurrentTimeSQL();
-                } else if ((string)$field['type'] == 'Date' && $field['default'] == $this->getCurrentDateSQL()) {
+                } elseif ((string)$field['type'] == 'Date' && $field['default'] == $this->getCurrentDateSQL()) {
                     $default = " DEFAULT ".$this->getCurrentDateSQL();
-                } else if ((string) $field['type'] == 'Boolean') {
+                } elseif ((string) $field['type'] == 'Boolean') {
                     $default = " DEFAULT '" . $this->convertBooleans($field['default']) . "'";
                 }
             }
@@ -2230,7 +2358,7 @@ abstract class AbstractPlatform
                     $item[$k] = (int) $value;
                 }
             }
-        } else if (is_bool($item)) {
+        } elseif (is_bool($item)) {
             $item = (int) $item;
         }
 
@@ -2592,6 +2720,37 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Whether the platform emulates identity columns through sequences.
+     *
+     * Some platforms that do not support identity columns natively
+     * but support sequences can emulate identity columns by using
+     * sequences.
+     *
+     * @return boolean
+     */
+    public function usesSequenceEmulatedIdentityColumns()
+    {
+        return false;
+    }
+
+    /**
+     * Returns the name of the sequence for a particular identity column in a particular table.
+     *
+     * @param string $tableName  The name of the table to return the sequence name for.
+     * @param string $columnName The name of the identity column in the table to return the sequence name for.
+     *
+     * @return string
+     *
+     * @throws \Doctrine\DBAL\DBALException If not supported on this platform.
+     *
+     * @see    usesSequenceEmulatedIdentityColumns
+     */
+    public function getIdentitySequenceName($tableName, $columnName)
+    {
+        throw DBALException::notSupported(__METHOD__);
+    }
+
+    /**
      * Whether the platform supports indexes.
      *
      * @return boolean
@@ -2696,6 +2855,18 @@ abstract class AbstractPlatform
     }
 
     /**
+     * Returns the default schema name.
+     *
+     * @return string
+     *
+     * @throws \Doctrine\DBAL\DBALException If not supported on this platform.
+     */
+    public function getDefaultSchemaName()
+    {
+        throw DBALException::notSupported(__METHOD__);
+    }
+
+    /**
      * Whether this platform supports create database.
      *
      * Some databases don't allow to create and drop databases at all or only with certain tools.
@@ -2743,6 +2914,16 @@ abstract class AbstractPlatform
      * @return boolean
      */
     public function hasNativeGuidType()
+    {
+        return false;
+    }
+
+    /**
+     * Does this platform have native JSON type.
+     *
+     * @return boolean
+     */
+    public function hasNativeJsonType()
     {
         return false;
     }
