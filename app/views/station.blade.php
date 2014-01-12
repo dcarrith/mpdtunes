@@ -72,7 +72,7 @@
                     			</div>
 	            		</div>
 
-	            		<br />
+	            		<br style="clear:both;"/>
 
 				<div class="station-form-field-div">
 
