@@ -20,8 +20,8 @@
     	],
     	"require": {
         	"php": ">=5.3.0",
-        	"illuminate/support": "4.0.x",
-		"monolog/monolog": "1.5.*"
+        	"illuminate/support": "4.x",
+		"monolog/monolog": "1.6.*"
     	},
     	"autoload": {
         	"classmap": [

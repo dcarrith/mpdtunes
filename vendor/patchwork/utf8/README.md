@@ -1,6 +1,11 @@
 Patchwork UTF-8 for PHP
 =======================
 
+[![Latest Stable Version](https://poser.pugx.org/patchwork/utf8/v/stable.png)](https://packagist.org/packages/patchwork/utf8)
+[![Total Downloads](https://poser.pugx.org/patchwork/utf8/downloads.png)](https://packagist.org/packages/patchwork/utf8)
+[![Build Status](https://secure.travis-ci.org/nicolas-grekas/Patchwork-UTF8.png)](http://travis-ci.org/nicolas-grekas/Patchwork-UTF8)
+[![SensioLabsInsight](https://insight.sensiolabs.com/projects/666c8ae7-0997-4d27-883a-6089ce3cc76b/mini.png)](https://insight.sensiolabs.com/projects/666c8ae7-0997-4d27-883a-6089ce3cc76b)
+
 Patchwork UTF-8 gives PHP developpers extensive, portable and performant
 handling of UTF-8 and [grapheme clusters](http://unicode.org/reports/tr29/).
 
@@ -24,14 +29,16 @@ always enabled.
 
 Patchwork UTF-8 provides pure PHP implementations for 3 of those 4 extensions.
 `pcre` compiled with unicode support is required but is widely available.
-The set of portability-fallbacks that are currently implemented is:
+The following set of portability-fallbacks allows an application to run on a
+server even if one or more of those extensions are not enabled:
 
 - *utf8_encode, utf8_decode*,
-- `mbstring`: *mb_convert_encoding, mb_decode_mimeheader, mb_encode_mimeheader,
-  mb_convert_case, mb_internal_encoding, mb_list_encodings, mb_strlen,
-  mb_strpos, mb_strrpos, mb_strtolower, mb_strtoupper, mb_substitute_character,
-  mb_substr, mb_stripos, mb_stristr, mb_strrchr, mb_strrichr, mb_strripos,
-  mb_strstr*,
+- `mbstring`: *mb_check_encoding, mb_convert_case, mb_convert_encoding,
+  mb_decode_mimeheader, mb_detect_encoding, mb_detect_order,
+  mb_encode_mimeheader, mb_encoding_aliases, mb_internal_encoding, mb_language,
+  mb_list_encodings, mb_strlen, mb_strpos, mb_strrpos, mb_strtolower,
+  mb_strtoupper, mb_stripos, mb_stristr, mb_strrchr, mb_strrichr, mb_strripos,
+  mb_strstr, mb_substitute_character, mb_substr*,
 - `iconv`: *iconv, iconv_mime_decode, iconv_mime_decode_headers,
   iconv_get_encoding, iconv_set_encoding, iconv_mime_encode, ob_iconv_handler,
   iconv_strlen, iconv_strpos, iconv_strrpos, iconv_substr*,
@@ -47,12 +54,11 @@ Patchwork\Utf8
 considered when working with generic Unicode strings. The `Patchwork\Utf8`
 class implements the quasi-complete set of native string functions that need
 UTF-8 grapheme clusters awareness. Function names, arguments and behavior
-carefully replicates native PHP string functions so that usage is
-straightforward.
+carefully replicates native PHP string functions.
 
 Some more functions are also provided to help handling UTF-8 strings:
 
-- *filter()*: sanitizes an UTF-8 expected input string,
+- *filter()*: normalizes to UTF-8 NFC, converting from [CP-1252](http://wikipedia.org/wiki/CP-1252) when needed,
 - *isUtf8()*: checks if a string contains well formed UTF-8 data,
 - *toAscii()*: generic UTF-8 to ASCII transliteration,
 - *strtocasefold()*: unicode transformation for caseless matching,
@@ -94,10 +100,10 @@ Then, early in your bootstrap sequence, you have to configure your environment:
 ```php
 \Patchwork\Utf8\Bootup::initAll(); // Enables the portablity layer and configures PHP for UTF-8
 \Patchwork\Utf8\Bootup::filterRequestUri(); // Redirects to an UTF-8 encoded URL if it's not already the case
-\Patchwork\Utf8\Bootup::filterRequestInputs(); // Sanitizes HTTP inputs to UTF-8 NFC
+\Patchwork\Utf8\Bootup::filterRequestInputs(); // Normalizes HTTP inputs to UTF-8 NFC
 ```
 
-Run `phpunit` in the `tests/` directory to see the code in action.
+Run `phpunit` to see the code in action.
 
 Make sure that you are confident about using UTF-8 by reading
 [Character Sets / Character Encoding Issues](http://www.phpwact.org/php/i18n/charsets)
@@ -113,7 +119,8 @@ will not need to, and you will be introducing a significant performance overhead
 to your application.
 
 Screen your input on the *outer perimeter* so that only well formed UTF-8 pass
-through. When dealing with badly formed UTF-8, you should not try to fix it.
+through. When dealing with badly formed UTF-8, you should not try to fix it
+(see [Unicode Security Considerations](http://www.unicode.org/reports/tr36/#Deletion_of_Noncharacters)).
 Instead, consider it as [CP-1252](http://wikipedia.org/wiki/CP-1252) and use
 `Patchwork\Utf8::utf8_encode()` to get an UTF-8 string. Don't forget also to
 choose one unicode normalization form and stick to it. NFC is now the defacto

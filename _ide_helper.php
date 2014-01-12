@@ -71,8 +71,9 @@ class App extends Illuminate\Support\Facades\App{
 	 }
 
 	/**
-	 * Get the current application environment.
+	 * Get or check the current application environment.
 	 *
+	 * @param dynamic
 	 * @return string
 	 * @static 
 	 */
@@ -116,11 +117,11 @@ class App extends Illuminate\Support\Facades\App{
 	 *
 	 * @param \Illuminate\Support\ServiceProvider|string  $provider
 	 * @param array  $options
-	 * @return void
+	 * @return \Illuminate\Support\ServiceProvider
 	 * @static 
 	 */
 	 public static function register($provider, $options = array()){
-		 Illuminate\Foundation\Application::register($provider, $options);
+		return Illuminate\Foundation\Application::register($provider, $options);
 	 }
 
 	/**
@@ -392,6 +393,16 @@ class App extends Illuminate\Support\Facades\App{
 	 }
 
 	/**
+	 * Get the current application locale.
+	 *
+	 * @return string
+	 * @static 
+	 */
+	 public static function getLocale(){
+		return Illuminate\Foundation\Application::getLocale();
+	 }
+
+	/**
 	 * Set the current application locale.
 	 *
 	 * @param string  $locale
@@ -589,13 +600,26 @@ class App extends Illuminate\Support\Facades\App{
 	/**
 	 * Register a new resolving callback.
 	 *
-	 * @param Closure  $callback
+	 * @param string  $abstract
+	 * @param \Closure  $callback
 	 * @return void
 	 * @static 
 	 */
-	 public static function resolving($callback){
+	 public static function resolving($abstract, $callback){
 		//Method inherited from Illuminate\Container\Container
-		 Illuminate\Foundation\Application::resolving($callback);
+		 Illuminate\Foundation\Application::resolving($abstract, $callback);
+	 }
+
+	/**
+	 * Register a new resolving callback for all types.
+	 *
+	 * @param \Closure  $callback
+	 * @return void
+	 * @static 
+	 */
+	 public static function resolvingAny($callback){
+		//Method inherited from Illuminate\Container\Container
+		 Illuminate\Foundation\Application::resolvingAny($callback);
 	 }
 
 	/**
@@ -687,11 +711,11 @@ class Artisan extends Illuminate\Support\Facades\Artisan{
 	 * Add a command, resolving through the application.
 	 *
 	 * @param string  $command
-	 * @return void
+	 * @return \Symfony\Component\Console\Command\Command
 	 * @static 
 	 */
 	 public static function resolve($command){
-		 Illuminate\Console\Application::resolve($command);
+		return Illuminate\Console\Application::resolve($command);
 	 }
 
 	/**
@@ -708,7 +732,7 @@ class Artisan extends Illuminate\Support\Facades\Artisan{
 	/**
 	 * Render the given exception.
 	 *
-	 * @param Exception  $e
+	 * @param \Exception  $e
 	 * @param \Symfony\Component\Console\Output\OutputInterface  $output
 	 * @return void
 	 * @static 
@@ -1112,6 +1136,16 @@ class Artisan extends Illuminate\Support\Facades\Artisan{
 
 class Auth extends Illuminate\Support\Facades\Auth{
 	/**
+	 * Create an instance of the database driver.
+	 *
+	 * @return \Illuminate\Auth\Guard
+	 * @static 
+	 */
+	 public static function createDatabaseDriver(){
+		return Illuminate\Auth\AuthManager::createDatabaseDriver();
+	 }
+
+	/**
 	 * Create an instance of the Eloquent driver.
 	 *
 	 * @return \Illuminate\Auth\Guard
@@ -1150,12 +1184,12 @@ class Auth extends Illuminate\Support\Facades\Auth{
 	 *
 	 * @param string   $driver
 	 * @param Closure  $callback
-	 * @return void
+	 * @return \Illuminate\Support\Manager|static
 	 * @static 
 	 */
 	 public static function extend($driver, $callback){
 		//Method inherited from Illuminate\Support\Manager
-		 Illuminate\Auth\AuthManager::extend($driver, $callback);
+		return Illuminate\Auth\AuthManager::extend($driver, $callback);
 	 }
 
 	/**
@@ -1325,16 +1359,6 @@ class Auth extends Illuminate\Support\Facades\Auth{
 	 */
 	 public static function logout(){
 		 Illuminate\Auth\Guard::logout();
-	 }
-
-	/**
-	 * Get the cookies queued by the guard.
-	 *
-	 * @return array
-	 * @static 
-	 */
-	 public static function getQueuedCookies(){
-		return Illuminate\Auth\Guard::getQueuedCookies();
 	 }
 
 	/**
@@ -1644,12 +1668,12 @@ class Cache extends Illuminate\Support\Facades\Cache{
 	 *
 	 * @param string   $driver
 	 * @param Closure  $callback
-	 * @return void
+	 * @return \Illuminate\Support\Manager|static
 	 * @static 
 	 */
 	 public static function extend($driver, $callback){
 		//Method inherited from Illuminate\Support\Manager
-		 Illuminate\Cache\CacheManager::extend($driver, $callback);
+		return Illuminate\Cache\CacheManager::extend($driver, $callback);
 	 }
 
 	/**
@@ -1906,7 +1930,7 @@ class Config extends Illuminate\Support\Facades\Config{
 	 * Register an after load callback for a given namespace.
 	 *
 	 * @param string   $namespace
-	 * @param Closure  $callback
+	 * @param \Closure  $callback
 	 * @return void
 	 * @static 
 	 */
@@ -2003,7 +2027,7 @@ class Config extends Illuminate\Support\Facades\Config{
 	 * Get a configuration option.
 	 *
 	 * @param string  $key
-	 * @return bool
+	 * @return mixed
 	 * @static 
 	 */
 	 public static function offsetGet($key){
@@ -2014,7 +2038,7 @@ class Config extends Illuminate\Support\Facades\Config{
 	 * Set a configuration option.
 	 *
 	 * @param string  $key
-	 * @param string  $value
+	 * @param mixed  $value
 	 * @return void
 	 * @static 
 	 */
@@ -2175,6 +2199,37 @@ class Cookie extends Illuminate\Support\Facades\Cookie{
 		return Illuminate\Cookie\CookieJar::getEncrypter();
 	 }
 
+	/**
+	 * Queue a cookie to send with the next response.
+	 *
+	 * @param dynamic
+	 * @return void
+	 * @static 
+	 */
+	 public static function queue(){
+		 Illuminate\Cookie\CookieJar::queue();
+	 }
+
+	/**
+	 * Remove a cookie from the queue.
+	 *
+	 * @param $cookieName
+	 * @static 
+	 */
+	 public static function unqueue($name){
+		 Illuminate\Cookie\CookieJar::unqueue($name);
+	 }
+
+	/**
+	 * Get the cookies which have been queued for the next request
+	 *
+	 * @return array
+	 * @static 
+	 */
+	 public static function getQueuedCookies(){
+		return Illuminate\Cookie\CookieJar::getQueuedCookies();
+	 }
+
 }
 
 class Crypt extends Illuminate\Support\Facades\Crypt{
@@ -2282,6 +2337,17 @@ class DB extends Illuminate\Support\Facades\DB{
 	 }
 
 	/**
+	 * Disconnect from the given database.
+	 *
+	 * @param string  $name
+	 * @return void
+	 * @static 
+	 */
+	 public static function disconnect($name = null){
+		 Illuminate\Database\DatabaseManager::disconnect($name);
+	 }
+
+	/**
 	 * Get the default connection name.
 	 *
 	 * @return string
@@ -2315,6 +2381,16 @@ class DB extends Illuminate\Support\Facades\DB{
 	 }
 
 	/**
+	 * Return all of the created connections.
+	 *
+	 * @return array
+	 * @static 
+	 */
+	 public static function getConnections(){
+		return Illuminate\Database\DatabaseManager::getConnections();
+	 }
+
+	/**
 	 * Dynamically pass methods to the default connection.
 	 *
 	 * @param string  $method
@@ -2329,7 +2405,7 @@ class DB extends Illuminate\Support\Facades\DB{
 	/**
 	 * Get a schema builder instance for the connection.
 	 *
-	 * @return \Illuminate\Database\Schema\Builder
+	 * @return \Illuminate\Database\Schema\MySqlBuilder
 	 * @static 
 	 */
 	 public static function getSchemaBuilder(){
@@ -2627,7 +2703,7 @@ class DB extends Illuminate\Support\Facades\DB{
 	 }
 
 	/**
-	 * Get the currently used PDO connection.
+	 * Get the current PDO connection.
 	 *
 	 * @return PDO
 	 * @static 
@@ -2635,6 +2711,18 @@ class DB extends Illuminate\Support\Facades\DB{
 	 public static function getPdo(){
 		//Method inherited from Illuminate\Database\Connection
 		return Illuminate\Database\MySqlConnection::getPdo();
+	 }
+
+	/**
+	 * Set the PDO connection.
+	 *
+	 * @param PDO  $pdo
+	 * @return void
+	 * @static 
+	 */
+	 public static function setPdo($pdo){
+		//Method inherited from Illuminate\Database\Connection
+		 Illuminate\Database\MySqlConnection::setPdo($pdo);
 	 }
 
 	/**
@@ -2949,6 +3037,18 @@ class DB extends Illuminate\Support\Facades\DB{
 
 class Eloquent extends Illuminate\Database\Eloquent\Model{
 	/**
+	 * Find a model by its primary key.
+	 *
+	 * @param array  $id
+	 * @param array  $columns
+	 * @return \Illuminate\Database\Eloquent\Model|Collection|static
+	 * @static 
+	 */
+	 public static function findMany($id, $columns = array()){
+		return Illuminate\Database\Eloquent\Builder::findMany($id, $columns);
+	 }
+
+	/**
 	 * Execute the query and get the first result.
 	 *
 	 * @param array  $columns
@@ -2990,6 +3090,18 @@ class Eloquent extends Illuminate\Database\Eloquent\Model{
 	 */
 	 public static function pluck($column){
 		return Illuminate\Database\Eloquent\Builder::pluck($column);
+	 }
+
+	/**
+	 * Chunk the results of the query.
+	 *
+	 * @param int  $count
+	 * @param callable  $callback
+	 * @return void
+	 * @static 
+	 */
+	 public static function chunk($count, $callback){
+		 Illuminate\Database\Eloquent\Builder::chunk($count, $callback);
 	 }
 
 	/**
@@ -3535,7 +3647,30 @@ class Eloquent extends Illuminate\Database\Eloquent\Model{
 	 }
 
 	/**
+	 * Add a raw "order by" clause to the query.
+	 *
+	 * @param string  $sql
+	 * @param array  $bindings
+	 * @return \Illuminate\Database\Query\Builder|static
+	 * @static 
+	 */
+	 public static function orderByRaw($sql, $bindings = array()){
+		return Illuminate\Database\Query\Builder::orderByRaw($sql, $bindings);
+	 }
+
+	/**
 	 * Set the "offset" value of the query.
+	 *
+	 * @param int  $value
+	 * @return \Illuminate\Database\Query\Builder|static
+	 * @static 
+	 */
+	 public static function offset($value){
+		return Illuminate\Database\Query\Builder::offset($value);
+	 }
+
+	/**
+	 * Alias to set the "offset" value of the query.
 	 *
 	 * @param int  $value
 	 * @return \Illuminate\Database\Query\Builder|static
@@ -3547,6 +3682,17 @@ class Eloquent extends Illuminate\Database\Eloquent\Model{
 
 	/**
 	 * Set the "limit" value of the query.
+	 *
+	 * @param int  $value
+	 * @return \Illuminate\Database\Query\Builder|static
+	 * @static 
+	 */
+	 public static function limit($value){
+		return Illuminate\Database\Query\Builder::limit($value);
+	 }
+
+	/**
+	 * Alias to set the "limit" value of the query.
 	 *
 	 * @param int  $value
 	 * @return \Illuminate\Database\Query\Builder|static
@@ -3813,16 +3959,6 @@ class Eloquent extends Illuminate\Database\Eloquent\Model{
 	 }
 
 	/**
-	 * Get a copy of the where clauses and bindings in an array.
-	 *
-	 * @return array
-	 * @static 
-	 */
-	 public static function getAndResetWheres(){
-		return Illuminate\Database\Query\Builder::getAndResetWheres();
-	 }
-
-	/**
 	 * Create a raw database expression.
 	 *
 	 * @param mixed  $value
@@ -3847,11 +3983,11 @@ class Eloquent extends Illuminate\Database\Eloquent\Model{
 	 * Set the bindings on the query builder.
 	 *
 	 * @param array  $bindings
-	 * @return void
+	 * @return \Illuminate\Database\Query\Builder
 	 * @static 
 	 */
 	 public static function setBindings($bindings){
-		 Illuminate\Database\Query\Builder::setBindings($bindings);
+		return Illuminate\Database\Query\Builder::setBindings($bindings);
 	 }
 
 	/**
@@ -4008,7 +4144,7 @@ class Event extends Illuminate\Support\Facades\Event{
 	 * Create a class based listener using the IoC container.
 	 *
 	 * @param mixed    $listener
-	 * @return Closure
+	 * @return \Closure
 	 * @static 
 	 */
 	 public static function createClassListener($listener){
@@ -4097,6 +4233,18 @@ class File extends Illuminate\Support\Facades\File{
 	 }
 
 	/**
+	 * Prepend to a file.
+	 *
+	 * @param string  $path
+	 * @param string  $data
+	 * @return int
+	 * @static 
+	 */
+	 public static function prepend($path, $data){
+		return Illuminate\Filesystem\Filesystem::prepend($path, $data);
+	 }
+
+	/**
 	 * Append to a file.
 	 *
 	 * @param string  $path
@@ -4124,11 +4272,11 @@ class File extends Illuminate\Support\Facades\File{
 	 *
 	 * @param string  $path
 	 * @param string  $target
-	 * @return void
+	 * @return bool
 	 * @static 
 	 */
 	 public static function move($path, $target){
-		 Illuminate\Filesystem\Filesystem::move($path, $target);
+		return Illuminate\Filesystem\Filesystem::move($path, $target);
 	 }
 
 	/**
@@ -4136,11 +4284,11 @@ class File extends Illuminate\Support\Facades\File{
 	 *
 	 * @param string  $path
 	 * @param string  $target
-	 * @return void
+	 * @return bool
 	 * @static 
 	 */
 	 public static function copy($path, $target){
-		 Illuminate\Filesystem\Filesystem::copy($path, $target);
+		return Illuminate\Filesystem\Filesystem::copy($path, $target);
 	 }
 
 	/**
@@ -4271,11 +4419,12 @@ class File extends Illuminate\Support\Facades\File{
 	 * @param string  $path
 	 * @param int     $mode
 	 * @param bool    $recursive
+	 * @param bool    $force
 	 * @return bool
 	 * @static 
 	 */
-	 public static function makeDirectory($path, $mode = 511, $recursive = false){
-		return Illuminate\Filesystem\Filesystem::makeDirectory($path, $mode, $recursive);
+	 public static function makeDirectory($path, $mode = 511, $recursive = false, $force = false){
+		return Illuminate\Filesystem\Filesystem::makeDirectory($path, $mode, $recursive, $force);
 	 }
 
 	/**
@@ -4284,11 +4433,11 @@ class File extends Illuminate\Support\Facades\File{
 	 * @param string  $directory
 	 * @param string  $destination
 	 * @param int     $options
-	 * @return void
+	 * @return bool
 	 * @static 
 	 */
 	 public static function copyDirectory($directory, $destination, $options = null){
-		 Illuminate\Filesystem\Filesystem::copyDirectory($directory, $destination, $options);
+		return Illuminate\Filesystem\Filesystem::copyDirectory($directory, $destination, $options);
 	 }
 
 	/**
@@ -4298,22 +4447,22 @@ class File extends Illuminate\Support\Facades\File{
 	 *
 	 * @param string  $directory
 	 * @param bool    $preserve
-	 * @return void
+	 * @return bool
 	 * @static 
 	 */
 	 public static function deleteDirectory($directory, $preserve = false){
-		 Illuminate\Filesystem\Filesystem::deleteDirectory($directory, $preserve);
+		return Illuminate\Filesystem\Filesystem::deleteDirectory($directory, $preserve);
 	 }
 
 	/**
 	 * Empty the specified directory of all files and folders.
 	 *
 	 * @param string  $directory
-	 * @return void
+	 * @return bool
 	 * @static 
 	 */
 	 public static function cleanDirectory($directory){
-		 Illuminate\Filesystem\Filesystem::cleanDirectory($directory);
+		return Illuminate\Filesystem\Filesystem::cleanDirectory($directory);
 	 }
 
 }
@@ -4454,6 +4603,19 @@ class Form extends Illuminate\Support\Facades\Form{
 	 }
 
 	/**
+	 * Create a url input field.
+	 *
+	 * @param string  $name
+	 * @param string  $value
+	 * @param array   $options
+	 * @return string
+	 * @static 
+	 */
+	 public static function url($name, $value = null, $options = array()){
+		return Illuminate\Html\FormBuilder::url($name, $value, $options);
+	 }
+
+	/**
 	 * Create a file input field.
 	 *
 	 * @param string  $name
@@ -4533,6 +4695,19 @@ class Form extends Illuminate\Support\Facades\Form{
 	 */
 	 public static function selectMonth($name, $selected = null, $options = array()){
 		return Illuminate\Html\FormBuilder::selectMonth($name, $selected, $options);
+	 }
+
+	/**
+	 * Get the select option for the given value.
+	 *
+	 * @param string  $display
+	 * @param string  $value
+	 * @param string  $selected
+	 * @return string
+	 * @static 
+	 */
+	 public static function getSelectOption($display, $value, $selected){
+		return Illuminate\Html\FormBuilder::getSelectOption($display, $value, $selected);
 	 }
 
 	/**
@@ -4622,6 +4797,18 @@ class Form extends Illuminate\Support\Facades\Form{
 	 */
 	 public static function macro($name, $macro){
 		 Illuminate\Html\FormBuilder::macro($name, $macro);
+	 }
+
+	/**
+	 * Get the ID attribute for a field name.
+	 *
+	 * @param string  $name
+	 * @param array   $attributes
+	 * @return string
+	 * @static 
+	 */
+	 public static function getIdAttribute($name, $attributes){
+		return Illuminate\Html\FormBuilder::getIdAttribute($name, $attributes);
 	 }
 
 	/**
@@ -5169,7 +5356,7 @@ class Input extends Illuminate\Support\Facades\Input{
 	 *
 	 * @param string  $key
 	 * @param mixed   $default
-	 * @return \Symfony\Component\HttpFoundation\File\UploadedFile
+	 * @return \Symfony\Component\HttpFoundation\File\UploadedFile|array
 	 * @static 
 	 */
 	 public static function file($key = null, $default = null){
@@ -5776,14 +5963,14 @@ class Input extends Illuminate\Support\Facades\Input{
 	 }
 
 	/**
-	 * Returns the root url from which this request is executed.
+	 * Returns the root URL from which this request is executed.
 	 * 
 	 * The base URL never ends with a /.
 	 * 
 	 * This is similar to getBasePath(), except that it also includes the
 	 * script filename (e.g. index.php) if one exists.
 	 *
-	 * @return string The raw url (i.e. not urldecoded)
+	 * @return string The raw URL (i.e. not urldecoded)
 	 * @api 
 	 * @static 
 	 */
@@ -6658,7 +6845,7 @@ class Mail extends Illuminate\Support\Facades\Mail{
 	 * Create a new Mailer instance.
 	 *
 	 * @param \Illuminate\View\Environment  $views
-	 * @param Swift_Mailer  $swift
+	 * @param \Swift_Mailer  $swift
 	 * @return void
 	 * @static 
 	 */
@@ -6683,12 +6870,12 @@ class Mail extends Illuminate\Support\Facades\Mail{
 	 *
 	 * @param string  $view
 	 * @param array   $data
-	 * @param mixed  $callback
-	 * @return void
+	 * @param mixed   $callback
+	 * @return int
 	 * @static 
 	 */
 	 public static function plain($view, $data, $callback){
-		 Illuminate\Mail\Mailer::plain($view, $data, $callback);
+		return Illuminate\Mail\Mailer::plain($view, $data, $callback);
 	 }
 
 	/**
@@ -6697,11 +6884,11 @@ class Mail extends Illuminate\Support\Facades\Mail{
 	 * @param string|array  $view
 	 * @param array  $data
 	 * @param Closure|string  $callback
-	 * @return void
+	 * @return int
 	 * @static 
 	 */
 	 public static function send($view, $data, $callback){
-		 Illuminate\Mail\Mailer::send($view, $data, $callback);
+		return Illuminate\Mail\Mailer::send($view, $data, $callback);
 	 }
 
 	/**
@@ -6721,10 +6908,10 @@ class Mail extends Illuminate\Support\Facades\Mail{
 	/**
 	 * Queue a new e-mail message for sending on the given queue.
 	 *
+	 * @param string  $queue
 	 * @param string|array  $view
 	 * @param array   $data
 	 * @param Closure|string  $callback
-	 * @param string  $queue
 	 * @return void
 	 * @static 
 	 */
@@ -6798,7 +6985,7 @@ class Mail extends Illuminate\Support\Facades\Mail{
 	/**
 	 * Get the Swift Mailer instance.
 	 *
-	 * @return Swift_Mailer
+	 * @return \Swift_Mailer
 	 * @static 
 	 */
 	 public static function getSwiftMailer(){
@@ -6808,7 +6995,7 @@ class Mail extends Illuminate\Support\Facades\Mail{
 	/**
 	 * Set the Swift Mailer instance.
 	 *
-	 * @param Swift_Mailer  $swift
+	 * @param \Swift_Mailer  $swift
 	 * @return void
 	 * @static 
 	 */
@@ -7146,6 +7333,18 @@ class Queue extends Illuminate\Support\Facades\Queue{
 	 * @return void
 	 * @static 
 	 */
+	 public static function extend($driver, $resolver){
+		 Illuminate\Queue\QueueManager::extend($driver, $resolver);
+	 }
+
+	/**
+	 * Add a queue connection resolver.
+	 *
+	 * @param string   $driver
+	 * @param Closure  $resolver
+	 * @return void
+	 * @static 
+	 */
 	 public static function addConnector($driver, $resolver){
 		 Illuminate\Queue\QueueManager::addConnector($driver, $resolver);
 	 }
@@ -7178,9 +7377,9 @@ class Queue extends Illuminate\Support\Facades\Queue{
 	/**
 	 * Push a new job onto the queue after a delay.
 	 *
-	 * @param int     $delay
+	 * @param \DateTime|int  $delay
 	 * @param string  $job
-	 * @param mixed   $data
+	 * @param mixed  $data
 	 * @param string  $queue
 	 * @return mixed
 	 * @static 
@@ -7209,6 +7408,31 @@ class Queue extends Illuminate\Support\Facades\Queue{
 	 public static function marshal(){
 		//Method inherited from Illuminate\Queue\Queue
 		return Illuminate\Queue\SyncQueue::marshal();
+	 }
+
+	/**
+	 * Push a new an array of jobs onto the queue.
+	 *
+	 * @param array  $jobs
+	 * @param mixed  $data
+	 * @param string  $queue
+	 * @return mixed
+	 * @static 
+	 */
+	 public static function bulk($jobs, $data = '', $queue = null){
+		//Method inherited from Illuminate\Queue\Queue
+		return Illuminate\Queue\SyncQueue::bulk($jobs, $data, $queue);
+	 }
+
+	/**
+	 * Get the current UNIX timestamp.
+	 *
+	 * @return int
+	 * @static 
+	 */
+	 public static function getTime(){
+		//Method inherited from Illuminate\Queue\Queue
+		return Illuminate\Queue\SyncQueue::getTime();
 	 }
 
 	/**
@@ -7296,7 +7520,7 @@ class Redirect extends Illuminate\Support\Facades\Redirect{
 	 * @return \Illuminate\Http\RedirectResponse
 	 * @static 
 	 */
-	 public static function intended($default, $status = 302, $headers = array(), $secure = null){
+	 public static function intended($default = '/', $status = 302, $headers = array(), $secure = null){
 		return Illuminate\Routing\Redirector::intended($default, $status, $headers, $secure);
 	 }
 
@@ -7312,6 +7536,19 @@ class Redirect extends Illuminate\Support\Facades\Redirect{
 	 */
 	 public static function to($path, $status = 302, $headers = array(), $secure = null){
 		return Illuminate\Routing\Redirector::to($path, $status, $headers, $secure);
+	 }
+
+	/**
+	 * Create a new redirect response to an external URL (no validation).
+	 *
+	 * @param string  $path
+	 * @param int     $status
+	 * @param array   $headers
+	 * @return \Illuminate\Http\RedirectResponse
+	 * @static 
+	 */
+	 public static function away($path, $status = 302, $headers = array()){
+		return Illuminate\Routing\Redirector::away($path, $status, $headers);
 	 }
 
 	/**
@@ -7615,7 +7852,7 @@ class Request extends Illuminate\Support\Facades\Request{
 	 *
 	 * @param string  $key
 	 * @param mixed   $default
-	 * @return \Symfony\Component\HttpFoundation\File\UploadedFile
+	 * @return \Symfony\Component\HttpFoundation\File\UploadedFile|array
 	 * @static 
 	 */
 	 public static function file($key = null, $default = null){
@@ -8222,14 +8459,14 @@ class Request extends Illuminate\Support\Facades\Request{
 	 }
 
 	/**
-	 * Returns the root url from which this request is executed.
+	 * Returns the root URL from which this request is executed.
 	 * 
 	 * The base URL never ends with a /.
 	 * 
 	 * This is similar to getBasePath(), except that it also includes the
 	 * script filename (e.g. index.php) if one exists.
 	 *
-	 * @return string The raw url (i.e. not urldecoded)
+	 * @return string The raw URL (i.e. not urldecoded)
 	 * @api 
 	 * @static 
 	 */
@@ -9402,6 +9639,67 @@ class Seeder extends Illuminate\Database\Seeder{
 
 class Session extends Illuminate\Support\Facades\Session{
 	/**
+	 * Create a new manager instance.
+	 *
+	 * @param \Illuminate\Foundation\Application  $app
+	 * @return void
+	 * @static 
+	 */
+	 public static function __construct($app){
+		//Method inherited from Illuminate\Support\Manager
+		 Illuminate\Session\SessionManager::__construct($app);
+	 }
+
+	/**
+	 * Get a driver instance.
+	 *
+	 * @param string  $driver
+	 * @return mixed
+	 * @static 
+	 */
+	 public static function driver($driver = null){
+		//Method inherited from Illuminate\Support\Manager
+		return Illuminate\Session\SessionManager::driver($driver);
+	 }
+
+	/**
+	 * Register a custom driver creator Closure.
+	 *
+	 * @param string   $driver
+	 * @param Closure  $callback
+	 * @return \Illuminate\Support\Manager|static
+	 * @static 
+	 */
+	 public static function extend($driver, $callback){
+		//Method inherited from Illuminate\Support\Manager
+		return Illuminate\Session\SessionManager::extend($driver, $callback);
+	 }
+
+	/**
+	 * Get all of the created "drivers".
+	 *
+	 * @return array
+	 * @static 
+	 */
+	 public static function getDrivers(){
+		//Method inherited from Illuminate\Support\Manager
+		return Illuminate\Session\SessionManager::getDrivers();
+	 }
+
+	/**
+	 * Dynamically call the default driver instance.
+	 *
+	 * @param string  $method
+	 * @param array   $parameters
+	 * @return mixed
+	 * @static 
+	 */
+	 public static function __call($method, $parameters){
+		//Method inherited from Illuminate\Support\Manager
+		return Illuminate\Session\SessionManager::__call($method, $parameters);
+	 }
+
+	/**
 	 * Starts the session storage.
 	 *
 	 * @return Boolean True if session started.
@@ -9591,19 +9889,6 @@ class Session extends Illuminate\Support\Facades\Session{
 	 */
 	 public static function regenerate(){
 		return Illuminate\Session\Store::regenerate();
-	 }
-
-	/**
-	 * Constructor.
-	 *
-	 * @param SessionStorageInterface $storage    A SessionStorageInterface instance.
-	 * @param AttributeBagInterface   $attributes An AttributeBagInterface instance, (defaults null for default AttributeBag)
-	 * @param FlashBagInterface       $flashes    A FlashBagInterface instance (defaults null for default FlashBag)
-	 * @static 
-	 */
-	 public static function __construct($storage = null, $attributes = null, $flashes = null){
-		//Method inherited from Symfony\Component\HttpFoundation\Session\Session
-		 Illuminate\Session\Store::__construct($storage, $attributes, $flashes);
 	 }
 
 	/**
@@ -10037,23 +10322,25 @@ class Validator extends Illuminate\Support\Facades\Validator{
 	 *
 	 * @param string  $rule
 	 * @param Closure|string  $extension
+	 * @param string  $message
 	 * @return void
 	 * @static 
 	 */
-	 public static function extend($rule, $extension){
-		 Illuminate\Validation\Factory::extend($rule, $extension);
+	 public static function extend($rule, $extension, $message = null){
+		 Illuminate\Validation\Factory::extend($rule, $extension, $message);
 	 }
 
 	/**
 	 * Register a custom implicit validator extension.
 	 *
-	 * @param string  $rule
-	 * @param Closure $extension
+	 * @param string   $rule
+	 * @param Closure  $extension
+	 * @param string  $message
 	 * @return void
 	 * @static 
 	 */
-	 public static function extendImplicit($rule, $extension){
-		 Illuminate\Validation\Factory::extendImplicit($rule, $extension);
+	 public static function extendImplicit($rule, $extension, $message = null){
+		 Illuminate\Validation\Factory::extendImplicit($rule, $extension, $message);
 	 }
 
 	/**
@@ -10440,6 +10727,18 @@ class View extends Illuminate\Support\Facades\View{
 	 }
 
 	/**
+	 * Get an item from the shared data.
+	 *
+	 * @param string  $key
+	 * @param mixed   $default
+	 * @return mixed
+	 * @static 
+	 */
+	 public static function shared($key, $default = null){
+		return Illuminate\View\Environment::shared($key, $default);
+	 }
+
+	/**
 	 * Get all of the shared data for the environment.
 	 *
 	 * @return array
@@ -10478,6 +10777,61 @@ class CIZip extends Dcarrith\CIZip\CIZip{
 }
 
 class Debugbar extends Barryvdh\Debugbar\Facade{
+	/**
+	 * 
+	 *
+	 * @param \Illuminate\Foundation\Application $app
+	 * @static 
+	 */
+	 public static function __construct($app = null){
+		 Barryvdh\Debugbar\LaravelDebugbar::__construct($app);
+	 }
+
+	/**
+	 * Enable the Debugbar and boot, if not already booted.
+	 *
+	 * @static 
+	 */
+	 public static function enable(){
+		 Barryvdh\Debugbar\LaravelDebugbar::enable();
+	 }
+
+	/**
+	 * Disable the Debugbar
+	 *
+	 * @static 
+	 */
+	 public static function disable(){
+		 Barryvdh\Debugbar\LaravelDebugbar::disable();
+	 }
+
+	/**
+	 * Boot the debugbar (add collectors, renderer and listener)
+	 *
+	 * @static 
+	 */
+	 public static function boot(){
+		 Barryvdh\Debugbar\LaravelDebugbar::boot();
+	 }
+
+	/**
+	 * 
+	 *
+	 * @static 
+	 */
+	 public static function modifyResponse($request, $response){
+		 Barryvdh\Debugbar\LaravelDebugbar::modifyResponse($request, $response);
+	 }
+
+	/**
+	 * 
+	 *
+	 * @static 
+	 */
+	 public static function shouldCollect($name, $default = false){
+		 Barryvdh\Debugbar\LaravelDebugbar::shouldCollect($name, $default);
+	 }
+
 	/**
 	 * Starts a measure
 	 *
@@ -10738,9 +11092,9 @@ class Debugbar extends Barryvdh\Debugbar\Facade{
 	 * @return array
 	 * @static 
 	 */
-	 public static function getDataAsHeaders($headerName = 'phpdebugbar', $maxHeaderLength = 4096){
+	 public static function getDataAsHeaders($headerName = 'phpdebugbar', $maxHeaderLength = 4096, $maxTotalHeaderLength = 250000){
 		//Method inherited from DebugBar\DebugBar
-		return Barryvdh\Debugbar\LaravelDebugbar::getDataAsHeaders($headerName, $maxHeaderLength);
+		return Barryvdh\Debugbar\LaravelDebugbar::getDataAsHeaders($headerName, $maxHeaderLength, $maxTotalHeaderLength);
 	 }
 
 	/**
@@ -10838,12 +11192,14 @@ class Debugbar extends Barryvdh\Debugbar\Facade{
 	/**
 	 * Returns a JavascriptRenderer for this instance
 	 *
+	 * @param stri $baseUrl
+	 * @param string $basePathng
 	 * @return JavascriptRenderer
 	 * @static 
 	 */
-	 public static function getJavascriptRenderer(){
+	 public static function getJavascriptRenderer($baseUrl = null, $basePath = null){
 		//Method inherited from DebugBar\DebugBar
-		return Barryvdh\Debugbar\LaravelDebugbar::getJavascriptRenderer();
+		return Barryvdh\Debugbar\LaravelDebugbar::getJavascriptRenderer($baseUrl, $basePath);
 	 }
 
 	/**

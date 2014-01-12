@@ -127,7 +127,7 @@ class Encrypter {
 			throw new DecryptException("Invalid data.");
 		}
 
-		if ($payload['mac'] !== $this->hash($payload['iv'], $payload['value']))
+		if ( ! $this->validMac($payload))
 		{
 			throw new DecryptException("MAC is invalid.");
 		}
@@ -136,11 +136,22 @@ class Encrypter {
 	}
 
 	/**
+	 * Determine if the MAC for the given payload is valid.
+	 *
+	 * @param  array  $payload
+	 * @return bool
+	 */
+	protected function validMac(array $payload)
+	{
+		return ($payload['mac'] === $this->hash($payload['iv'], $payload['value']));
+	}
+
+	/**
 	 * Create a MAC for the given value.
 	 *
 	 * @param  string  $iv
 	 * @param  string  $value
-	 * @return string  
+	 * @return string
 	 */
 	protected function hash($iv, $value)
 	{
@@ -190,12 +201,12 @@ class Encrypter {
 	/**
 	 * Verify that the encryption payload is valid.
 	 *
-	 * @param  array  $data
+	 * @param  array|mixed  $data
 	 * @return bool
 	 */
-	protected function invalidPayload(array $data)
+	protected function invalidPayload($data)
 	{
-		return ! isset($data['iv']) or ! isset($data['value']) or ! isset($data['mac']);
+		return ! is_array($data) or ! isset($data['iv']) or ! isset($data['value']) or ! isset($data['mac']);
 	}
 
 	/**

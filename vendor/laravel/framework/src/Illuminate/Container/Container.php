@@ -1,4 +1,9 @@
-<?php namespace Illuminate\Container; use Closure, ArrayAccess, ReflectionParameter;
+<?php namespace Illuminate\Container;
+
+use Closure;
+use ArrayAccess;
+use ReflectionClass;
+use ReflectionParameter;
 
 class BindingResolutionException extends \Exception {}
 
@@ -31,6 +36,13 @@ class Container implements ArrayAccess {
 	 * @var array
 	 */
 	protected $resolvingCallbacks = array();
+
+	/**
+	 * All of the global resolving callbacks.
+	 *
+	 * @var array
+	 */
+	protected $globalResolvingCallbacks = array();
 
 	/**
 	 * Determine if the given abstract type has been bound.
@@ -225,7 +237,7 @@ class Container implements ArrayAccess {
 		// so the developer can keep using the same objects instance every time.
 		if (isset($this->instances[$abstract]))
 		{
-			return $this->instances[$abstract];	
+			return $this->instances[$abstract];
 		}
 
 		$concrete = $this->getConcrete($abstract);
@@ -250,7 +262,7 @@ class Container implements ArrayAccess {
 			$this->instances[$abstract] = $object;
 		}
 
-		$this->fireResolvingCallbacks($object);
+		$this->fireResolvingCallbacks($abstract, $object);
 
 		return $object;
 	}
@@ -293,7 +305,7 @@ class Container implements ArrayAccess {
 			return $concrete($this, $parameters);
 		}
 
-		$reflector = new \ReflectionClass($concrete);
+		$reflector = new ReflectionClass($concrete);
 
 		// If the type is not instantiable, the developer is attempting to resolve
 		// an abstract type such as an Interface of Abstract Class and there is
@@ -407,12 +419,24 @@ class Container implements ArrayAccess {
 	/**
 	 * Register a new resolving callback.
 	 *
-	 * @param  Closure  $callback
+	 * @param  string  $abstract
+	 * @param  \Closure  $callback
 	 * @return void
 	 */
-	public function resolving(Closure $callback)
+	public function resolving($abstract, Closure $callback)
 	{
-		$this->resolvingCallbacks[] = $callback;
+		$this->resolvingCallbacks[$abstract][] = $callback;
+	}
+
+	/**
+	 * Register a new resolving callback for all types.
+	 *
+	 * @param  \Closure  $callback
+	 * @return void
+	 */
+	public function resolvingAny(Closure $callback)
+	{
+		$this->globalResolvingCallbacks[] = $callback;
 	}
 
 	/**
@@ -421,9 +445,25 @@ class Container implements ArrayAccess {
 	 * @param  mixed  $object
 	 * @return void
 	 */
-	protected function fireResolvingCallbacks($object)
+	protected function fireResolvingCallbacks($abstract, $object)
 	{
-		foreach ($this->resolvingCallbacks as $callback)
+		if (isset($this->resolvingCallbacks[$abstract]))
+		{
+			$this->fireCallbackArray($object, $this->resolvingCallbacks[$abstract]);
+		}
+
+		$this->fireCallbackArray($object, $this->globalResolvingCallbacks);
+	}
+
+	/**
+	 * Fire an array of callbacks with an object.
+	 *
+	 * @param  mixed  $object
+	 * @param  array  $callbacks
+	 */
+	protected function fireCallbackArray($object, array $callbacks)
+	{
+		foreach ($callbacks as $callback)
 		{
 			call_user_func($callback, $object);
 		}
@@ -529,6 +569,8 @@ class Container implements ArrayAccess {
 	public function offsetUnset($key)
 	{
 		unset($this->bindings[$key]);
+
+		unset($this->instances[$key]);
 	}
 
 }

@@ -5,6 +5,7 @@ use Closure;
 use DateTime;
 use Illuminate\Cache\CacheManager;
 use Illuminate\Database\Query\Processors\Processor;
+use Doctrine\DBAL\Connection as DoctrineConnection;
 
 class Connection implements ConnectionInterface {
 
@@ -635,17 +636,28 @@ class Connection implements ConnectionInterface {
 
 		$data = array('pdo' => $this->pdo, 'dbname' => $this->getConfig('database'));
 
-		return new \Doctrine\DBAL\Connection($data, $driver);
+		return new DoctrineConnection($data, $driver);
 	}
 
 	/**
-	 * Get the currently used PDO connection.
+	 * Get the current PDO connection.
 	 *
 	 * @return PDO
 	 */
 	public function getPdo()
 	{
 		return $this->pdo;
+	}
+
+	/**
+	 * Set the PDO connection.
+	 *
+	 * @param  PDO  $pdo
+	 * @return void
+	 */
+	public function setPdo(PDO $pdo)
+	{
+		$this->pdo = $pdo;
 	}
 
 	/**

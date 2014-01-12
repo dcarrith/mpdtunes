@@ -1,3 +1,29 @@
+1.8.0 / 2014-01-06
+==================
+* Added .gitattributes file to to ignore some files on export (thanks @lucasmichot)
+* Removed unnecessary __set tz/timezone switch
+* Added min() / max() (thanks @lucasmichot)
+* Fixed startOfWeek() / endOfWeek() when crossing year boundary.
+* Fixed bug in detecting relative keywords in ctor parameter when using a test now
+
+1.7.0 / 2013-12-04
+==================
+* Added startOfYear() / endOfYear() (thanks @semalead)
+* Added average() (thanks @semalead)
+
+1.6.0 / 2013-11-23
+==================
+* Fixed "Cannot access property ::$toStringFormat" when extending Carbon and type juggling to a string occurs
+
+1.5.0 / 2013-11-21
+==================
+* Diff for humans now shows 2 weeks ago instead of 14 days ago
+* Added a local getter to test if the instance is in the local timezone
+* Added a utc getter to check if the instance is in UTC timezone
+* Fixed dst comment / phpdoc and psr issues
+* Optimize timezone getters (thanks @semalead)
+* Added static __toString formatting (thanks @cviebrock and @anlutro)
+
 1.4.0 / 2013-09-08
 ==================
 * Corrected various PHPdocs

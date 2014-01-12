@@ -35,7 +35,7 @@ class HttpKernelTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException RuntimeException
+     * @expectedException \RuntimeException
      */
     public function testHandleWhenControllerThrowsAnExceptionAndRawIsTrue()
     {
@@ -45,7 +45,7 @@ class HttpKernelTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException RuntimeException
+     * @expectedException \RuntimeException
      */
     public function testHandleWhenControllerThrowsAnExceptionAndRawIsFalseAndNoListenerIsRegistered()
     {
@@ -147,7 +147,7 @@ class HttpKernelTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException LogicException
+     * @expectedException \LogicException
      */
     public function testHandleWhenTheControllerIsNotACallable()
     {
@@ -199,7 +199,7 @@ class HttpKernelTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException LogicException
+     * @expectedException \LogicException
      */
     public function testHandleWhenTheControllerDoesNotReturnAResponse()
     {
@@ -252,7 +252,7 @@ class HttpKernelTest extends \PHPUnit_Framework_TestCase
     protected function getResolver($controller = null)
     {
         if (null === $controller) {
-            $controller = function() { return new Response('Hello'); };
+            $controller = function () { return new Response('Hello'); };
         }
 
         $resolver = $this->getMock('Symfony\\Component\\HttpKernel\\Controller\\ControllerResolverInterface');

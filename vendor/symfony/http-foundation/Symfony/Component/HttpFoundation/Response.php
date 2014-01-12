@@ -223,7 +223,7 @@ class Response
         $charset = $this->charset ?: 'UTF-8';
         if (!$headers->has('Content-Type')) {
             $headers->set('Content-Type', 'text/html; charset='.$charset);
-        } elseif (0 === strpos($headers->get('Content-Type'), 'text/') && false === strpos($headers->get('Content-Type'), 'charset')) {
+        } elseif (0 === stripos($headers->get('Content-Type'), 'text/') && false === stripos($headers->get('Content-Type'), 'charset')) {
             // add the charset
             $headers->set('Content-Type', $headers->get('Content-Type').'; charset='.$charset);
         }
@@ -1181,7 +1181,7 @@ class Response
     }
 
     /**
-     * Check if we need to remove Cache-Control for ssl encrypted downloads when using IE < 9
+     * Check if we need to remove Cache-Control for SSL encrypted downloads when using IE < 9
      *
      * @link http://support.microsoft.com/kb/323308
      */

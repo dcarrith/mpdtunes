@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Symfony\Component\HttpKernel\Fragment\Tests\FragmentRenderer;
+namespace Symfony\Component\HttpKernel\Tests\Fragment;
 
 use Symfony\Component\HttpKernel\Controller\ControllerReference;
 use Symfony\Component\HttpKernel\HttpKernel;
@@ -83,7 +83,7 @@ class InlineFragmentRendererTest extends \PHPUnit_Framework_TestCase
         $strategy = new InlineFragmentRenderer($kernel);
 
         $strategy->render('/', Request::create('/'));
-        
+
         Request::setTrustedHeaderName(Request::HEADER_CLIENT_IP, $trustedHeaderName);
     }
 

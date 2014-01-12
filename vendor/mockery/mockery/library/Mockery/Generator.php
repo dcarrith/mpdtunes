@@ -38,6 +38,8 @@ class Generator
         "unset", "use", "var", "while", "xor"
     );
 
+    protected static $mockCounter = 0;
+
    /**
     * Generates a Mock Object class with all Mockery methods whose
     * intent is basically to provide the mock object with the same
@@ -53,7 +55,7 @@ class Generator
         $allowFinal = false, $block = array(), $makeInstanceMock = false,
         $partialMethods = array())
     {
-        if (is_null($mockName)) $mockName = 'Mockery_' . mt_rand();
+        if (is_null($mockName)) $mockName = static::generateMockName($className);
         $definition = '';
         $inheritance = '';
         $interfaceInheritance = array();
@@ -97,8 +99,9 @@ class Generator
                     $extendedInterfaces = $data['class']->getInterfaces();
                     $traversables = preg_grep("/^Traversable$/i", array_keys($extendedInterfaces));
                     if (!empty($traversables) && !in_array('\Iterator', $interfaceInheritance)
-                    && !array_key_exists('IteratorAggregate', $extendedInterfaces)
-                    && !preg_match("/^Iterator|IteratorAggregate$/i", $data['class']->getName())) {
+                        && !in_array('Iterator', array_keys($extendedInterfaces))
+                        && !array_key_exists('IteratorAggregate', $extendedInterfaces)
+                        && !preg_match("/^Iterator|IteratorAggregate$/i", $data['class']->getName())) {
                         array_unshift($interfaceInheritance, '\Iterator'); // must declare prior to Traversable
                         $classData[] = $iterator = self::_analyseClass(
                             new \ReflectionClass('Iterator'),
@@ -114,17 +117,26 @@ class Generator
         }
 
         $definition .= 'class ' . $mockName . $inheritance . PHP_EOL . '{' . PHP_EOL;
+        $nonFinalWakeup = true;
         foreach ($classData as $data) {
             if (!$data['class']->isFinal()) {
-                $result = self::applyMockeryTo($data['class'], $data['publicMethods'], $block, $partialMethods);
+                $result = self::applyMockeryTo($data['class'], $data['methods'], $block, $partialMethods);
                 if ($result['callTypehinting']) $callTypehinting = true;
                 $definition .= $result['definition'];
-                $definition .= self::stubAbstractProtected($data['protectedMethods']);
+
+                if ($data['hasFinalWakeup']) {
+                    $nonFinalWakeup = false;
+                }
             }  else {
                 $useStandardMethods = false;
             }
         }
-        if ($useStandardMethods) $definition .= self::_getStandardMethods($callTypehinting, $makeInstanceMock);
+        if ($useStandardMethods) {
+            $definition .= self::_getStandardMethods($callTypehinting, $makeInstanceMock);
+            if ($nonFinalWakeup) {
+                $definition = str_replace(array('/*{__wakeup}', '{__wakeup}*/'), '', $definition);
+            }
+        }
         $definition .= PHP_EOL . '}';
         eval($definition);
         return $mockName;
@@ -146,17 +158,24 @@ class Generator
         $hasFinalMethods = false;
         $methods = $class->getMethods(\ReflectionMethod::IS_PUBLIC);
         $protected = $class->getMethods(\ReflectionMethod::IS_PROTECTED);
+        $hasFinalWakeup = false;
         foreach ($methods as $method) {
             if ($method->isFinal()) {
                 $hasFinalMethods = true;
+
+                if (strtolower($method->getName()) === '__wakeup') {
+                    $hasFinalWakeup = true;
+                }
             }
         }
         return array(
             'class' => $class,
             'className' => $className,
             'hasFinalMethods' => $hasFinalMethods,
+            'hasFinalWakeup' => $hasFinalWakeup,
             'publicMethods' => $methods,
-            'protectedMethods' => $protected
+            'protectedMethods' => $protected,
+            'methods' => $class->getMethods(),
         );
     }
 
@@ -175,7 +194,7 @@ class Generator
          */
         foreach ($methods as $method) {
             if(in_array($method->getName(), $block)) continue;
-            if (count($partialMethods) > 0 && !in_array(strtolower($method->getName()), $partialMethods)) {
+            if (!$method->isAbstract() && count($partialMethods) > 0 && !in_array(strtolower($method->getName()), $partialMethods)) {
                 continue;
             }
             // Skip final methods, i.e. we end up with a partial with final methods untouched
@@ -193,7 +212,7 @@ class Generator
             && $lowercaseMethodName !== '__tostring'
             && $lowercaseMethodName !== '__isset'
             && $lowercaseMethodName !== '__callstatic') {
-                $definition .= self::_replacePublicMethod($method);
+                $definition .= self::_replaceMethod($method);
             }
             if ($method->getName() == '__call') {
                 $params = $method->getParameters();
@@ -205,24 +224,13 @@ class Generator
         return array('definition'=>$definition, 'callTypehinting'=>$callTypehinting);
     }
 
-    public static function stubAbstractProtected(array $methods)
-    {
-        $definition = '';
-        foreach ($methods as $method) {
-            if ($method->isAbstract()) {
-                $definition .= self::_replaceProtectedAbstractMethod($method);
-            }
-        }
-        return $definition;
-    }
-
     /**
      * Attempts to replace defined public (non-static) methods so they all
      * redirect to the Mock Object's __call() interceptor
      *
      * TODO: Add exclusions for partial mock support
      */
-    protected static function _replacePublicMethod(\ReflectionMethod $method)
+    protected static function _replaceMethod(\ReflectionMethod $method)
     {
         $name = $method->getName();
 
@@ -231,7 +239,7 @@ class Generator
         }
 
         $body = '';
-        if ($name !== '__construct' && $method->isPublic()) {
+        if ($name !== '__construct') {
             if ( $method->isStatic() ) {
                 $return_clause = "static::__callStatic('$name', \$args);";
             }
@@ -256,7 +264,7 @@ if (isset(\$stack[0]['args'])) {
 return \$ret;
 BODY;
         }
-        $methodParams = self::_renderPublicMethodParameters($method);
+        $methodParams = self::_renderMethodParameters($method);
         $paramDef = implode(',', $methodParams);
         if ($method->isPublic()) {
             $access = 'public';
@@ -273,7 +281,7 @@ BODY;
                       . '{' . $body . '}';
     }
 
-    protected static function _renderPublicMethodParameters(\ReflectionMethod $method)
+    protected static function _renderMethodParameters(\ReflectionMethod $method)
     {
         $class = $method->getDeclaringClass();
         if ($class->isInternal()) { // check for parameter overrides for internal PHP classes
@@ -315,47 +323,6 @@ BODY;
         return $methodParams;
     }
 
-    /**
-     * Replace abstract protected methods (the only enforceable type outside
-     * of public methods). The replacement is just a stub that does nothing.
-     */
-    protected static function _replaceProtectedAbstractMethod(\ReflectionMethod $method)
-    {
-        $name = $method->getName();
-
-        if (static::_isReservedWord($name)) {
-            return " /* Could not replace $name() as it is a reserved word */ ";
-        }
-
-        $body = '';
-        $methodParams = array();
-        $params = $method->getParameters();
-        foreach ($params as $param) {
-            $paramDef = '';
-            if ($param->isArray()) {
-                $paramDef .= 'array ';
-            } elseif ($param->getClass()) {
-                $paramDef .= $param->getClass()->getName() . ' ';
-            }
-            $paramDef .= ($param->isPassedByReference() ? '&' : '') . '$' . $param->getName();
-            if ($param->isDefaultValueAvailable()) {
-                $default = var_export($param->getDefaultValue(), true);
-                if ($default == '') {
-                  $default = 'null';
-                }
-                $paramDef .= ' = ' . $default;
-            } else if ($param->isOptional()) {
-                $paramDef .= ' = null';
-            }
-            $methodParams[] = $paramDef;
-        }
-        $paramDef = implode(',', $methodParams);
-        $access = 'protected';
-        $returnByRef = $method->returnsReference() ? ' & ' : '';
-        return $access . ' function ' . $returnByRef . $name . '(' . $paramDef . ')'
-                      . '{' . $body . '}';
-    }
-
     public static function _isReservedWord($word)
     {
         static $flippedReservedWords;
@@ -394,8 +361,6 @@ BODY;
 
     protected \$_mockery_verified = false;
 
-    protected \$_mockery_name = null;
-
     protected \$_mockery_allocatedOrder = 0;
 
     protected \$_mockery_currentOrder = 0;
@@ -414,9 +379,10 @@ BODY;
 
     protected \$_mockery_methods; // ReflectionMethod cache
 
-    public function mockery_init(\$name, \Mockery\Container \$container = null, \$partialObject = null)
+    protected \$_mockery_allowMockingProtectedMethods = false;
+
+    public function mockery_init(\Mockery\Container \$container = null, \$partialObject = null)
     {
-        \$this->_mockery_name = \$name;
         if(is_null(\$container)) {
             \$container = new \Mockery\Container;
         }
@@ -434,17 +400,24 @@ BODY;
     public function shouldReceive()
     {
         \$nonPublicMethods = array_map(
-            function (\$method) { return \$method->getName(); }, 
+            function (\$method) { return \$method->getName(); },
             array_filter(\$this->mockery_getMethods(), function (\$method) {
                 return !\$method->isPublic();
             })
         );
 
         \$self = \$this;
+        \$allowMockingProtectedMethods = \$this->_mockery_allowMockingProtectedMethods;
         \$lastExpectation = \Mockery::parseShouldReturnArgs(
-            \$this, func_get_args(), function(\$method) use (\$self, \$nonPublicMethods) {
-                if (in_array(\$method, \$nonPublicMethods)) {
-                    throw new \InvalidArgumentException("\$method() cannot be mocked as it is not a public method");
+            \$this, func_get_args(), function(\$method) use (\$self, \$nonPublicMethods, \$allowMockingProtectedMethods) {
+                \$rm = \$self->mockery_getMethod(\$method);
+                if (\$rm) {
+                    if (\$rm->isPrivate()) {
+                        throw new \InvalidArgumentException("\$method() cannot be mocked as it is a private method");
+                    }
+                    if (!\$allowMockingProtectedMethods && \$rm->isProtected()) {
+                        throw new \InvalidArgumentException("\$method() cannot be mocked as it a protected method and mocking protected methods is not allowed for this mock");
+                    }
                 }
 
                 \$director = \$self->mockery_getExpectationsFor(\$method);
@@ -458,6 +431,12 @@ BODY;
             }
         );
         return \$lastExpectation;
+    }
+
+    public function shouldAllowMockingProtectedMethods()
+    {
+        \$this->_mockery_allowMockingProtectedMethods = true;
+        return \$this;
     }
 
     public function shouldDeferMissing()
@@ -505,10 +484,19 @@ BODY;
 
     public function __call(\$method, $typehint \$args)
     {
+        \$rm = \$this->mockery_getMethod(\$method);
+        if (\$rm && \$rm->isProtected() && !\$this->_mockery_allowMockingProtectedMethods) {
+            if (\$rm->isAbstract()) {
+                return;
+            }
+
+            return call_user_func_array("parent::\$method", \$args);
+        }
+
         if (isset(\$this->_mockery_expectations[\$method])
         && !\$this->_mockery_disableExpectationMatching) {
             \$handler = \$this->_mockery_expectations[\$method];
-            
+
             try {
                 return \$handler->call(\$args);
             } catch (\Mockery\Exception\NoMatchingExpectationException \$e) {
@@ -517,7 +505,7 @@ BODY;
                 }
             }
         }
-        
+
         if (!is_null(\$this->_mockery_partial) && method_exists(\$this->_mockery_partial, \$method)) {
             return call_user_func_array(array(\$this->_mockery_partial, \$method), \$args);
         } elseif (\$this->_mockery_deferMissing && is_callable("parent::\$method")) {
@@ -530,8 +518,9 @@ BODY;
                 return null;
             }
         }
+
         throw new \BadMethodCallException(
-            'Method ' . \$this->_mockery_name . '::' . \$method . '() does not exist on this mock object'
+            'Method ' . __CLASS__ . '::' . \$method . '() does not exist on this mock object'
         );
     }
 
@@ -596,7 +585,7 @@ BODY;
         }
         if (\$order < \$this->_mockery_currentOrder) {
             \$exception = new \Mockery\Exception\InvalidOrderException(
-                'Method ' . \$this->_mockery_name . '::' . \$method . '()'
+                'Method ' . __CLASS__ . '::' . \$method . '()'
                 . ' called out of order: expected order '
                 . \$order . ', was ' . \$this->_mockery_currentOrder
             );
@@ -646,7 +635,7 @@ BODY;
 
     public function mockery_getName()
     {
-        return \$this->_mockery_name;
+        return __CLASS__;
     }
 
     public function mockery_getMockableMethods()
@@ -666,15 +655,15 @@ BODY;
 
     //** Everything below this line is not copied from/needed for Mockery/Mock **//
 
-    public function __wakeup()
-    {
+    /*{__wakeup}public function __wakeup()
+    {{__wakeup}*/
         /**
          * This does not add __wakeup method support. It's a blind method and any
          * expected __wakeup work will NOT be performed. It merely cuts off
          * annoying errors where a __wakeup exists but is not essential when
          * mocking
          */
-    }
+    /*{__wakeup}}{__wakeup}*/
 
     public static function __callStatic(\$method, $typehint \$args)
     {
@@ -696,18 +685,56 @@ BODY;
 
     protected function mockery_getMethods()
     {
-        if (\$this->_mockery_methods) {
-            return \$this->_mockery_methods;
+        if (empty(\$this->_mockery_methods)) {
+            if (isset(\$this->_mockery_partial)) {
+                \$this->_mockery_methods = \$this->mockery_getObjectMethods(\$this->_mockery_partial);
+            } else {
+                \$this->_mockery_methods = \$this->mockery_getClassMethods();
+            }
         }
-
-        if (isset(\$this->_mockery_partial)) {
-            \$reflected = new \ReflectionObject(\$this->_mockery_partial);
-        } else {
-            \$reflected = new \ReflectionClass(\$this->_mockery_name);
-        }
-        \$this->_mockery_methods = \$reflected->getMethods();
 
         return \$this->_mockery_methods;
+    }
+
+    protected function mockery_getObjectMethods(\$object)
+    {
+        \$reflector = new \ReflectionObject(\$object);
+        return \$reflector->getMethods();
+    }
+
+    protected function mockery_getClassMethods()
+    {
+        \$methods = array();
+
+        \$reflector = new \ReflectionClass(\$this);
+
+        foreach (\$reflector->getMethods() as \$method) {
+            try {
+                \$methods[] = \$method->getPrototype();
+            } catch (\ReflectionException \$re) {
+                /*
+                 * I'm not sure why private methods don't have a prototype. I 
+                 * could understand that if the getDeclaringClass was the 
+                 * parent, but it seems to return the subtype...
+                 */
+                if (\$method->isPrivate()) {
+                    \$methods[] = \$method;
+                }
+            }
+        }
+
+        return \$methods;
+    }
+
+    public function mockery_getMethod(\$name)
+    {
+        foreach (\$this->mockery_getMethods() as \$method) {
+            if (\$method->getName() == \$name) {
+                return \$method;
+            }
+        }
+
+        return null;
     }
 
     public function __isset(\$name)
@@ -754,5 +781,19 @@ MOCK;
         return $std;
     }
 
+    protected static function generateMockName($targets)
+    {
+        $name = 'Mockery_' . static::$mockCounter++;
+
+        foreach ((array) $targets as $target) {
+            if (is_object($target)) {
+                $name .= "_" . str_replace("\\", "_", get_class($this->getTargetObject()));
+            } else {
+                $name .= "_" . str_replace("\\", "_", $target);
+            }
+        }
+
+        return $name;
+    }
 
 }

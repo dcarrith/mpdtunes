@@ -51,13 +51,29 @@ class TracedStatement
     {
         $this->sql = $sql;
         $this->rowCount = $rowCount;
-        $this->parameters = $params;
+        $this->parameters = $this->checkParameters($params);
         $this->preparedId = $preparedId;
         $this->startTime = $startTime;
         $this->endTime = $endTime;
         $this->duration = $endTime - $startTime;
         $this->memoryUsage = $memoryUsage;
         $this->exception = $e;
+    }
+	
+    /**
+     * Check parameters for illegal (non UTF-8) strings, like Binary data.
+     *
+     * @param $params
+     * @return mixed
+     */
+    public function checkParameters($params)
+    {
+        foreach ($params as &$param) {
+            if(!mb_check_encoding($param, 'UTF-8')) {
+                $param = '[BINARY DATA]';
+            }
+        }
+        return $params;
     }
 
     /**
@@ -72,14 +88,22 @@ class TracedStatement
 
     /**
      * Returns the SQL string with any parameters used embedded
-     * 
+     *
+     * @param string $quotationChar
      * @return string
      */
-    public function getSqlWithParams()
+    public function getSqlWithParams($quotationChar = '<>')
     {
+        if (($l = strlen($quotationChar)) > 1) {
+            $quoteLeft = substr($quotationChar, 0, $l / 2);
+            $quoteRight = substr($quotationChar, $l / 2);
+        } else {
+            $quoteLeft = $quoteRight = $quotationChar;
+        }
+
         $sql = $this->sql;
         foreach ($this->parameters as $k => $v) {
-            $v = sprintf('<%s>', $v);
+            $v = "$quoteLeft$v$quoteRight";
             if (!is_numeric($k)) {
                 $sql = str_replace($k, $v, $sql);
             } else {
@@ -107,7 +131,11 @@ class TracedStatement
      */
     public function getParameters()
     {
-        return $this->parameters;
+        $params = array();
+        foreach ($this->parameters as $param) {
+            $params[] = htmlentities($param, ENT_QUOTES, 'UTF-8', false);
+        }
+        return $params;
     }
 
     /**

@@ -182,12 +182,13 @@ class TimeDataCollector extends DataCollector implements Renderable
     {
         return array(
             "time" => array(
-                "icon" => "time",
+                "icon" => "clock-o",
                 "tooltip" => "Request Duration",
                 "map" => "time.duration_str",
                 "default" => "'0ms'"
             ),
             "timeline" => array(
+                "icon" => "tasks",
                 "widget" => "PhpDebugBar.Widgets.TimelineWidget",
                 "map" => "time",
                 "default" => "{}"

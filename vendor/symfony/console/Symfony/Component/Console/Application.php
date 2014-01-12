@@ -728,7 +728,8 @@ class Application
         do {
             $title = sprintf('  [%s]  ', get_class($e));
             $len = $strlen($title);
-            $width = $this->getTerminalWidth() ? $this->getTerminalWidth() - 1 : PHP_INT_MAX;
+            // HHVM only accepts 32 bits integer in str_split, even when PHP_INT_MAX is a 64 bit integer: https://github.com/facebook/hhvm/issues/1327
+            $width = $this->getTerminalWidth() ? $this->getTerminalWidth() - 1 : (defined('HHVM_VERSION') ? 1 << 31 : PHP_INT_MAX);
             $formatter = $output->getFormatter();
             $lines = array();
             foreach (preg_split('/\r?\n/', $e->getMessage()) as $line) {
@@ -1063,7 +1064,7 @@ class Application
      */
     private function findAlternativeCommands($name, $abbrevs)
     {
-        $callback = function($item) {
+        $callback = function ($item) {
             return $item->getName();
         };
 
@@ -1088,7 +1089,7 @@ class Application
      * if nothing is found in $collection, try in $abbrevs
      *
      * @param string               $name       The string
-     * @param array|Traversable    $collection The collection
+     * @param array|\Traversable   $collection The collection
      * @param array                $abbrevs    The abbreviations
      * @param Closure|string|array $callback   The callable to transform collection item before comparison
      *

@@ -2,8 +2,9 @@
 
 use Illuminate\Session\Store as SessionStore;
 use Symfony\Component\HttpFoundation\ParameterBag;
+use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
-class Request extends \Symfony\Component\HttpFoundation\Request {
+class Request extends SymfonyRequest {
 
 	/**
 	 * The decoded JSON content for the request.
@@ -47,7 +48,7 @@ class Request extends \Symfony\Component\HttpFoundation\Request {
 	public function url()
 	{
 		return rtrim(preg_replace('/\?.*/', '', $this->getUri()), '/');
-	}	
+	}
 
 	/**
 	 * Get the full URL for the request.
@@ -116,13 +117,13 @@ class Request extends \Symfony\Component\HttpFoundation\Request {
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
 
 	/**
 	 * Determine if the request is the result of an AJAX call.
-	 * 
+	 *
 	 * @return bool
 	 */
 	public function ajax()
@@ -173,7 +174,7 @@ class Request extends \Symfony\Component\HttpFoundation\Request {
 	 */
 	public function all()
 	{
-		return $this->input() + $this->files->all();
+		return array_merge_recursive($this->input(), $this->files->all());
 	}
 
 	/**
@@ -249,11 +250,11 @@ class Request extends \Symfony\Component\HttpFoundation\Request {
 	 *
 	 * @param  string  $key
 	 * @param  mixed   $default
-	 * @return \Symfony\Component\HttpFoundation\File\UploadedFile
+	 * @return \Symfony\Component\HttpFoundation\File\UploadedFile|array
 	 */
 	public function file($key = null, $default = null)
 	{
-		return $this->retrieveItem('files', $key, $default);
+		return array_get($this->files->all(), $key, $default);
 	}
 
 	/**
@@ -264,7 +265,9 @@ class Request extends \Symfony\Component\HttpFoundation\Request {
 	 */
 	public function hasFile($key)
 	{
-		return $this->files->has($key) and ! is_null($this->file($key));
+		if (is_array($file = $this->file($key))) $file = head($file);
+
+		return $file instanceof \SplFileInfo;
 	}
 
 	/**
@@ -326,7 +329,7 @@ class Request extends \Symfony\Component\HttpFoundation\Request {
 	public function flashOnly($keys)
 	{
 		$keys = is_array($keys) ? $keys : func_get_args();
-		
+
 		return $this->flash('only', $keys);
 	}
 
@@ -339,7 +342,7 @@ class Request extends \Symfony\Component\HttpFoundation\Request {
 	public function flashExcept($keys)
 	{
 		$keys = is_array($keys) ? $keys : func_get_args();
-		
+
 		return $this->flash('except', $keys);
 	}
 

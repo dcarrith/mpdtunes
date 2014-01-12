@@ -9,6 +9,16 @@ class ViewCollector extends DataCollector  implements Renderable
 {
 
     protected $views = array();
+    protected $collect_data;
+
+    /**
+     * Create a ViewCollector
+     *
+     * @param bool $collectData  Collects view data when tru
+     */
+    public function __construct($collectData = true){
+        $this->collect_data = $collectData;
+    }
 
     /**
      * Add a View instance to the Collector
@@ -17,18 +27,23 @@ class ViewCollector extends DataCollector  implements Renderable
      */
     public function addView(View $view){
         $name = $view->getName();
-        $data = array();
-        foreach($view->getData() as $key => $value)
-        {
-            if(is_object($value) and method_exists($value, 'toArray'))
+        if(!$this->collect_data){
+            $this->views[] = $name;
+        }else{
+            $data = array();
+            foreach($view->getData() as $key => $value)
             {
-                $data[$key] = $value->toArray();
-            }else{
-                $data[$key] = $value;
+                if(is_object($value) and method_exists($value, 'toArray'))
+                {
+                    $data[$key] = $value->toArray();
+                }else{
+                    $data[$key] = $value;
+                }
             }
+            $this->views[] = $name . ' => ' . $this->formatVar($data);
         }
-        $this->views[] = $name . ' => ' .$this->formatVar($data);
     }
+
 
     /**
      * {@inheritDoc}
@@ -36,6 +51,7 @@ class ViewCollector extends DataCollector  implements Renderable
     public function collect()
     {
         $views = $this->views;
+        
         $messages = array();
         foreach($views as $data){
             $messages[] = array(
@@ -43,7 +59,10 @@ class ViewCollector extends DataCollector  implements Renderable
                 'is_string' => true,
             );
         }
-        return array('messages' => $messages);
+        return array(
+             'messages' => $messages,
+             'count'=>count($views)
+         );
     }
 
     /**
@@ -59,11 +78,17 @@ class ViewCollector extends DataCollector  implements Renderable
      */
     public function getWidgets()
     {
+        $name=$this->getName();
         return array(
-            "views" => array(
+            "$name" => array(
+                "icon" => "columns",
                 "widget" => "PhpDebugBar.Widgets.MessagesWidget",
-                "map" => "views.messages",
+                "map" => "$name.messages",
                 "default" => "{}"
+            ),
+            "$name:badge" => array(
+                "map" => "$name.count",
+                "default" => "null"
             )
         );
     }

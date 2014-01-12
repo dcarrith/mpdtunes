@@ -33,13 +33,18 @@ abstract class DataCollector implements DataCollectorInterface
      * @param $var
      * @return mixed
      */
-    public function flattenVar($var){
+    public function flattenVar($var)
+    {
         if (is_array($var)) {
             foreach ($var as &$v) {
                 $v = $this->flattenVar($v);
             }
         } else if (is_object($var)) {
             $var = "Object(" . get_class($var) . ")";
+        } else if (mb_check_encoding($var, 'UTF-8')) {
+            $var = htmlentities($var, ENT_QUOTES, 'UTF-8', false);
+        } else {
+            $var = '[Invalid UTF-8 string]';
         }
         return $var;
     }

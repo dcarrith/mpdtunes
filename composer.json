@@ -1,4 +1,14 @@
 {
+	"name": "dcarrith/mpdtunes",
+	"description": "MPDTunes - Free your music, own your cloud.",
+	"keywords": ["Music Streaming", "MPDTunes"],
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "David Carrithers",
+			"email": "dcarrith@gmail.com"
+		}
+	],
 	"require": {
                 "laravel/framework": "4.0.*",
 		"Dcarrith/CIFirePHP": "dev-master",

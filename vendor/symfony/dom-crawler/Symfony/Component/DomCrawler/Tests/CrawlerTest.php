@@ -115,6 +115,18 @@ class CrawlerTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers Symfony\Component\DomCrawler\Crawler::addHtmlContent
      */
+    public function testAddHtmlContentCharsetGbk()
+    {
+        $crawler = new Crawler();
+        //gbk encode of <html><p>中文</p></html>
+        $crawler->addHtmlContent(base64_decode('PGh0bWw+PHA+1tDOxDwvcD48L2h0bWw+'), 'gbk');
+
+        $this->assertEquals('中文', $crawler->filterXPath('//p')->text());
+    }
+
+    /**
+     * @covers Symfony\Component\DomCrawler\Crawler::addHtmlContent
+     */
     public function testAddHtmlContentWithErrors()
     {
         libxml_use_internal_errors(true);
@@ -609,7 +621,7 @@ EOF
         $this->assertEquals('http://base.com/link', $crawler->filterXPath('//a')->link()->getUri());
 
         $crawler = new Crawler('<html><base href="//base.com"><a href="link"></a></html>', 'https://domain.com');
-        $this->assertEquals('https://base.com/link', $crawler->filterXPath('//a')->link()->getUri(), '<base> tag can use a schema-less url');
+        $this->assertEquals('https://base.com/link', $crawler->filterXPath('//a')->link()->getUri(), '<base> tag can use a schema-less URL');
 
         $crawler = new Crawler('<html><base href="path/"><a href="link"></a></html>', 'https://domain.com');
         $this->assertEquals('https://domain.com/path/link', $crawler->filterXPath('//a')->link()->getUri(), '<base> tag can set a path');

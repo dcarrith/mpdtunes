@@ -1,4 +1,4 @@
-## Laravel Debugbar
+## Laravel 4 Debugbar
 
 This is a package to integrate PHP Debug Bar (https://github.com/maximebf/php-debugbar) with Laravel.
 It includes a ServiceProvider to register the debugbar and attach it to the output. You can publish assets and configure it through Laravel.
@@ -8,11 +8,14 @@ It is configured to display Redirects and Ajax Requests. (Shown in a dropdown)
 ![Screenshot](http://i.imgur.com/GVc6C9g.png)
 
 This includes some custom collectors:
- - RouteCollector: Show information about the current Route. (Note: requires atleast 4.0.6, so disable this if you are on a lower version!)
+ - RouteCollector: Show information about the current Route.
  - ViewCollector: Show the currently loaded views an it's data.
  - EventsCollector: Show all events
  - LaravelCollector: Show the Laravel version and Environment. (disabled by default)
  - SymfonyRequestCollector: replaces the RequestCollector with more information about the request/response
+ - LogsCollector: Show the latest log entries from the storage logs. (disabled by default)
+ - FilesCollector: Show the files that are included/required by PHP. (disabled by default)
+ - ConfigCollector: Display the values from the config files. (disabled by default)
 
 Bootstraps the following collectors for Laravel:
  - LogCollector: Show all Log messages
@@ -33,7 +36,7 @@ It also provides a Facade interface for easy logging Messages, Exceptions and Ti
 
 Require this package in your composer.json and run composer update (or run `composer require barryvdh/laravel-debugbar:dev-master` directly):
 
-    "barryvdh/laravel-debugbar": "dev-master"
+    "barryvdh/laravel-debugbar": "1.*"
 
 After updating composer, add the ServiceProvider to the providers array in app/config/app.php
 
@@ -46,7 +49,6 @@ You need to publish the assets from this package.
 Note: The public assets can change overtime (because of upstream changes), it is recommended to re-publish them after update. You can also add the republish command in composer.json.
 
     "post-update-cmd": [
-        "php artisan ide-helper:generate",
         "php artisan debugbar:publish"
     ],
 
@@ -92,3 +94,19 @@ If you want you can add your own DataCollectors, through the Container or the Fa
     //Or via the App container:
     $debugbar = App::make('debugbar');
     $debugbar->addCollector(new DebugBar\DataCollector\MessagesCollector('my_messages'));
+
+By default, the Debugbar is injected just before `</body>`. If you want to inject the Debugbar yourself,
+set the config option 'inject' to false and use the renderer yourself and follow http://phpdebugbar.com/docs/rendering.html
+
+    $renderer = Debugbar::getJavascriptRenderer();
+
+Note: Not using the auto-inject, will disable the Request information, because that is added After the response.
+You can add the default_request datacollector in the config as alternative.
+
+## Enabling/Disabling on run time
+You can enable or disable the debugbar during run time.
+
+    \Debugbar::enable();
+    \Debugbar::disable();
+
+NB. Once enabled, the collectors are added (and could produce extra overhead), so if you want to use the debugbar in production, disable in the config and only enable when needed.
