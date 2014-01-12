@@ -25,7 +25,7 @@ class BaseController extends Controller {
 			//Config::set('profiler::profiler', FALSE);
 			
 			// Turn off debugbar by setting enabled to false
-			//Config::set('laravel-debugbar::config.enabled', false);	
+			Config::set('laravel-debugbar::config.enabled', false);	
 		}
 
 		$this->data['language'] = Config::get('app.locale');
