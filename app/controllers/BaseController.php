@@ -1,6 +1,9 @@
 <?php
 
+// Laravel 4.0.x
 use Illuminate\Routing\Controllers\Controller;
+// Laravel 4.1.x
+//use Illuminate\Routing\Controller;
 
 class BaseController extends Controller {
 
@@ -12,7 +15,7 @@ class BaseController extends Controller {
 
         public function __construct() {
 
-		Cache::flush();
+		//Cache::flush();
 
 		// Get and merge the environment config defaults into the main data array
                 $this->data = array_merge($this->data, Configurator::getDefaults('environment'));
@@ -22,7 +25,7 @@ class BaseController extends Controller {
 			//Config::set('profiler::profiler', FALSE);
 			
 			// Turn off debugbar by setting enabled to false
-			Config::set('laravel-debugbar::config.enabled', false);	
+			//Config::set('laravel-debugbar::config.enabled', false);	
 		}
 
 		$this->data['language'] = Config::get('app.locale');

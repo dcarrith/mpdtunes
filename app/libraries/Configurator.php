@@ -314,10 +314,41 @@ class Configurator {
 
 	public static function getUsersDefaults($firephp=null) {
 
-        	// Get the config associative array for the user that contains the MPD and MUSIC related configs
-        	$configs = Auth::user()->usersConfig->config();
+		$user = Auth::user();	
+
+		$usersConfig = null;
+		$configs = null;
+
+		if (!Cache::has('usersConfig'.Session::getId())) {
+
+			$usersConfig = Cache::rememberForever('usersConfig'.Session::getId(), function() use (&$user) {
+
+		        	// Return the usersConfig object for the user
+        			return $user->usersConfig;
+			});
+	
+		} else {
+
+			// Retrieve the usersConfig from cache			
+			$usersConfig = Cache::get('usersConfig'.Session::getId());
+		}
+
+		if (!Cache::has('configs'.Session::getId())) {
+
+			$configs = Cache::rememberForever('configs'.Session::getId(), function() use (&$usersConfig) {
+
+		        	// Return the config associative array for the user that contains the MPD and MUSIC related configs
+        			return $usersConfig->config();
+			});
+	
+		} else {
+
+			// Retrieve the configs from cache			
+			$configs = Cache::get('configs'.Session::getId());
+		}
 
 		if (isset($firephp)) {
+
         		$firephp->log($configs, "configs");
 		}
 

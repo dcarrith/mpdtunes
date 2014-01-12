@@ -23,8 +23,20 @@ class HomeController extends MPDTunesController {
 
 		$this->data['json_playlist'] = $mpd_playlist_as_json;
 
+		// First check to see if all languages are in cache already 
+		if (!Cache::has('languages')) {
 
-		$languages = Language::all();
+			$this->languages = Cache::rememberForever('languages', function() {
+		
+				// Get all the available languages
+				return Language::all();
+			});
+	
+		} else {
+			
+			// Retrieve all languages from cache
+			$this->languages = Cache::get('languages');
+		}
 	
         	//$this->firephp->log($languages, "languages");
 
@@ -32,9 +44,9 @@ class HomeController extends MPDTunesController {
 
         	$this->data['selected_language']= "";
 
-        	$default_language = $this->language;
+        	$default_language = $this->language->code;
 
-        	foreach($languages as $language) {
+        	foreach($this->languages as $language) {
 
             		$this->data['language_options'][$language->id] = $language->name;
 
@@ -44,15 +56,26 @@ class HomeController extends MPDTunesController {
             		}
         	}
 
+		// First check to see if all themes are in cache already 
+		if (!Cache::has('themes')) {
 
-
-		$themes	= Theme::all();
+			$this->themes = Cache::rememberForever('themes', function() {
+	
+				// Get all available themes
+				return Theme::all();
+			});
+	
+		} else {
+			
+			// Retrieve all themes from cache
+			$this->themes = Cache::get('themes');
+		}
 		
         	$this->data['theme_options'] = array();
 
         	$this->data['selected_theme'] = "";
 
-        	foreach($themes as $theme) {
+        	foreach($this->themes as $theme) {
 
             		$this->data['theme_options'][$theme->id] = $theme->name;
 

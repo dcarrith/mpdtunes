@@ -58,9 +58,80 @@
 			  	if (strpos($current_file, "http://") === 0) {
 
 					$urlHash = hash("sha512", $current_file);
+
 					$this->firephp->log($urlHash, "urlHash");
 
-					$station = Station::where('url_hash', '=', $urlHash)->first();
+					$station = null;
+
+					//Cache::forget($urlHash);
+
+
+					$this->firephp->log($this->user->id, "this - > user - > id");
+
+					$is_a_users_station = false;
+
+					// http://demo.mpdtunes.com:16604/mpd.ogg
+					$matches = array();
+ 
+					$mpdogg = preg_match('/mpd\.ogg/i', $current_file);
+
+					$this->firephp->log($mpdogg, "mpdogg?");
+
+					// get host name from URL
+					preg_match('@^(?:http://|https://)?([^/]+)@i', $current_file, $matches);
+					$domain_port = $matches[1];
+					$this->firephp->log($domain_port, "matched fqdn");
+
+					$stream_domain = current(explode(":", $domain_port));
+
+					$this->firephp->log($this->data['base_domain'], "base domain");
+
+					// If the fqdn of the stream url is the same as the site's base_domain and the mpd.ogg exists, then
+					// we'll assume that this is a user's station
+					if ( ($mpdogg == 1) && ($this->data['base_domain'] == $stream_domain) ) {
+					
+						$is_a_users_station = true;
+
+						$this->firephp->log($current_file." is a user's station.", "message");
+					}
+
+
+
+					//$this->firephp->log("flushing cache", "message");
+					//Cache::flush();	
+
+					$this->firephp->log("init_current_mpd_track_data.php - checking to see if the urlHash '".$urlHash."' is in cache", "message");
+
+					if (!Cache::has($urlHash."_".($is_a_users_station ? "null" : $this->user->id))) {
+
+						$this->firephp->log("init_current_mpd_track_data.php - adding the station object with urlHash '".$urlHash."' to cache", "message");
+	
+						$station = Cache::rememberForever($urlHash."_".($is_a_users_station ? "null" : $this->user->id), function() use ($urlHash) {
+            		
+							$result = Station::where( 'url_hash', '=', $urlHash )->where( function( $query ) {
+                					
+								$query->where('creator_id', '=', $this->user->id)->orWhere( function ( $query ) {
+										
+									$query->whereNull('creator_id');
+								});
+            						});
+						
+							if ($result->first()) {
+	
+								$this->firephp->log($result->first()->toArray(), "result - > first() - > toArray()");
+							}					
+	
+							return $result->first();
+						});
+	
+					} else {
+
+						$this->firephp->log("init_current_mpd_track_data.php - retrieving station object with urlHash '".$urlHash."' from cache", "message");
+					
+						$station = Cache::get($urlHash."_".($is_a_users_station ? "null" : $this->user->id));
+					
+						$this->firephp->log($station->toArray(), "station object from cache as array");	
+					}
 
 			  		$stream_is_current_track = true;
 					$this->firephp->log($stream_is_current_track, "stream_is_current_track?");
@@ -78,10 +149,24 @@
 						$this->firephp->log($station_url, "station_url");
 						$this->firephp->log($station_name, "station_name");
 						$this->firephp->log($station_description, "station_description");
-		
-						$this->firephp->log($station->stationsIcon->toArray(), "station->stationsIcon->toArray()");
 
-						$current_album_art = "/".$station->stationsIcon->baseurl.$station->stationsIcon->filename;
+						$stationsIcon = null;
+
+						if (!Cache::has($urlHash."_".($is_a_users_station ? "null" : $this->user->id)."_icon")) {
+
+							$stationsIcon = Cache::rememberForever($urlHash."_".($is_a_users_station ? "null" : $this->user->id)."_icon", function() use ($station) {
+	
+								return $station->stationsIcon;
+							});
+		
+						} else {
+			
+							$stationsIcon = Cache::get($urlHash."_".($is_a_users_station ? "null" : $this->user->id)."_icon");
+						}
+
+						$this->firephp->log($stationsIcon->toArray(), "stationsIcon - > toArray()");
+
+						$current_album_art = "/".$stationsIcon->baseurl.$stationsIcon->filename;
 					}
 
 			  		$current_artist = $station_name;
@@ -203,7 +288,7 @@
 
 		if ((Request::segment(1) == 'home') || (Request::segment(1) == '')) {
 
-			$mpd_playlist_as_json = get_mpd_playlist_as_json($this->MPD, $configs, $this->firephp);
+			$mpd_playlist_as_json = get_mpd_playlist_as_json($this->MPD, $configs, $this->firephp, 0, 0, 0, $this->user);
 		}
 
 		$this->data['current_track_playlist_index'] = (isset($current_track_id) ? $current_track_id : 0);

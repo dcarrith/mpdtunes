@@ -490,29 +490,87 @@ class StationsController extends MPDTunesController {
 
 			$oldStationIcon = $station->stationsIcon;
 
+			$posted_station_url_hash = hash('sha512', $posted_station_url); 
+
+			$this->firephp->log($posted_station_url_hash, "posted_station_url_hash");
+
 			$station->name = $posted_station_name;
 			$station->description = $posted_station_description;
 			$station->url = $posted_station_url;
-			$station->url_hash = hash('sha512', $posted_station_url);
+			$station->url_hash = $posted_station_url_hash;
 			$station->visibility = $station_visibility;
 			$station->icon_id = $posted_station_icon_id;
 			$station->save();
+
+			$this->firephp->log($posted_station_url_hash, "forgetting the station with url hash");			
+
+
+
+
+
+			$is_a_users_station = false;
+
+			// http://demo.mpdtunes.com:16604/mpd.ogg
+			$matches = array();
+ 
+			$mpdogg = preg_match('/mpd\.ogg/i', $posted_station_url);
+
+			$this->firephp->log($mpdogg, "mpdogg?");
+
+			// get host name from URL
+			preg_match('@^(?:http://|https://)?([^/]+)@i', $posted_station_url, $matches);
+			$domain_port = $matches[1];
+			$this->firephp->log($domain_port, "matched fqdn");
+
+			$stream_domain = current(explode(":", $domain_port));
+
+			$this->firephp->log($this->data['base_domain'], "base domain");
+
+			// If the fqdn of the stream url is the same as the site's base_domain and the mpd.ogg exists, then
+			// we'll assume that this is a user's station
+			if ( ($mpdogg == 1) && ($this->data['base_domain'] == $stream_domain) ) {
+					
+				$is_a_users_station = true;
+
+				$this->firephp->log($posted_station_url." is a user's station.", "message");
+			}
+
+
+
+			//$this->firephp->log("flushing cache", "message");
+			//Cache::flush();	
+
+		
+
+
+			// Remove the station entry from cache
+			$forgotten = Cache::forget($posted_station_url_hash."_".($is_a_users_station ? "null" : $this->user->id));
+			$this->firephp->log($forgotten, "forgotten?");
+
 
 			if (($oldStationIcon->id > 1) && ($oldStationIcon->id != $posted_station_icon_id)) {
 				
 				// Delete the old stationIcon from the filesystem and the database
 				unlink($oldStationIcon->filepath.$oldStationIcon->filename);
 				$oldStationIcon->delete();
+				
+				// Remove the station's icon entry from cache
+				Cache::forget($posted_station_url_hash."_".($is_a_users_station ? "null" : $this->user->id)."_icon");
 			}		
 
 			Session::flash('success', true);
 			
-			$this->firephp->log($station->id, "flashing station->id");
+			$this->firephp->log($station->id, "flashing station arrow id");
 
 			Session::flash('station_id', $station->id);
 
 			// We want to redirect to the edit page after we save the newly added station
 			$edit_station_id = $station->id;
+
+			//$this->firephp->log("flushing cache", "message");
+			//Cache::flush();
+
+			//exit();
 		}	
 
 		// Redirect to itself - which will naturally arrive at the getAdd action - so, we need to set two session variables and inputs

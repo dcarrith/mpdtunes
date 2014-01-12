@@ -34,7 +34,7 @@ class MPDController extends MPDTunesController {
                 $configs['base_protocol']               = $this->data['base_protocol'];
                 $configs['base_domain']                 = $this->data['base_domain'];
 
-                $this->data['json_playlist'] = get_mpd_playlist_as_json($this->MPD, $configs, $this->firephp);
+                $this->data['json_playlist'] = get_mpd_playlist_as_json($this->MPD, $configs, $this->firephp, 0, 0, 0, $this->user);
 
 		return Response::json($this->data['json_playlist']);
         }

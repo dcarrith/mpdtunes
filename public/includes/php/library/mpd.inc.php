@@ -3,9 +3,16 @@
 require_once($this->data['document_root'].'includes/php/library/art.inc.php');
 require_once($this->data['document_root'].'includes/php/library/stations.inc.php');
 
-function get_mpd_playlist_as_json($mpd, $configs, $firephp=null, $listed_so_far=0, $items_to_retrieve=0, $playlist_index_offset=0) {
+function get_mpd_playlist_as_json($mpd, $configs, $firephp=null, $listed_so_far=0, $items_to_retrieve=0, $playlist_index_offset=0, $user=null) {
 
 	//$firephp->log($configs, "configs");
+
+	$user_id = 0;
+
+	if (isset($user)) {
+
+		$user_id = $user->id;
+	}
 
 	$music_dir 			= $configs['music_dir'];
 	$art_dir 			= $configs['art_dir'];
@@ -27,6 +34,8 @@ function get_mpd_playlist_as_json($mpd, $configs, $firephp=null, $listed_so_far=
 	if ($items_to_retrieve == "all") {
 		$retrieving_the_rest = true;
 	}
+
+	$firephp->log($mpd->playlist, "mpd->playlist");
 
 	//$firephp->log($listed_so_far, "listed_so_far");
 	//$firephp->log($items_to_retrieve, "items_to_retrieve");
@@ -73,30 +82,178 @@ function get_mpd_playlist_as_json($mpd, $configs, $firephp=null, $listed_so_far=
 	    		//$firephp->log(strpos($playlist_track['file'], "http://"), "strpos");
 
 			// check to see if this playlist item is a url stream
-			if (strpos($playlist_track['file'], "http://") === 0) {
-
+			if (( strpos($playlist_track['file'], "http://") === 0) || (strpos($playlist_track['file'], "rtmp://") === 0)) {
 
                                 $urlHash = hash("sha512", $playlist_track['file']);
-                                $station = Station::where('url_hash', '=', $urlHash )->first();
 
-				$firephp->log($station->toArray(), "station->toArray()");
 
-				$station_url 		= $station->url;
-				$station_icon_filename 	= $station->StationsIcon->baseurl.$station->StationsIcon->filename;
-				$station_name		= $station->name;
-				$station_description	= $station->description;
 
-				// the playlist is just a JSON-style object.  we need to double escape double quotes.
-				$json_playlist .= '{	"type"		: "stream",
-							"url" 		: "'.$station_url.'",
-							"oggurl" 	: "",
-							"artist" 	: "'.str_replace("\"", "\\\"", $station_name).'",
-							"album" 	: "'.str_replace("\"", "\\\"", $station_description).'",
-							"title" 	: "'.str_replace("\"", "\\\"", $station_name).'",
-							"art" 		: "/'.$station_icon_filename.'",
-							"file" 		: "'.$station_url.'",
-							"time"		: "Infinity",
-							"mpd_index" 	: "'.$mpd_playlist_index.'"	},';
+
+				$is_a_users_station = false;
+
+				// http://demo.mpdtunes.com:16604/mpd.ogg
+				$matches = array();
+
+				$mpdogg = preg_match('/mpd\.ogg/i', $playlist_track['file']);
+
+				$firephp->log($mpdogg, "mpdogg?");
+
+				// get host name from URL
+				preg_match('@^(?:http://|https://)?([^/]+)@i', $playlist_track['file'], $matches);
+				$domain_port = $matches[1];
+				$firephp->log($domain_port, "matched fqdn");
+
+				$stream_domain = current(explode(":", $domain_port));
+
+				$firephp->log($base_domain, "base domain");
+
+				// If the fqdn of the stream url is the same as the site's base_domain and the mpd.ogg exists, then
+				// we'll assume that this is a user's station
+				if ( ($mpdogg == 1) && ($base_domain == $stream_domain) ) {
+					
+					$is_a_users_station = true;
+
+					$firephp->log($playlist_track['file']." is a user's station.", "message");
+				}
+
+
+				//$firephp->log("flushing cache", "message");
+				//Cache::flush();	
+
+				$firephp->log("init_current_mpd_track_data.php - checking to see if the urlHash '".$urlHash."' is in cache", "message");
+
+				if (!Cache::has($urlHash."_".($is_a_users_station ? "null" : $user_id))) {
+
+					$firephp->log("init_current_mpd_track_data.php - adding the station object with urlHash '".$urlHash."' to cache", "message");
+	
+					$station = Cache::rememberForever($urlHash."_".($is_a_users_station ? "null" : $user_id), function() use ($urlHash, $firephp, $user_id) {
+            		
+						$result = Station::where( 'url_hash', '=', $urlHash )->where( function( $query ) use ($user_id) {
+                					
+							$query->where('creator_id', '=', $user_id)->orWhere( function ( $query ) {
+										
+								$query->whereNull('creator_id');
+							});
+            					});
+						
+						if ($result->first()) {
+
+							$firephp->log($result->first()->toArray(), "result - > first() - > toArray()");
+						}					
+	
+						return $result->first();
+					});
+	
+				} else {
+
+					$firephp->log("init_current_mpd_track_data.php - retrieving station object with urlHash '".$urlHash."' from cache", "message");
+					
+					$station = Cache::get($urlHash."_".($is_a_users_station ? "null" : $user_id));
+					
+					$firephp->log($station->toArray(), "station object from cache as array");	
+				}
+
+			  	$stream_is_current_track = true;
+				$firephp->log($stream_is_current_track, "stream_is_current_track?");
+	
+				if (isset($station)) {
+
+					$firephp->log($station->toArray(), "station->toArray()");
+
+					$station_url = $station->url;
+					$station_name = $station->name;
+					$station_description = ((strlen($station->description) >= 108) ? substr($station->description, 0, 108).'...' : $station->description);
+	
+					$firephp->log($station_url, "station_url");
+					$firephp->log($station_name, "station_name");
+					$firephp->log($station_description, "station_description");
+
+					$stationsIcon = null;
+
+					if (!Cache::has($urlHash."_".($is_a_users_station ? "null" : $user_id)."_icon")) {
+
+						$stationsIcon = Cache::rememberForever($urlHash."_".($is_a_users_station ? "null" : $user_id)."_icon", function() use ($station) {
+	
+							return $station->stationsIcon;
+						});
+		
+					} else {
+		
+						$stationsIcon = Cache::get($urlHash."_".($is_a_users_station ? "null" : $user_id)."_icon");
+					}
+
+					$firephp->log($stationsIcon->toArray(), "stationsIcon - > toArray()");
+
+					$station_icon_filename = $stationsIcon->baseurl.$stationsIcon->filename;
+
+
+
+
+
+
+
+				/*$firephp->log("flushing cache", "message");
+				Cache::flush();
+
+				$station = null;
+
+				$firephp->log("mpd.inc.php - checking to see if the urlHash '".$urlHash."' is in cache", "message");
+
+				if (!Cache::has($urlHash)) {
+
+					$firephp->log("mpd.inc.php - adding the station object with urlHash '".$urlHash."' to cache", "message");
+	
+					$station = Cache::rememberForever($urlHash, function() use ($urlHash) {
+	
+						return Station::where( 'url_hash', '=', $urlHash )->first();
+					});
+	
+				} else {
+
+					$firephp->log("mpd.inc.php - retrieving station object with urlHash '".$urlHash."' from cache", "message");
+			
+					$station = Cache::get($urlHash);
+		
+					$firephp->log($station->toArray(), "station object from cache as array");	
+				}
+
+				//$firephp->log($station->toArray(), "station->toArray()");
+
+				if ($station) {
+
+					$station_url = $station->url;
+
+					$stationsIcon = null;
+
+					if (!Cache::has($urlHash."_icon")) {
+
+						$stationsIcon = Cache::rememberForever($urlHash."_icon", function() use ($station) {
+	
+							return $station->stationsIcon;
+						});
+		
+					} else {
+			
+						$stationsIcon = Cache::get($urlHash."_icon");
+					}
+
+					$station_icon_filename 	= $stationsIcon->baseurl.$stationsIcon->filename;
+
+					$station_name		= $station->name;
+					$station_description	= $station->description;*/
+
+					// the playlist is just a JSON-style object.  we need to double escape double quotes.
+					$json_playlist .= '{	"type"		: "stream",
+								"url" 		: "'.$station_url.'",
+								"oggurl" 	: "",
+								"artist" 	: "'.str_replace("\"", "\\\"", $station_name).'",
+								"album" 	: "'.str_replace("\"", "\\\"", $station_description).'",
+								"title" 	: "'.str_replace("\"", "\\\"", $station_name).'",
+								"art" 		: "/'.$station_icon_filename.'",
+								"file" 		: "'.$station_url.'",
+								"time"		: "Infinity",
+								"mpd_index" 	: "'.$mpd_playlist_index.'"	},';
+				}
 
 			} else {
 

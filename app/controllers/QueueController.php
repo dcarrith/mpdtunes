@@ -62,7 +62,7 @@ class QueueController extends MPDTunesController {
 		// include the current track determination code that's common among home.php and queue.php
 		include('partials/init_current_mpd_track_data.php');
 
-	        $mpd_playlist_as_json = get_mpd_playlist_as_json($this->MPD, $configs, $this->firephp, 0, $items_to_retrieve);
+	        $mpd_playlist_as_json = get_mpd_playlist_as_json($this->MPD, $configs, $this->firephp, 0, $items_to_retrieve, 0, $this->user);
                 
 		$this->data['current_track_playlist_index'] = (isset($current_track_id) ? $current_track_id : 0);
 
@@ -195,7 +195,7 @@ class QueueController extends MPDTunesController {
 			$this->firephp->log($this->data, "this->data");
 
 			// this is for the lazy loading of the queue
-			$mpd_playlist_as_json = get_mpd_playlist_as_json($this->MPD, $configs, $this->firephp, $queue_tracks_listed_so_far, $queue_tracks_to_retrieve, $playlist_index_offset);
+			$mpd_playlist_as_json = get_mpd_playlist_as_json($this->MPD, $configs, $this->firephp, $queue_tracks_listed_so_far, $queue_tracks_to_retrieve, $playlist_index_offset, $this->user);
 
 			$json_playlist = ""; 
 

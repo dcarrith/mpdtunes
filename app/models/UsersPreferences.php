@@ -18,7 +18,7 @@ class UsersPreferences extends Eloquent {
          */
         public function user()
         {
-                return $this->belongsTo('User', 'user_id');
+		return $this->belongsTo('User', 'user_id');
         }
 
         /**
@@ -28,8 +28,8 @@ class UsersPreferences extends Eloquent {
          */
         public function theme()
         {
-                return $this->belongsTo('Theme', 'theme_id');
-        }
+		return $this->belongsTo('Theme', 'theme_id');
+	}
 
         /**
          * The relationship between a UsersPreferences and a Langage
@@ -38,6 +38,6 @@ class UsersPreferences extends Eloquent {
          */
         public function language()
         {
-        	return $this->belongsTo('Language', 'language_id');
+		return $this->belongsTo('Language', 'language_id');
 	}
 }

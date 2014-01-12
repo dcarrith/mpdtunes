@@ -16,17 +16,13 @@ class SettingsController extends MPDTunesController {
 	public function index() {
 
 		// Get the user object for the currently logged in user
-                $user = Auth::user();
+                //$user = $this->user;
 		
-		// Store the user id for later
-		$this->data['user_id'] = $user->id;
 
 		// Get the logged in user's preferences
-		$preferences = $user->usersPreferences;
+		//$preferences = $user->usersPreferences;
 
-		$this->firephp->log($preferences->toJson(), "preferences");
-
-		$this->data['themes'] = array();
+		$this->firephp->log($this->preferences->toJson(), "preferences");
 
 		$this->data['data_url'] = "";
 
@@ -37,16 +33,28 @@ class SettingsController extends MPDTunesController {
 			$this->data['current_xfade'] = $this->MPD->xfade;
 		}
 
-		// get all the available themes
-		$themes = Theme::all();
+		// First check to see if all themes are in cache already 
+		if (!Cache::has('themes')) {
 
-		$this->firephp->log($themes->toJson(), "themes");
+			$this->themes = Cache::rememberForever('themes', function() {
+	
+				// Get all available themes
+				return Theme::all();
+			});
+	
+		} else {
+			
+			// Retrieve all themes from cache
+			$this->themes = Cache::get('themes');
+		}
+
+		$this->firephp->log($this->themes->toJson(), "themes");
 
 		$this->data['theme_options'] = array();
 
 		$this->data['selected_theme'] = "";
 
-		foreach($themes as $theme) {
+		foreach($this->themes as $theme) {
 
 			$this->data['theme_options'][$theme->id] = $theme->name;
 
@@ -77,18 +85,30 @@ class SettingsController extends MPDTunesController {
 		$this->data['mode_options']['remote-control'] 	= "Remote Control";
 		$this->data['mode_options']['disc-jockey'] 	= "Disc Jockey";
 
-		// get all the available languages
-		$languages = Language::all();
+		// First check to see if all languages are in cache already 
+		if (!Cache::has('languages')) {
 
-		$this->firephp->log($languages->toJson(), "languages");
+			$this->languages = Cache::rememberForever('languages', function() {
+		
+				// Get all the available languages
+				return Language::all();
+			});
+	
+		} else {
+			
+			// Retrieve all languages from cache
+			$this->languages = Cache::get('languages');
+		}
+	
+		$this->firephp->log($this->languages->toJson(), "languages");
 
 		$this->data['language_options'] = array();
 
 		$this->data['selected_language']= "";
 
-		$default_language = $this->language;
+		$default_language = $this->language->code;
 
-		foreach($languages as $language) {
+		foreach($this->languages as $language) {
 
 			$this->data['language_options'][$language->id] = $language->name;
 
@@ -148,6 +168,12 @@ class SettingsController extends MPDTunesController {
                         		$preferences->theme_id = $theme_id;
                         		$preferences->save();
 
+					// Clear theme from cache
+					Cache::forget('theme'.Session::getId());
+
+					// Clear list of all themes from cache
+					Cache::forget('themes');
+
 					// It seems like we have to refresh the preferences so the theme relationship will be updated
 					$preferences = UsersPreferences::find($user->id);
                         		$theme = $preferences->theme;
@@ -168,6 +194,12 @@ class SettingsController extends MPDTunesController {
                                         $preferences = $user->preferences;
                                         $preferences->language_id = $language_id;
                                         $preferences->save();
+
+					// Clear language from cache
+					Cache::forget('language'.Session::getId());
+
+					// Clear list of all languages from cache
+					Cache::forget('languages');
 
 					// Get the language code
 					$language = Language::find($language_id);
@@ -211,6 +243,9 @@ class SettingsController extends MPDTunesController {
 
 				break;
 		}
+
+		// Clear preferences from cache
+		Cache::forget('preferences'.Session::getId());
 
 		// Just in case we had no results above
 		echo '';
@@ -256,6 +291,7 @@ class SettingsController extends MPDTunesController {
 	
 			case 'theme':
 
+				$icon_color			= Request::get('icon_color');
 				$theme_name 			= Request::get('theme_name');
 				$bars_letter_code 		= Request::get('bars_letter_code');
 				$buttons_letter_code 		= Request::get('buttons_letter_code');
@@ -264,6 +300,7 @@ class SettingsController extends MPDTunesController {
 				$action_buttons_letter_code 	= Request::get('action_letter_code');
 				$active_state_letter_code 	= Request::get('active_state_letter_code');
 
+				$this->firephp->log($icon_color, "icon_color");
 				$this->firephp->log($theme_name, "name");							
 				$this->firephp->log($bars_letter_code, "bars");	
 				$this->firephp->log($buttons_letter_code, "buttons");
@@ -275,6 +312,7 @@ class SettingsController extends MPDTunesController {
 				$theme = new Theme();
 				$theme->name = $theme_name;
 				$theme->creator_id = $user_id;
+				$theme->icon = (($icon_color == "Black") ? 'b' : 'w');
 				$theme->bars = $bars_letter_code;
 				$theme->buttons = $buttons_letter_code;
 				$theme->body = $body_letter_code;
@@ -291,6 +329,15 @@ class SettingsController extends MPDTunesController {
 				// Set the user's preferred theme to the newly created one
 				$preferences->theme_id = $theme->id;
 				$preferences->save();
+
+				// Clear theme from cache
+				Cache::forget('theme'.Session::getId());
+
+				// Clear the list of all themes from cache
+				Cache::forget('themes');
+
+				// Clear preferences from cache
+				Cache::forget('preferences'.Session::getId());
 
 				// It seems like we have to refresh the preferences so the theme relationship will be updated
 				//$preferences = UsersPreferences::find($user->id);
