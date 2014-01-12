@@ -1,21 +1,28 @@
 <?php
 
+use Illuminate\Routing\Controllers\Controller;
+
 class BaseController extends Controller {
 
-        protected $data      = array();
+        protected $data = array();
         protected $firephp;
 	protected $zipper;
 
-        //public $restful      = TRUE;
+        //public $restful = TRUE;
 
         public function __construct() {
+
+		Cache::flush();
 
 		// Get and merge the environment config defaults into the main data array
                 $this->data = array_merge($this->data, Configurator::getDefaults('environment'));
 
-		if( !$this->data['profiling'] ) {
+		if( !$this->data['profiling'] )  {
 
-			Config::set('profiler::profiler', FALSE);
+			//Config::set('profiler::profiler', FALSE);
+			
+			// Turn off debugbar by setting enabled to false
+			Config::set('laravel-debugbar::config.enabled', false);	
 		}
 
 		$this->data['language'] = Config::get('app.locale');
