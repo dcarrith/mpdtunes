@@ -72,10 +72,19 @@ class LoginController extends BaseController {
 
 			// Spawn an instance of MPD so we know it's running
 			$path_to_mpd_binary = Config::get('defaults.default_path_to_mpd_binary');
-				
-			// Now spawn a new instance of mpd
-			$execResult = exec($path_to_mpd_binary.' '.ltrim($this->data['mpd_dir'], "/").'mpd.conf', $output);
+			
+			$output = array();
+			$resultCode = array();
+			// exec(escapeshellcmd('rm -f -v').' '.escapeshellarg($symbolic_link).' 2>&1', $output, $resultCode);
 	
+			// Now spawn a new instance of mpd
+			$execResult = exec($path_to_mpd_binary.' '.ltrim($this->data['mpd_dir'], "/").'mpd.conf 2>&1', $output, $resultCode);
+	
+			$this->firephp->log($output, "output from trying to start mpd");
+			$this->firephp->log($resultCode, "resultCode from trying to start mpd");
+
+			//exit();
+
 			return Redirect::to('home');
 			
 		} else {
