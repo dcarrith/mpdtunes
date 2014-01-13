@@ -17,10 +17,10 @@ return array(
         */
 
         //'driver' => 'file', // works fine
-        'driver' => 'cookie', // should work
+        //'driver' => 'cookie', // should work
 	//'driver' => 'database', // works fine
         //'driver' => 'apc', // no support for apc in php 5.4.13
-        //'driver' => 'memcached', // works fine
+        'driver' => 'memcached', // works fine
         //'driver' => 'redis', // works fine
         
         /*
