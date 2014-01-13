@@ -25,6 +25,7 @@ return array(
     'Barryvdh\\Debugbar\\LaravelDebugbar' => $vendorDir . '/barryvdh/laravel-debugbar/src/Barryvdh/Debugbar/LaravelDebugBar.php',
     'Barryvdh\\Debugbar\\Middleware' => $vendorDir . '/barryvdh/laravel-debugbar/src/Barryvdh/Debugbar/Middleware.php',
     'Barryvdh\\Debugbar\\ServiceProvider' => $vendorDir . '/barryvdh/laravel-debugbar/src/Barryvdh/Debugbar/ServiceProvider.php',
+    'Barryvdh\\Debugbar\\Storage\\FilesystemStorage' => $vendorDir . '/barryvdh/laravel-debugbar/src/Barryvdh/Debugbar/Storage/FilesystemStorage.php',
     'Barryvdh\\Debugbar\\SymfonyHttpDriver' => $vendorDir . '/barryvdh/laravel-debugbar/src/Barryvdh/Debugbar/SymfonyHttpDriver.php',
     'Barryvdh\\LaravelIdeHelper\\GeneratorCommand' => $vendorDir . '/barryvdh/laravel-ide-helper/src/Barryvdh/LaravelIdeHelper/GeneratorCommand.php',
     'Barryvdh\\LaravelIdeHelper\\IdeHelperServiceProvider' => $vendorDir . '/barryvdh/laravel-ide-helper/src/Barryvdh/LaravelIdeHelper/IdeHelperServiceProvider.php',

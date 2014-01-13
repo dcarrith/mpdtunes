@@ -2440,20 +2440,22 @@
         "source": {
             "type": "git",
             "url": "https://github.com/barryvdh/laravel-debugbar.git",
-            "reference": "c406737d032429cc44f24dd05a9563a8c97c8f65"
+            "reference": "2f9ef53bd6733dbbaea67d6bfd60f3d2c819698d"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/barryvdh/laravel-debugbar/zipball/c406737d032429cc44f24dd05a9563a8c97c8f65",
-            "reference": "c406737d032429cc44f24dd05a9563a8c97c8f65",
+            "url": "https://api.github.com/repos/barryvdh/laravel-debugbar/zipball/2f9ef53bd6733dbbaea67d6bfd60f3d2c819698d",
+            "reference": "2f9ef53bd6733dbbaea67d6bfd60f3d2c819698d",
             "shasum": ""
         },
         "require": {
+            "illuminate/filesystem": "~4.0",
             "illuminate/support": "~4.0",
             "maximebf/debugbar": "~1.9",
-            "php": ">=5.3.0"
+            "php": ">=5.3.0",
+            "symfony/finder": "~2.3"
         },
-        "time": "2014-01-11 19:25:44",
+        "time": "2014-01-12 16:40:09",
         "type": "library",
         "installation-source": "dist",
         "autoload": {

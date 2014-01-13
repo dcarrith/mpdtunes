@@ -10788,6 +10788,16 @@ class Debugbar extends Barryvdh\Debugbar\Facade{
 	 }
 
 	/**
+	 * Check if the Debugbar is enabled
+	 *
+	 * @return boolean
+	 * @static 
+	 */
+	 public static function isEnabled(){
+		return Barryvdh\Debugbar\LaravelDebugbar::isEnabled();
+	 }
+
+	/**
 	 * Enable the Debugbar and boot, if not already booted.
 	 *
 	 * @static 
