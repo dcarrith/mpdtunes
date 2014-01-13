@@ -7,6 +7,6 @@
 		<p class="ui-li-desc stations-li-text">{{ stripslashes($station->description) }}</p>
 	</a>
 
-	<a href="" onclick="post = { 'parameters' : [ { 'station_url' : '{{ $station->url }}' } ] };  control_mpd('add_url', post.parameters[0]); $.mobile.showPageLoadingMsg(theme.bars, 'Adding stream to queue', true); setTimeout(function(){ $.mobile.hidePageLoadingMsg(); }, 1500);" class="ui-icon-plus ui-li-link-alt ui-btn ui-btn-up-{{ $theme_buttons }}" data-theme="{{ $theme_buttons }}" title="{{ $add_stream_to_queue_i18n }}">{{ $add_stream_to_queue_i18n }}</a>
+	<a href="" onclick="post = { 'parameters' : [ { 'station_url' : '{{ $station->url }}' } ] };  control_mpd('add_url', post.parameters[0]); $.mobile.loading('show', theme.bars, 'Adding stream to queue', true); setTimeout(function(){ $.mobile.loading('hide'); }, 1500);" class="ui-icon-plus ui-li-link-alt ui-btn ui-btn-up-{{ $theme_buttons }}" data-theme="{{ $theme_buttons }}" title="{{ $add_stream_to_queue_i18n }}">{{ $add_stream_to_queue_i18n }}</a>
 
 </li>
