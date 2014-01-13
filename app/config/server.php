@@ -4,8 +4,8 @@ $config = array();
 
 $config['debug']		= FALSE;
 
-//$config['environment'] 	= "development";
-$config['environment'] 		= "production";
+$config['environment'] 	= "development";
+//$config['environment'] 		= "production";
 
 // This is in case you want to email the site admin when PHP errors are encountered
 $config['admin_email']		= "admin@mpdtunes.com";

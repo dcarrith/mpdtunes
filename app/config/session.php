@@ -18,9 +18,9 @@ return array(
 	
 	//'driver' => 'native', // replaced cookie driver so, probably has issue with stale sessions
 	//'driver' => 'file', // works fine
-	'driver' => 'database', // works fine
+	//'driver' => 'database', // works fine
 	//'driver' => 'apc', // no support for apc in php 5.4.13
-	//'driver' => 'memcached', // works fine
+	'driver' => 'memcached', // works fine
 	//'driver' => 'redis', // works fine
 
 	/*
