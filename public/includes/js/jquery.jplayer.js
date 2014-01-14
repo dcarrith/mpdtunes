@@ -2,13 +2,13 @@
  * jPlayer Plugin for jQuery JavaScript Library
  * http://www.jplayer.org
  *
- * Copyright (c) 2009 - 2013 Happyworm Ltd
+ * Copyright (c) 2009 - 2014 Happyworm Ltd
  * Licensed under the MIT license.
  * http://opensource.org/licenses/MIT
  *
  * Author: Mark J Panaghiston
- * Version: 2.4.1
- * Date: 21st June 2013
+ * Version: 2.5.4
+ * Date: 9th January 2014
  */
 
 /* Code verified using http://www.jshint.com/ */
@@ -163,12 +163,12 @@
 		// "waiting", // jPlayer uses internally before bubbling.
 		// "playing", // jPlayer uses internally before bubbling.
 		"canplay",
-		"canplaythrough",
+		"canplaythrough"
 		// "seeking", // jPlayer uses internally before bubbling.
 		// "seeked", // jPlayer uses internally before bubbling.
 		// "timeupdate", // jPlayer uses internally before bubbling.
 		// "ended", // jPlayer uses internally before bubbling.
-		"ratechange"
+		// "ratechange" // jPlayer uses internally before bubbling.
 		// "durationchange" // jPlayer uses internally before bubbling.
 		// "volumechange" // jPlayer uses internally before bubbling.
 	];
@@ -343,6 +343,8 @@
 						''
 					],
 					// http://developer.apple.com/library/safari/#documentation/AudioVideo/Reference/HTMLVideoElementClassReference/HTMLVideoElement/HTMLVideoElement.html
+					// https://developer.apple.com/library/safari/samplecode/HTML5VideoEventFlow/Listings/events_js.html#//apple_ref/doc/uid/DTS40010085-events_js-DontLinkElementID_5
+					// Events: 'webkitbeginfullscreen' and 'webkitendfullscreen'
 					webkitVideo: [
 						'webkitSupportsFullscreen',
 						'webkitDisplayingFullscreen',
@@ -468,8 +470,8 @@
 	$.jPlayer.prototype = {
 		count: 0, // Static Variable: Change it via prototype.
 		version: { // Static Object
-			script: "2.4.1",
-			needFlash: "2.4.1",
+			script: "2.5.4",
+			needFlash: "2.5.2",
 			flash: "unknown"
 		},
 		options: { // Instanced in $.jPlayer() constructor
@@ -479,6 +481,10 @@
 			preload: 'metadata',  // HTML5 Spec values: none, metadata, auto.
 			volume: 0.8, // The volume. Number 0 to 1.
 			muted: false,
+			playbackRate: 1,
+			defaultPlaybackRate: 1,
+			minPlaybackRate: 0.5,
+			maxPlaybackRate: 4,
 			wmode: "opaque", // Valid wmode: window, transparent, opaque, direct, gpu. 
 			backgroundColor: "#000000", // To define the jPlayer div and Flash background color.
 			cssSelectorAncestor: "#jp_container_1",
@@ -494,6 +500,8 @@
 				volumeBar: ".jp-volume-bar",
 				volumeBarValue: ".jp-volume-bar-value",
 				volumeMax: ".jp-volume-max",
+				playbackRateBar: ".jp-playback-rate-bar",
+				playbackRateBarValue: ".jp-playback-rate-bar-value",
 				currentTime: ".jp-current-time",
 				duration: ".jp-duration",
 				fullScreen: ".jp-full-screen", // *
@@ -598,11 +606,12 @@
 				}
 			},
 			verticalVolume: false, // Calculate volume from the bottom of the volume bar. Default is from the left. Also volume affects either width or height.
-			// globalVolume: false, // Not implemented: Set to make volume changes affect all jPlayer instances
-			// globalMute: false, // Not implemented: Set to make mute changes affect all jPlayer instances
+			verticalPlaybackRate: false,
+			globalVolume: false, // Set to make volume and muted changes affect all jPlayer instances with this option enabled
 			idPrefix: "jp", // Prefix for the ids of html elements created by jPlayer. For flash, this must not include characters: . - + * / \
 			noConflict: "jQuery",
 			emulateHtml: false, // Emulates the HTML5 Media element on the jPlayer element.
+			consoleAlerts: true, // Alerts are sent to the console.log() instead of alert().
 			errorAlerts: false,
 			warningAlerts: false
 		},
@@ -650,7 +659,7 @@
 			videoHeight: 0, // Intrinsic height of the video in pixels.
 			readyState: 0,
 			networkState: 0,
-			playbackRate: 1,
+			playbackRate: 1, // Warning - Now both an option and a status property
 			ended: 0
 
 /*		Persistant status properties created dynamically at _init():
@@ -660,6 +669,7 @@
 			nativeVideoControls
 			noFullWindow
 			noVolume
+			playbackRateEnabled // Warning - Technically, we can have both Flash and HTML, so this might not be correct if the Flash is active. That is a niche case.
 */
 		},
 
@@ -687,8 +697,23 @@
 				flashCanPlay: true,
 				media: 'audio'
 			},
+			m3u8a: { // AAC / MP4 / Apple HLS
+				codec: 'application/vnd.apple.mpegurl; codecs="mp4a.40.2"',
+				flashCanPlay: false,
+				media: 'audio'
+			},
+			m3ua: { // M3U
+				codec: 'audio/mpegurl',
+				flashCanPlay: false,
+				media: 'audio'
+			},
 			oga: { // OGG
-				codec: 'audio/ogg; codecs="vorbis"',
+				codec: 'audio/ogg; codecs="vorbis, opus"',
+				flashCanPlay: false,
+				media: 'audio'
+			},
+			flac: { // FLAC
+				codec: 'audio/x-flac',
 				flashCanPlay: false,
 				media: 'audio'
 			},
@@ -715,6 +740,16 @@
 			m4v: { // H.264 / MP4
 				codec: 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"',
 				flashCanPlay: true,
+				media: 'video'
+			},
+			m3u8v: { // H.264 / AAC / MP4 / Apple HLS
+				codec: 'application/vnd.apple.mpegurl; codecs="avc1.42E01E, mp4a.40.2"',
+				flashCanPlay: false,
+				media: 'video'
+			},
+			m3uv: { // M3U
+				codec: 'audio/mpegurl',
+				flashCanPlay: false,
 				media: 'video'
 			},
 			ogv: { // OGG
@@ -1032,7 +1067,17 @@
 				this.element.append(htmlObj);
 				this.internal.flash.jq = $(htmlObj);
 			}
-			
+
+			// Setup playbackRate ability before using _addHtmlEventListeners()
+			if(this.html.used && !this.flash.used) { // If only HTML
+				// Using the audio element capabilities for playbackRate. ie., Assuming video element is the same.
+				this.status.playbackRateEnabled = this._testPlaybackRate('audio');
+			} else {
+				this.status.playbackRateEnabled = false;
+			}
+
+			this._updatePlaybackRate();
+
 			// Add the HTML solution if being used.
 			if(this.html.used) {
 
@@ -1140,6 +1185,23 @@
 				return false;
 			}
 		},
+		_testPlaybackRate: function(type) {
+			// type: String 'audio' or 'video'
+			var el, rate = 0.5;
+			type = typeof type === 'string' ? type : 'audio';
+			el = document.createElement(type);
+			// Wrapping in a try/catch, just in case older HTML5 browsers throw and error.
+			try {
+				if('playbackRate' in el) {
+					el.playbackRate = rate;
+					return el.playbackRate === rate;
+				} else {
+					return false;
+				}
+			} catch(err) {
+				return false;
+			}
+		},
 		_uaBlocklist: function(list) {
 			// list : object with properties that are all regular expressions. Property names are irrelevant.
 			// Returns true if the user agent is matched in list.
@@ -1184,6 +1246,11 @@
 			mediaElement.preload = this.options.preload;
 			mediaElement.muted = this.options.muted;
 			mediaElement.volume = this.options.volume;
+
+			if(this.status.playbackRateEnabled) {
+				mediaElement.defaultPlaybackRate = this.options.defaultPlaybackRate;
+				mediaElement.playbackRate = this.options.playbackRate;
+			}
 
 			// Create the event listeners
 			// Only want the active entity to affect jPlayer and bubble events.
@@ -1260,6 +1327,14 @@
 					self._updateMute();
 					self._updateVolume();
 					self._trigger($.jPlayer.event.volumechange);
+				}
+			}, false);
+			mediaElement.addEventListener("ratechange", function() {
+				if(entity.gate) {
+					self.options.defaultPlaybackRate = mediaElement.defaultPlaybackRate;
+					self.options.playbackRate = mediaElement.playbackRate;
+					self._updatePlaybackRate();
+					self._trigger($.jPlayer.event.ratechange);
 				}
 			}, false);
 			mediaElement.addEventListener("suspend", function() { // Seems to be the only way of capturing that the iOS4 browser did not actually play the media from the page code. ie., It needs a user gesture.
@@ -1406,6 +1481,7 @@
 								paused = this.status.paused; 
 
 							this.setMedia(this.status.media);
+							this.volumeWorker(this.options.volume);
 							if(currentTime > 0) {
 								if(paused) {
 									this.pause(currentTime);
@@ -1582,12 +1658,28 @@
 			this.html.active = false;
 			this.flash.active = false;
 		},
+		_escapeHtml: function(s) {
+			return s.split('&').join('&amp;').split('<').join('&lt;').split('>').join('&gt;').split('"').join('&quot;');
+		},
+		_qualifyURL: function(url) {
+			var el = document.createElement('div');
+			el.innerHTML= '<a href="' + this._escapeHtml(url) + '">x</a>';
+			return el.firstChild.href;
+		},
+		_absoluteMediaUrls: function(media) {
+			var self = this;
+			$.each(media, function(type, url) {
+				if(url && self.format[type]) {
+					media[type] = self._qualifyURL(url);
+				}
+			});
+			return media;
+		},
 		setMedia: function(media) {
 		
 			/*	media[format] = String: URL of format. Must contain all of the supplied option's video or audio formats.
 			 *	media.poster = String: Video poster URL.
-			 *	media.subtitles = String: * NOT IMPLEMENTED * URL of subtitles SRT file
-			 *	media.chapters = String: * NOT IMPLEMENTED * URL of chapters SRT file
+			 *	media.track = Array: Of objects defining the track element: kind, src, srclang, label, def.
 			 *	media.stream = Boolean: * NOT IMPLEMENTED * Designating actual media streams. ie., "false/undefined" for files. Plan to refresh the flash every so often.
 			 */
 
@@ -1598,6 +1690,9 @@
 			this._resetMedia();
 			this._resetGate();
 			this._resetActive();
+
+			// Convert all media URLs to absolute URLs.
+			media = this._absoluteMediaUrls(media);
 
 			$.each(this.formats, function(formatPriority, format) {
 				var isVideo = self.format[format].media === 'video';
@@ -1742,15 +1837,32 @@
 				this._urlNotSetError("pause");
 			}
 		},
-		pauseOthers: function() {
-			var self = this;
-			$.each(this.instances, function(i, element) {
-				if(self.element !== element) { // Do not this instance.
-					if(element.data("jPlayer").status.srcSet) { // Check that media is set otherwise would cause error event.
-						element.jPlayer("pause");
+		tellOthers: function(command, conditions) {
+			var self = this,
+				hasConditions = typeof conditions === 'function',
+				args = Array.prototype.slice.call(arguments); // Convert arguments to an Array.
+
+			if(typeof command !== 'string') { // Ignore, since no command.
+				return; // Return undefined to maintain chaining.
+			}
+			if(hasConditions) {
+				args.splice(1, 1); // Remove the conditions from the arguments
+			}
+
+			$.each(this.instances, function() {
+				// Remember that "this" is the instance's "element" in the $.each() loop.
+				if(self.element !== this) { // Do not tell my instance.
+					if(!hasConditions || conditions.call(this.data("jPlayer"), self)) {
+						this.jPlayer.apply(this, args);
 					}
 				}
 			});
+		},
+		pauseOthers: function(time) {
+			this.tellOthers("pause", function() {
+				// In the conditions function, the "this" context is the other instance's jPlayer object.
+				return this.status.srcSet;
+			}, time);
 		},
 		stop: function() {
 			if(this.status.srcSet) {
@@ -1776,9 +1888,18 @@
 			}
 		},
 		_muted: function(muted) {
+			this.mutedWorker(muted);
+			if(this.options.globalVolume) {
+				this.tellOthers("mutedWorker", function() {
+					// Check the other instance has global volume enabled.
+					return this.options.globalVolume;
+				}, muted);
+			}
+		},
+		mutedWorker: function(muted) {
 			this.options.muted = muted;
 			if(this.html.used) {
-				this._html_mute(muted);
+				this._html_setProperty('muted', muted);
 			}
 			if(this.flash.used) {
 				this._flash_mute(muted);
@@ -1817,11 +1938,20 @@
 			}
 		},
 		volume: function(v) {
+			this.volumeWorker(v);
+			if(this.options.globalVolume) {
+				this.tellOthers("volumeWorker", function() {
+					// Check the other instance has global volume enabled.
+					return this.options.globalVolume;
+				}, v);
+			}
+		},
+		volumeWorker: function(v) {
 			v = this._limitValue(v, 0, 1);
 			this.options.volume = v;
 
 			if(this.html.used) {
-				this._html_volume(v);
+				this._html_setProperty('volume', v);
 			}
 			if(this.flash.used) {
 				this._flash_volume(v);
@@ -1851,9 +1981,6 @@
 			if(this.options.muted) {
 				this._muted(false);
 			}
-		},
-		volumeBarValue: function() { // Handles clicks on the volumeBarValue
-			// The volumeBar handles this event as the event propagates up the DOM.
 		},
 		_updateVolume: function(v) {
 			if(v === undefined) {
@@ -1931,7 +2058,7 @@
 						this.css.jq[fn] = []; // To comply with the css.jq[fn].length check before its use. As of jQuery 1.4 could have used $() for an empty set. 
 					}
 
-					if(this.css.jq[fn].length) {
+					if(this.css.jq[fn].length && this[fn]) {
 						var handler = function(e) {
 							e.preventDefault();
 							self[fn](e);
@@ -1976,8 +2103,47 @@
 				this.playHead(p);
 			}
 		},
-		playBar: function() { // Handles clicks on the playBar
-			// The seekBar handles this event as the event propagates up the DOM.
+		playbackRate: function(pbr) {
+			this._setOption("playbackRate", pbr);
+		},
+		playbackRateBar: function(e) { // Handles clicks on the playbackRateBar
+			if(this.css.jq.playbackRateBar.length) {
+				// Using $(e.currentTarget) to enable multiple playbackRate bars
+				var $bar = $(e.currentTarget),
+					offset = $bar.offset(),
+					x = e.pageX - offset.left,
+					w = $bar.width(),
+					y = $bar.height() - e.pageY + offset.top,
+					h = $bar.height(),
+					ratio, pbr;
+				if(this.options.verticalPlaybackRate) {
+					ratio = y/h;
+				} else {
+					ratio = x/w;
+				}
+				pbr = ratio * (this.options.maxPlaybackRate - this.options.minPlaybackRate) + this.options.minPlaybackRate;
+				this.playbackRate(pbr);
+			}
+		},
+		_updatePlaybackRate: function() {
+			var pbr = this.options.playbackRate,
+				ratio = (pbr - this.options.minPlaybackRate) / (this.options.maxPlaybackRate - this.options.minPlaybackRate);
+			if(this.status.playbackRateEnabled) {
+				if(this.css.jq.playbackRateBar.length) {
+					this.css.jq.playbackRateBar.show();
+				}
+				if(this.css.jq.playbackRateBarValue.length) {
+					this.css.jq.playbackRateBarValue.show();
+					this.css.jq.playbackRateBarValue[this.options.verticalPlaybackRate ? "height" : "width"]((ratio*100)+"%");
+				}
+			} else {
+				if(this.css.jq.playbackRateBar.length) {
+					this.css.jq.playbackRateBar.hide();
+				}
+				if(this.css.jq.playbackRateBarValue.length) {
+					this.css.jq.playbackRateBarValue.hide();
+				}
+			}
 		},
 		repeat: function() { // Handle clicks on the repeat button
 			this._loop(true);
@@ -1991,21 +2157,6 @@
 				this._updateButtons();
 				this._trigger($.jPlayer.event.repeat);
 			}
-		},
-
-		// Plan to review the cssSelector method to cope with missing associated functions accordingly.
-
-		currentTime: function() { // Handles clicks on the text
-			// Added to avoid errors using cssSelector system for the text
-		},
-		duration: function() { // Handles clicks on the text
-			// Added to avoid errors using cssSelector system for the text
-		},
-		gui: function() { // Handles clicks on the gui
-			// Added to avoid errors using cssSelector system for the gui
-		},
-		noSolution: function() { // Handles clicks on the error message
-			// Added to avoid errors using cssSelector system for no-solution
 		},
 
 		// Options code adapted from ui.widget.js (1.8.7).  Made changes so the key can use dot notation. To match previous getData solution in jPlayer 1.
@@ -2083,6 +2234,9 @@
 				case "muted" :
 					this._muted(value);
 					break;
+				case "globalVolume" :
+					this.options[key] = value;
+					break;
 				case "cssSelectorAncestor" :
 					this._cssSelectorAncestor(value); // Set and refresh all associations for the new ancestor.
 					break;
@@ -2090,6 +2244,28 @@
 					$.each(value, function(fn, cssSel) {
 						self._cssSelector(fn, cssSel); // NB: The option is set inside this function, after further validity checks.
 					});
+					break;
+				case "playbackRate" :
+					this.options[key] = value = this._limitValue(value, this.options.minPlaybackRate, this.options.maxPlaybackRate);
+					if(this.html.used) {
+						this._html_setProperty('playbackRate', value);
+					}
+					this._updatePlaybackRate();
+					break;
+				case "defaultPlaybackRate" :
+					this.options[key] = value = this._limitValue(value, this.options.minPlaybackRate, this.options.maxPlaybackRate);
+					if(this.html.used) {
+						this._html_setProperty('defaultPlaybackRate', value);
+					}
+					this._updatePlaybackRate();
+					break;
+				case "minPlaybackRate" :
+					this.options[key] = value = this._limitValue(value, 0.1, this.options.maxPlaybackRate - 0.1);
+					this._updatePlaybackRate();
+					break;
+				case "maxPlaybackRate" :
+					this.options[key] = value = this._limitValue(value, this.options.minPlaybackRate + 0.1, 16);
+					this._updatePlaybackRate();
 					break;
 				case "fullScreen" :
 					if(this.options[key] !== value) { // if changed
@@ -2510,20 +2686,12 @@
 				}
 			}
 		},
-		_html_volume: function(v) {
+		_html_setProperty: function(property, value) {
 			if(this.html.audio.available) {
-				this.htmlElement.audio.volume = v;
+				this.htmlElement.audio[property] = value;
 			}
 			if(this.html.video.available) {
-				this.htmlElement.video.volume = v;
-			}
-		},
-		_html_mute: function(m) {
-			if(this.html.audio.available) {
-				this.htmlElement.audio.muted = m;
-			}
-			if(this.html.video.available) {
-				this.htmlElement.video.muted = m;
+				this.htmlElement.video[property] = value;
 			}
 		},
 		_flash_setAudio: function(media) {
@@ -2718,17 +2886,22 @@
 		_error: function(error) {
 			this._trigger($.jPlayer.event.error, error);
 			if(this.options.errorAlerts) {
-				this._alert("Error!" + (error.message ? "\n\n" + error.message : "") + (error.hint ? "\n\n" + error.hint : "") + "\n\nContext: " + error.context);
+				this._alert("Error!" + (error.message ? "\n" + error.message : "") + (error.hint ? "\n" + error.hint : "") + "\nContext: " + error.context);
 			}
 		},
 		_warning: function(warning) {
 			this._trigger($.jPlayer.event.warning, undefined, warning);
 			if(this.options.warningAlerts) {
-				this._alert("Warning!" + (warning.message ? "\n\n" + warning.message : "") + (warning.hint ? "\n\n" + warning.hint : "") + "\n\nContext: " + warning.context);
+				this._alert("Warning!" + (warning.message ? "\n" + warning.message : "") + (warning.hint ? "\n" + warning.hint : "") + "\nContext: " + warning.context);
 			}
 		},
 		_alert: function(message) {
-			alert("jPlayer " + this.version.script + " : id='" + this.internal.self.id +"' : " + message);
+			var msg = "jPlayer " + this.version.script + " : id='" + this.internal.self.id +"' : " + message;
+			if(!this.options.consoleAlerts) {
+				alert(msg);
+			} else if(window.console && window.console.log) {
+				window.console.log(msg);
+			}
 		},
 		_emulateHtmlBridge: function() {
 			var self = this;
