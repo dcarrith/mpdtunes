@@ -1406,227 +1406,6 @@ $( 'body' ).on( 'click', '#shuffle', function( evt ) {
 	}
 });
 
-$( 'body' ).on( 'click', '#settings_form_save', function( evt, ui ) {
-
-	evt.preventDefault();
-
-	var is_admin_user 	= $('#is_admin_user').val();
-	var new_theme_id 	= $('#theme_id').val();
-	var new_mode 		= $('#mode').val();
-	var new_language_id	= $('#language_id').val();
-	var new_volume 		= $('#volume_control').val();
-	var new_crossfade 	= $('#xfade_control').val();
-	var new_volume_fade 	= $('#volume_fade_control').val();
-
-	if (((typeof new_volume == "undefined") || (new_volume == '')) && is_admin_user) {
-		
-		new_volume = 5;
-	} 
-	
-	if (((typeof new_crossfade == "undefined") || (new_crossfade == ''))) {
-		
-		new_crossfade = 5;
-	}
-
-	if (((typeof new_volume_fade == "undefined") || (new_volume_fade == ''))) {
-		
-		new_volume_fade = 5;
-	}
-
-	//alert("theme_id: "+new_theme_id+"\nmode: "+new_mode+"\nvolume: "+new_volume+"\ncrossfade: "+new_crossfade+"\nvolume_fade: "+new_volume_fade);
-
-	if (	((typeof new_theme_id 		!= "undefined") && (new_theme_id 	!= '')) && 
-		((typeof new_mode 		!= "undefined") && (new_mode 		!= '')) &&
-		((typeof new_language_id 	!= "undefined") && (new_language_id 	!= ''))	) {
-
-		$.mobile.loadingMessage = 'Saving Settings';
-		$.mobile.loading( "show" );
-
-		$.ajax({
-			type: "POST",
-			url: "/settings/save",
-			async: true,
-			data: "theme_id="+new_theme_id+"&mode="+new_mode+"&volume="+new_volume+"&crossfade="+new_crossfade+"&volume_fade="+new_volume_fade+"&language_id="+new_language_id,
-			success: function(msg){
-
-				saved = $.parseJSON(msg);
-
-				//alert(JSON.stringify(saved));
-
-			    	var current_theme = new Object;
-
-				current_theme.body 	= theme.body;
-				current_theme.bars 	= theme.bars;
-				current_theme.buttons 	= theme.buttons;
-				current_theme.controls 	= theme.controls;
-				current_theme.action 	= theme.action;
-				current_theme.active 	= theme.active;
-
-				max_crossfade 		= new_crossfade;
-				volume_fade 		= new_volume_fade;
-				out_volume_left_to_fade = new_volume_fade - 1;
-				in_volume_left_to_fade 	= new_volume_fade - 1;
-
-				theme.body 		= saved.theme[0].body;
-				theme.bars 		= saved.theme[0].bars;
-				theme.buttons 		= saved.theme[0].buttons;
-				theme.controls 		= saved.theme[0].controls;
-				theme.action 		= saved.theme[0].action;
-				theme.active 		= saved.theme[0].active;
-
-				$.mobile.loadingMessageTheme = theme.bars;
-
-				$.mobile.activeBtnClass = 'ui-btn-hover-'+theme.active;
-
-			    	$('.ui-body-' + current_theme.body).each(function(){
-			        	$(this).removeClass('ui-body-' + current_theme.body).addClass('ui-body-' + theme.body);    
-			    	});
-
-			    	$('.ui-overlay-' + current_theme.body).each(function(){
-			        	$(this).removeClass('ui-overlay-' + current_theme.body).addClass('ui-overlay-' + theme.body);    
-			    	});
-
-			    	$('.ui-bar-' + current_theme.bars).each(function(){
-			        	$(this).removeClass('ui-bar-' + current_theme.bars).addClass('ui-bar-' + theme.bars);
-			    	});
-
-				// Update the data-theme attribute and relevant css classes for the children of the ui-select div
-				$('div.ui-select').each(function(index){
-
-					$(this).find('div')
-							.attr('data-theme', theme.buttons)
-							.removeClass('ui-btn-up-' + current_theme.buttons)
-							.addClass('ui-btn-up-' + theme.buttons);
-
-					$(this).find('select').attr('data-theme', theme.buttons);
-				});
-
-			    	// Update the data-theme attribute and relevant css classes for the children of the parent of slider input element
-				$('input[data-type="range"]').parent().each(function(index){
-					
-					$(this).find('input')
-							.attr('data-theme',theme.buttons)
-							.attr('data-track-theme',theme.buttons)
-							.removeClass('ui-body-' + current_theme.body)
-							.addClass('ui-body-' + theme.body);
-
-				 	$(this).find('div[role="application"]').removeClass('ui-btn-down-' + current_theme.buttons)
-				 						.addClass('ui-btn-down-' + theme.buttons);
-
-				    	$(this).find('.ui-slider-bg').removeClass('ui-btn-hover-' + current_theme.action)
-				    					.addClass('ui-btn-hover-' + theme.action);
-
-				 	$(this).find('a').attr('data-theme', theme.buttons)
-				 				.removeClass('ui-btn-up-' + current_theme.buttons)
-			    					.addClass('ui-btn-up-' + theme.bars);
-				});
-
-				// Update the data-theme attribute and relevant css classes of the parent of the save button
-				$('button[type="button"]').parent()
-								.attr('data-theme', theme.action)
-								.removeClass('ui-btn-up-', current_theme.action)
-								.addClass('ui-btn-up-', theme.action);
-
-			    	// Update the data-theme attribute of the save button
-				$('button[type="button"]').attr('data-theme', theme.action);
-
-
-			    	// Update the data-theme attribute and relevant css classes of the prev button element
-			    	$('#prev').attr('data-theme', theme.controls)
-			    			.removeClass('ui-btn-up-' + current_theme.buttons)
-			    			.removeClass('ui-btn-up-' + current_theme.controls)
-			    			.addClass('ui-btn-up-' + theme.controls);    
-
-		        	// Update the data-theme attribute and relevant css classes of the playpause button element
-		        	$('#playpause').attr('data-theme', theme.controls)
-		        			.removeClass('ui-btn-up-' + current_theme.buttons)
-		        			.removeClass('ui-btn-up-' + current_theme.controls)
-		        			.addClass('ui-btn-up-' + theme.controls);        
-
-		        	// Update the data-theme attribute and relevant css classes of the next button element
-		        	$('#next').attr('data-theme', theme.controls)
-		        			.removeClass('ui-btn-up-' + current_theme.buttons)
-		        			.removeClass('ui-btn-up-' + current_theme.controls)
-		        			.addClass('ui-btn-up-' + theme.controls); 
-
-			    	// Update the data-theme and data-divider-theme attributes for the divs with data-role=page
-				$('div[data-role="page"]').each(function(index){
-					$(this).attr('data-theme',theme.buttons);
-					$(this).attr('data-divider-theme',theme.bars);
-				});
-
-				// Update the data-theme and data-divider-theme attributes for the divs with data-role=header
-				$('div[data-role="header"]').each(function(index){
-					$(this).attr('data-theme',theme.buttons);
-					$(this).attr('data-divider-theme',theme.bars);
-				});
-
-				// Update the data-theme and data-divider-theme attributes for the divs with data-role=content
-				$('div[data-role="content"]').each(function(index){
-					$(this).attr('data-theme',theme.buttons)
-					.attr('data-divider-theme',theme.bars);
-				});
-
-				// Update the data-theme and data-divider-theme attributes for the divs with data-role=footer
-				$('div[data-role="footer"]').each(function(index){
-					$(this).attr('data-theme',theme.buttons)
-					.attr('data-divider-theme',theme.bars);
-				});
-
-				// Update the data-theme attribute and the relevant css classes for any data-role=button elements
-				$('*[data-role="button"]').each(function(index){
-
-					$(this).attr('data-theme',theme.buttons)
-						.removeClass('ui-btn-up-' + current_theme.buttons)
-						.addClass('ui-btn-up-' + theme.buttons);
-				});
-
-			    	// Update the data-theme and data-divider-theme attributes for the libraryNav ul
-			    	$('#libraryNav').attr('data-theme', theme.buttons)
-			    			.attr('data-divider-theme', theme.buttons);
-
-			    	// Update the data-theme attribute and relevant css classes for the libraryNav list items
-			    	$( '#libraryNav li' ).not( 'li[data-role="list-divider"]' ).each(function(index){
-
-				    	$(this).attr('data-theme', theme.buttons)
-				    		.removeClass('ui-btn-up-' + current_theme.buttons)
-				    		.addClass('ui-btn-up-' + theme.buttons);
-			    	});
-
-			    	$( '#libraryNav li[data-role="list-divider"]' ).removeClass('ui-btn-up-' + current_theme.buttons)
-			    							.removeClass('ui-btn-up-' + current_theme.bars)
-			    							.removeClass('ui-bar-' + current_theme.bars)
-			    							.addClass('ui-bar-' + theme.bars);
-
-			    	// Update the data-theme and data-divider-theme attributes for the adminNav ul
-			    	$('#adminNav').attr('data-theme', theme.buttons)
-			    			.attr('data-divider-theme', theme.buttons);
-
-			    	// Update the data-theme attribute and relevant css classes for the adminNav list items
-			    	$( '#adminNav li' ).not( 'li[data-role="list-divider"]' ).each(function(index){
-
-			    		$(this).attr('data-theme', theme.buttons)
-			    			.removeClass('ui-btn-up-' + current_theme.buttons)
-			    			.addClass('ui-btn-up-' + theme.buttons);
-			    	});
-
-			    	$( '#adminNav li[data-role="list-divider"]' ).removeClass('ui-btn-up-' + current_theme.buttons)
-			    							.removeClass('ui-btn-up-' + current_theme.bars)
-			    							.removeClass('ui-bar-' + current_theme.bars)
-			    							.addClass('ui-bar-' + theme.bars);
-
-			    	// hide the loading message
-			    	$.mobile.loading( "hide" );
-
-			    	$.mobile.loadingMessage = 'Loading';
-
-			    	// close the settings dialog
-				$('#settings').dialog('close');
-		    	}
-		});
-	} 	
-});
-
 $('body').on('click', '#confirm_delete_yes', function() {
 
 	var item_type 	= $('#item_type').val();
@@ -2335,23 +2114,13 @@ $( 'body' ).on( 'click', '#settingsPopupMenu ul div[data-role="collapsible-set"]
 				
 				saved = $.parseJSON(msg);
 
-				// Update the list item icon so that the selected one receives the check mark
-				$( 'div[data-role="collapsible-set"] ul#availableLanguages li a' ).each( function( index ){
-						
-					if ( $( this ).attr('data-item-id') == dataItemId ) {
-			
-						$( this ).closest('li').attr('data-icon', 'checked');
-						$( this ).closest('li').find( 'div span.ui-icon' ).attr('class', 'ui-icon ui-icon-check ui-icon-shadow');
-								
-						//alert( $( this ).attr('data-item-name') );
-	
-					} else {
-							
-						$( this ).closest('ul').find( 'li[data-icon="check"]' ).attr('data-icon', 'minus');
-						$( this ).closest('li').find( 'div span.ui-icon-check' ).attr('class', 'ui-icon ui-icon-minus ui-icon-shadow');
-					}
-				});
+				$( 'ul#availableLanguages li' ).find('a.ui-icon-check').removeClass('ui-icon-check')
+											.addClass('ui-icon-minus');
 
+				$( 'ul#availableLanguages li a[data-item-id="'+dataItemId+'"]' ).removeClass('ui-icon-minus')
+												.addClass('ui-icon-check')
+												.closest('li').attr('data-icon', 'check');
+				
 				// hide the loading message
 				$.mobile.loading( "hide" );
 
@@ -2420,74 +2189,23 @@ $( 'body' ).on( 'click', '#settingsPopupMenu ul div[data-role="collapsible-set"]
 					
 					$.mobile.loadingMessageTheme = theme.bars;
 
-					$.mobile.activeBtnClass = 'ui-btn-hover-'+theme.active;
-
-					$('.ui-body-' + current_theme.body).each(function(){
-						$(this).removeClass('ui-body-' + current_theme.body).addClass('ui-body-' + theme.body);    
-					});
-
-					$('.ui-overlay-' + current_theme.body).each(function(){
-						$(this).removeClass('ui-overlay-' + current_theme.body).addClass('ui-overlay-' + theme.body);    
-					});
-
-					$('.ui-bar-' + current_theme.bars).each(function(){
-					        $(this).removeClass('ui-bar-' + current_theme.bars).addClass('ui-bar-' + theme.bars);
-					});
-
-					// Update the data-theme attribute and relevant css classes for the children of the ui-select div
-					$('div.ui-select').each(function(index){
-
-						$(this).find('div').attr('data-theme', theme.buttons)
-									.removeClass('ui-btn-up-' + current_theme.buttons)
-									.addClass('ui-btn-up-' + theme.buttons);
-
-						$(this).find('select').attr('data-theme', theme.buttons);
-					});
-
-					// Update the data-theme attribute and relevant css classes for the children of the parent of slider input element
-					$('input[data-type="range"]').parent().each(function(index){
-							
-					$(this).find('input').attr('data-theme',theme.buttons)
-								.attr('data-track-theme',theme.buttons)
-								.removeClass('ui-body-' + current_theme.body)
-								.addClass('ui-body-' + theme.body);
-
-					$(this).find('div[role="application"]').removeClass('ui-btn-down-' + current_theme.buttons)
-						 				.addClass('ui-btn-down-' + theme.buttons);
-
-					$(this).find('.ui-slider-bg').removeClass('ui-btn-hover-' + current_theme.actions)
-						    								.addClass('ui-btn-hover-' + theme.actions);
-
-					$(this).find('a').attr('data-theme', theme.buttons)
-						 		.removeClass('ui-btn-up-' + current_theme.buttons)
-					    			.addClass('ui-btn-up-' + theme.bars);
-					});
-
-					// Update the data-theme attribute and relevant css classes of the parent of the save button
-					$('button[type="button"]').parent().attr('data-theme', theme.actions)
-										.removeClass('ui-btn-up-', current_theme.actions)
-										.addClass('ui-btn-up-', theme.actions);
-
-					// Update the data-theme attribute of the save button
-					$('button[type="button"]').attr('data-theme', theme.actions);
-
 					// Update the data-theme attribute and relevant css classes of the prev button element
 					$('#prev').attr('data-theme', theme.controls)
-					    		.removeClass('ui-btn-up-' + current_theme.buttons)
-					    		.removeClass('ui-btn-up-' + current_theme.controls)
-					    		.addClass('ui-btn-up-' + theme.controls);    
+					    		.removeClass('ui-btn-' + current_theme.buttons)
+					    		.removeClass('ui-btn-' + current_theme.controls)
+					    		.addClass('ui-btn-' + theme.controls);    
 
 				        // Update the data-theme attribute and relevant css classes of the playpause button element
 				        $('#playpause').attr('data-theme', theme.controls)
-				        		.removeClass('ui-btn-up-' + current_theme.buttons)
-				        		.removeClass('ui-btn-up-' + current_theme.controls)
-				        		.addClass('ui-btn-up-' + theme.controls);        
+				        		.removeClass('ui-btn-' + current_theme.buttons)
+				        		.removeClass('ui-btn-' + current_theme.controls)
+				        		.addClass('ui-btn-' + theme.controls);        
 
 				        // Update the data-theme attribute and relevant css classes of the next button element
 				        $('#next').attr('data-theme', theme.controls)
-				        		.removeClass('ui-btn-up-' + current_theme.buttons)
-				        		.removeClass('ui-btn-up-' + current_theme.controls)
-				        		.addClass('ui-btn-up-' + theme.controls); 
+				        		.removeClass('ui-btn-' + current_theme.buttons)
+				        		.removeClass('ui-btn-' + current_theme.controls)
+				        		.addClass('ui-btn-' + theme.controls); 
 
 					// Update the data-theme and data-divider-theme attributes for the divs with data-role=page
 					$('div[data-role="page"]').each(function(index){
@@ -2496,9 +2214,26 @@ $( 'body' ).on( 'click', '#settingsPopupMenu ul div[data-role="collapsible-set"]
 					});
 
 					// Update the data-theme and data-divider-theme attributes for the divs with data-role=header
+					$('div[data-role="popup"]').each(function(index){
+						$(this).attr('data-theme',theme.body)
+							.attr('data-overlay-theme',theme.body)
+							.removeClass('ui-body-'+current_theme.body)
+							.addClass('ui-body-'+theme.body);
+					});
+
+					// Update the data-theme and data-divider-theme attributes for the divs with data-role=collapsible-set
+					$('div[data-role="collapsible-set"]').each(function(index){
+						$(this).attr('data-theme',theme.actions)
+							.removeClass('ui-group-theme-'+current_theme.actions)
+							.addClass('ui-group-theme-'+theme.actions);
+					});
+
+					// Update the data-theme and data-divider-theme attributes for the divs with data-role=header
 					$('div[data-role="header"]').each(function(index){
-						$(this).attr('data-theme',theme.buttons);
-						$(this).attr('data-divider-theme',theme.bars);
+						$(this).attr('data-theme',theme.buttons)
+							.attr('data-divider-theme',theme.bars)
+							.removeClass('ui-bar-'+current_theme.bars)
+							.addClass('ui-bar-'+theme.bars);
 					});
 
 					// Update the data-theme and data-divider-theme attributes for the divs with data-role=content
@@ -2510,31 +2245,35 @@ $( 'body' ).on( 'click', '#settingsPopupMenu ul div[data-role="collapsible-set"]
 					// Update the data-theme and data-divider-theme attributes for the divs with data-role=footer
 					$('div[data-role="footer"]').each(function(index){
 						$(this).attr('data-theme',theme.buttons)
-							.attr('data-divider-theme',theme.bars);
+							.attr('data-divider-theme',theme.bars)
+							.removeClass('ui-bar-'+current_theme.bars)
+							.addClass('ui-bar-'+theme.bars);
 					});
 
 					// Update the data-theme attribute and the relevant css classes for any data-role=button elements
 					$('*[data-role="button"]').each(function(index){
 
 						$(this).attr('data-theme',theme.buttons)
-							.removeClass('ui-btn-up-' + current_theme.buttons)
-							.addClass('ui-btn-up-' + theme.buttons);
+							.removeClass('ui-btn-' + current_theme.buttons)
+							.addClass('ui-btn-' + theme.buttons);
 					});
+
+					// Update the ui-page-theme class for the entire page
+					$('#index').removeClass('ui-page-theme-' + current_theme.body)
+							.addClass('ui-page-theme-' + theme.body);
+
 
 					// Update the data-theme and data-divider-theme attributes for the libraryNav ul
 					$('#libraryNav').attr('data-theme', theme.buttons)
 					    		.attr('data-divider-theme', theme.buttons);
 
-					// Update the data-theme attribute and relevant css classes for the libraryNav list items
-					$( '#libraryNav li' ).not( 'li[data-role="list-divider"]' ).each(function(index){
+					// Update the group-theme for the libraryNav ul
+					$('#libraryNav').removeClass('ui-group-theme-' + current_theme.buttons)
+							.addClass('ui-group-theme-' + theme.buttons);
 
-						$(this).attr('data-theme', theme.buttons)
-						    	.removeClass('ui-btn-up-' + current_theme.buttons)
-						    	.addClass('ui-btn-up-' + theme.buttons);
-					});
-
-					$( '#libraryNav li[data-role="list-divider"]' ).removeClass('ui-btn-up-' + current_theme.buttons)
-					    						.removeClass('ui-btn-up-' + current_theme.bars)
+					// Update the list divider styles to the ui-bar theme color
+					$( '#libraryNav li[data-role="list-divider"]' ).removeClass('ui-btn-' + current_theme.buttons)
+					    						.removeClass('ui-btn-' + current_theme.bars)
 					    						.removeClass('ui-bar-' + current_theme.bars)
 					    						.addClass('ui-bar-' + theme.bars);
 
@@ -2542,62 +2281,55 @@ $( 'body' ).on( 'click', '#settingsPopupMenu ul div[data-role="collapsible-set"]
 					$('#adminNav').attr('data-theme', theme.buttons)
 					    		.attr('data-divider-theme', theme.buttons);
 
-					// Update the data-theme attribute and relevant css classes for the adminNav list items
-					$( '#adminNav li' ).not( 'li[data-role="list-divider"]' ).each(function(index){
+					// Update the group-theme for the adminNav ul
+					$('#adminNav').removeClass('ui-group-theme-' + current_theme.buttons)
+							.addClass('ui-group-theme-' + theme.buttons);
 
-						$(this).attr('data-theme', theme.buttons)
-					    		.removeClass('ui-btn-up-' + current_theme.buttons)
-					    		.addClass('ui-btn-up-' + theme.buttons);
-					});
 
-					$( '#adminNav li[data-role="list-divider"]' ).removeClass('ui-btn-up-' + current_theme.buttons)
-					    						.removeClass('ui-btn-up-' + current_theme.bars)
+					// Update the list divider styles to the ui-bar theme color
+					$( '#adminNav li[data-role="list-divider"]' ).removeClass('ui-btn-' + current_theme.buttons)
+					    						.removeClass('ui-btn-' + current_theme.bars)
 					    						.removeClass('ui-bar-' + current_theme.bars)
 					    						.addClass('ui-bar-' + theme.bars);
 
-					// Update the data-theme attribute and relevant css classes for this popup menu's list items
-					$( '#settingsPopupMenu ul li' ).not( 'div[data-role="collapsible"] li' ).each( function( index ){
+					// Update the theme of the modal overlay
+					$('#settingsPopupMenu-screen').removeClass('ui-overlay-'+current_theme.body)
+									.addClass('ui-overlay-'+theme.body);
 
-						$( this ).attr('data-theme', theme.buttons )
-						    		.removeClass( 'ui-btn-up-' + current_theme.buttons )
-						    		.addClass( 'ui-btn-up-' + theme.buttons );
+					
+					// Update the link classes for the collapsible h2 link buttons
+					$('div[data-role="collapsible"] h2 a').each(function(index){
+						$(this).removeClass('ui-btn-'+current_theme.actions)
+							.addClass('ui-btn-'+theme.actions);
 					});
 
-					// Update the data-theme attribute and relevant css classes for this popup menu's list items
-					$( 'div[data-role="collapsible"] li' ).each( function( index ){
+					// Update the body class for the collapsible-content div
+					$('div[data-role="collapsible"] div.ui-collapsible-content').removeClass('ui-body-'+current_theme.actions)
+													.addClass('ui-body-'+theme.actions);
 
-						$( this ).attr('data-theme', theme.actions )
-						    		.removeClass( 'ui-btn-up-' + current_theme.actions )
-						    		.addClass( 'ui-btn-up-' + theme.actions );
+					// Update the data-theme and data-divider-theme attributes of the first ul of the settingsPopupMenu but not the 
+					// other ul elements that are deeper in the dom.  Also update the ui-group-theme to match.
+					$('#settingsPopupMenu ul').not( 'div[data-role="collapsible"] ul' ).each( function( index ){   
+
+						$(this).attr('data-theme', theme.buttons)
+							.attr('data-divider-theme', theme.bars)
+							.removeClass('ui-group-theme-' + current_theme.buttons)
+							.addClass('ui-group-theme-' + theme.buttons);
 					});
 
-					// Update the data-theme attribute and relevant css classes for this popup menu's list items
-					$( 'div[data-role="collapsible-set"]' ).each( function( index ){
-
-						$( this ).attr('data-theme', theme.actions );
-					});
-
-					// Update the data-theme attribute and relevant css classes for this popup menu's list items
-					$( 'div[data-role="collapsible-set"] a' ).not( 'div[data-role="collapsible-set"] li a' ).each( function( index ){
-
-						$( this ).attr('data-theme', theme.actions )
-						    		.removeClass( 'ui-btn-up-' + current_theme.actions )
-						    		.addClass( 'ui-btn-up-' + theme.actions );
-					});
-
+					// Update the data-theme attribute and the ui-group-theme classes for the deeper ul elements of the collapsible
+					$('div[data-role="collapsible"] div.ui-collapsible-content ul').attr('data-theme',theme.actions)
+													.removeClass('ui-group-theme-'+current_theme.actions)
+													.removeClass('ui-group-theme-'+current_theme.buttons)
+													.addClass('ui-group-theme-'+theme.actions);
+					
 					// Update the list item icon so that the selected one receives the check mark
-					$( 'div[data-role="collapsible-set"] ul#availableThemes li a' ).each( function( index ){
-						
-						if ( $( this ).attr('data-item-id') == dataItemId ) {
-			
-							$( this ).closest('li').attr('data-icon', 'checked');
-							$( this ).closest('li').find( 'div span.ui-icon' ).attr('class', 'ui-icon ui-icon-check ui-icon-shadow');
-						} else {
+					$( 'ul#availableThemes li' ).find('a.ui-icon-check').removeClass('ui-icon-check')
+												.addClass('ui-icon-minus');
 
-							$( this ).closest('ul').find( 'li[data-icon="check"]' ).attr('data-icon', 'minus');
-							$( this ).closest('li').find( 'div span.ui-icon-check' ).attr('class', 'ui-icon ui-icon-minus ui-icon-shadow');
-						}
-					});
+					$( 'ul#availableThemes li a[data-item-id="'+dataItemId+'"]' ).removeClass('ui-icon-minus')
+													.addClass('ui-icon-check')
+													.closest('li').attr('data-icon', 'check');
 
 					// hide the loading message
 					$.mobile.loading( "hide" );

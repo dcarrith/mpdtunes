@@ -29,7 +29,7 @@ theme.body 	= '<?php echo $theme_body; 	?>';
 theme.bars 	= '<?php echo $theme_bars; 	?>';
 theme.buttons 	= '<?php echo $theme_buttons; 	?>';
 theme.controls 	= '<?php echo $theme_controls; 	?>';
-theme.action 	= '<?php echo $theme_action; 	?>';
+theme.actions 	= '<?php echo $theme_action; 	?>';
 theme.active 	= '<?php echo $theme_active; 	?>';
 
 // set the default theme of the loading message to be the same as the bars
