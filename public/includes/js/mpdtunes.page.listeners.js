@@ -554,37 +554,7 @@ $('body').on('pageshow', '#index', function(evt, ui) {
 	$( "#index" ).lazyloader( "resetAll" );
 });
 
-/*$('body').on('pageshow', '#settings', function(evt, ui) {
-
-	if (typeof ui.prevPage[0] != 'undefined') {
-		
-		if (ui.prevPage[0].id == 'apply_settings') {
-
-		    // hide the loading message
-		    $.mobile.loading( "hide" );
-
-		    $.mobile.loadingMessage = 'Loading';
-
-			// we don't need to refresh the current_playlist object if coming from settings
-			$('.ui-dialog').dialog('close');
-		} 
-	}
-
-	if ($('#theme_id option:selected').val() == 0) {
-		
-		$('#theme_id option:selected').val('1');
-
-		//alert($('#theme_id option:selected').val());
-
-		//refresh theme select box and force rebuild
-		$('#theme_id').selectmenu('refresh', true);
-	}
-});*/
-
-
 $('body').on('pageshow', '#artists', function(event, ui) {
-
-	//alert("inside artists pageshow");
 
 	// clear lazy loading session variables specific to albums (section=albums)
 	/*$.ajax({
@@ -1247,25 +1217,6 @@ $( 'body' ).on( 'click', '#playpause', function( evt ) {
 
 	} else { // it must have just loaded, or played and then paused
 
-		/*
-		// Update the current track information like album art, track name, duration, load progress, etc.
-		updateCurrentTrackInfo( playlist.tracks[ track_position ] );
-
-		// Show the track info div and update the play button to be a pause button
-		updatePlayerDisplay( playing );
-
-		// Reset the load progress complete tracker
-		load_progress_complete = false;
-
-		$( activePlayerSelector ).jPlayer( "setMedia", {mp3 : playlist.tracks[ track_position ].url } );	
-		$( activePlayerSelector ).jPlayer( "play", current_track_position );
-
-		// send the command to the MPD server to start playing the current track
-		control_mpd('play');
-
-		playing = true;
-		*/
-
 		skipto( "same" );
 	}
 });
@@ -1328,15 +1279,6 @@ $( 'body' ).on( 'click', '#repeat', function( evt ) {
 		post = { "parameters" : [ { "repeat" : '0' } ] }; 
 		control_mpd( 'repeat', post.parameters[ 0 ] );	
 	}
-	
-	/*if (primary_player == 1) {
-	
-		$("#playerOne").jPlayer("loop", !repeat);
-
-	} else {
-
-		$("#playerTwo").jPlayer("loop", !repeat);
-	}*/
 
 	$( activePlayerSelector ).jPlayer( "loop", repeat_track );
 });
@@ -1977,55 +1919,6 @@ $( window ).on( 'orientationchange', function( event ) {
 
 });
 
-// **********************************************************************************
-// Page swipe event handlers
-// **********************************************************************************
-
-/*$('body').on('swipeleft', function(evt, ui) {
-
-	//alert("swipeleft: $.event.special.swipeleft.horizontalDistanceThreshold = "+$.event.special.swipeleft.horizontalDistanceThreshold);
- 	
- 	// This prevents the double and triple...even quadruple firing of the swipeleft events.  It's also 
-	// an attempt to prevent the swipe left event from firing when a user is adjusting the volume or
-	// crossfade sliders.
- 	if (!just_swiped_left && !waiting_to_adjust_xfade && !waiting_to_adjust_volume) {
-	
-	 	just_swiped_left = true;
-
-		$('#jukebox #next').trigger('click');
-
-		setTimeout(function(){ just_swiped_left = false; }, 1000);
-	}
-});
-
-$('body').on('swiperight', function(evt, ui) {
-
-	//alert("swiperight: $.event.special.swiperight.horizontalDistanceThreshold = "+$.event.special.swiperight.horizontalDistanceThreshold);
-
-	// This prevents the double and triple...even quadruple firing of the swiperight events.  It's also 
-	// an attempt to prevent the swipe right event from firing when a user is adjusting the volume or
-	// crossfade sliders.
- 	if (!just_swiped_right && !waiting_to_adjust_xfade && !waiting_to_adjust_volume) {
-	
-	 	just_swiped_right = true;
-
-		$('#jukebox #prev').trigger('click');
-
-		setTimeout(function(){ just_swiped_right = false; }, 1000);
-	}
-});*/
-
-
-// **********************************************************************************
-// Page taphold event handlers
-// **********************************************************************************
-
-$('html,body').on('taphold', function(evt, ui) {
-
-	//alert("taphold triggered");
-});	
-
-
 $( 'body' ).on( 'click', '#volume_crossfade_form_save', function( evt, ui ) {
 
 	evt.preventDefault();
@@ -2084,8 +1977,6 @@ $( 'body' ).on( 'click', '#settingsPopupMenu ul li #volume_crossfade_button', fu
 		changeHash: true
 	}); 
 });
-
-
 
 $( 'body' ).on( 'click', '#settingsPopupMenu ul div[data-role="collapsible-set"] div[data-role="collapsible"] ul li a', function( evt, ui ) {
 
@@ -2779,15 +2670,6 @@ $( 'body' ).on( 'popupafterclose', '#albumTrackPopupMenu', function( event, ui )
 											.addClass('ui-btn-up-' + theme.buttons);
 	}
 });
-
-/*$( 'body' ).on( 'expand collapse', '[data-role="collapsible"]', function( evt ) {
-
-	evt.preventDefault();
-
-	$( this ).find('div').attr('aria-hidden', false);
-
-    $( this ).find('div').slideToggle(500);
-});*/
 
 $( 'body' ).on( 'click', '#albumTrackPopupMenu ul li a[data-id="addTrackToQueue"]', function( evt ) {
 
