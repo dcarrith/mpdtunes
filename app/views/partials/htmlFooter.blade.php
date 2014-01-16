@@ -61,6 +61,8 @@
 
                         <script type="text/javascript" src="/includes/js/mpdtunes.cc.min.js"></script>
 
+			<!-- java -jar compiler.jar --compilation_level SIMPLE_OPTIMIZATIONS --js=plupload.v2.0.0-beta.full.min.js --js=jquery.plupload.v2.0.0-beta.queue.js --js=jquery.iframe-transport.js --js=jquery.fileupload.js --js=mpdtunes.document.ready.js --js=mpdtunes.mpd.functions.js --js=mpdtunes.player.functions.js --js=mpdtunes.playlist.functions.js --js=mpdtunes.queue.functions.js --js=mpdtunes.navigation.functions.js --js=templates/dust/albums.tmpl.js --js=templates/dust/artists.tmpl.js --js=templates/dust/queue.tmpl.js --js=templates/dust/tracks.tmpl.js --js=templates/dust/playlistTracks.tmpl.js --js=mpdtunes.page.listeners.js --js_output_file=mpdtunes.cc.min.js -->
+
                 @endif
 
 	@else
