@@ -21,6 +21,9 @@ class MPDTunesController extends BaseController {
 		// here without causing another query to the database
 		$this->user = Auth::user();
 
+		$this->data['station'] = $this->user->station;
+
+		$this->firephp->log($this->data['station']->toArray(), "this->user->station->toArray()");
 
 		//Cache::flush();	
 
@@ -182,6 +185,26 @@ class MPDTunesController extends BaseController {
 		$this->firephp->log($home_link, "home_link");
 		$this->data['home_link_data_ajax']	= "true";
 		$this->data['home_link']		= $home_link;
+
+		// Send all the statistics we have for MPD to the FirePHP console
+		$this->firephp->log($this->MPD->repeat, "repeat");
+		$this->firephp->log($this->MPD->random, "random");
+		$this->firephp->log($this->MPD->single, "single");
+		$this->firephp->log($this->MPD->consume, "consume");
+		$this->firephp->log($this->MPD->volume, "volume");
+		$this->firephp->log($this->MPD->playlist_id, "playlist_id"); 	
+		$this->firephp->log($this->MPD->playlist_length, "playlist_length"); 
+		$this->firephp->log($this->MPD->song , "song");	
+		$this->firephp->log($this->MPD->song_id, "song_id"); 	
+		$this->firephp->log($this->MPD->next_song, "next_song");
+		$this->firephp->log($this->MPD->next_song_id, "next_song_id"); 
+		$this->firephp->log($this->MPD->time, "time"); 	
+		$this->firephp->log($this->MPD->elapsed, "elapsed");	
+		$this->firephp->log($this->MPD->bitrate , "bitrate");	
+		$this->firephp->log($this->MPD->xfade, "xfade"); 	
+		$this->firephp->log($this->MPD->mixrampdb, "mixrampdb"); 
+		$this->firephp->log($this->MPD->mixrampdelay, "mixrampdelay"); 	
+		$this->firephp->log($this->MPD->audio_sampling, "audio_sampling"); 
 	}
 
 	public function confirmDelete() {

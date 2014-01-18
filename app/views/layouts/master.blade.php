@@ -7,13 +7,13 @@
 	{{ flush() }}
 
 	<body>
-		<div id="playerOne" class="audioWrapper">
+		<div id="player" class="audioWrapper">
 			
 		</div>
 
-		<div id="playerTwo" class="audioWrapper">
+		<!--<div id="playerTwo" class="audioWrapper">
 			
-		</div>
+		</div>-->
 
 	  	@yield('content')
 

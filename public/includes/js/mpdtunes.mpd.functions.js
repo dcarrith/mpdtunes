@@ -112,6 +112,9 @@ function control_mpd(action, parameters) {
 			message = 'Refreshing MPD';
 			url = "/musicpd/control/refresh";
 			break;
+		case 'status' :
+			url = "musicpd/control/status";
+			break;
 		default :
 			url = "/musicpd/index";
 			break;

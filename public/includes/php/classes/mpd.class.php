@@ -1264,6 +1264,8 @@ class mpd {
 
 		$this->repeat = $status['repeat'];
 		$this->random = $status['random'];
+		$this->single = $status['single'];
+		$this->consume = $status['consume'];
 
 		//$this->db_last_refreshed = $stats['db_update'];
 
@@ -1280,14 +1282,17 @@ class mpd {
 		// Adding some new fields that are reported on in the RefreshInfo results
 		$this->playlist_id 	= ( isset($status['playlist']) 		? $status['playlist'] : 	'' );
 		$this->playlist_length 	= ( isset($status['playlist_length']) 	? $status['playlist_length'] : 	'' );
-		$this->xfade 		= ( isset($status['xfade']) 		? $status['xfade'] : 		'' );
 		$this->song 		= ( isset($status['song']) 		? $status['song'] : 		'' );
 		$this->song_id 		= ( isset($status['songid']) 		? $status['songid'] : 		'' );
-		$this->time 		= ( isset($status['time']) 		? $status['time'] : 		'' );
-		$this->bitrate 		= ( isset($status['bitrate']) 		? $status['bitrate'] : 		'' );
-		$this->audio_sampling 	= ( isset($status['audio']) 		? $status['audio'] : 		'' );
 		$this->next_song 	= ( isset($status['nextsong']) 		? $status['nextsong'] : 	'' );
 		$this->next_song_id 	= ( isset($status['nextsongid']) 	? $status['nextsongid'] : 	'' );
+		$this->time 		= ( isset($status['time']) 		? $status['time'] : 		'' );
+		$this->elapsed		= ( isset($status['elapsed'])		? $status['elapsed'] : 		'' );
+		$this->bitrate 		= ( isset($status['bitrate']) 		? $status['bitrate'] : 		'' );
+		$this->xfade 		= ( isset($status['xfade']) 		? $status['xfade'] : 		'' );
+		$this->mixrampdb 	= ( isset($status['mixrampdb']) 	? $status['mixrampdb'] : 	'' );
+		$this->mixrampdelay 	= ( isset($status['mixrampdelay']) 	? $status['mixrampdelay'] : 	'' );
+		$this->audio_sampling 	= ( isset($status['audio']) 		? $status['audio'] : 		'' );
 
 		return TRUE;
 	}

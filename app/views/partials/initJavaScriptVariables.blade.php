@@ -1,5 +1,7 @@
 <script type="text/javascript">
 
+var usersStream = '<?php echo $station->url; ?>';
+
 <?php if( $debug ) : ?>
 
 	// This will enable us to only show console.log output when debug is enabled

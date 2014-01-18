@@ -19,37 +19,18 @@ function clearQueue() {
 	$('#shuffle').attr('data-icon', "shuffle");
 	$('#shuffle').removeClass($.mobile.activeBtnClass);
 
-	if (primary_player == 1) {
-
-		if( 'console' in window && 'log' in window.console ) {
+	if( 'console' in window && 'log' in window.console ) {
 						
-			console.log( "Checking to see if playerOne's srcSet is true or false" );
-			console.log( $( "#playerOne" ).data( "jPlayer" ).status );
-		}
+		console.log( "Checking to see if player's srcSet is true or false" );
+		console.log( $( "#player" ).data( "jPlayer" ).status );
+	}
 	
-		// We only want to try and stop playerTwo if it has it's src set to something
-		if ( $( "#playerOne" ).data( "jPlayer" ).status.srcSet ) {
+	// We only want to try and stop playerTwo if it has it's src set to something
+	if ( $( "#player" ).data( "jPlayer" ).status.srcSet ) {
 		
-			// Pause the primary player instance
-			$( "#playerOne" ).jPlayer( "pause" );
-			$( "#playerOne" ).jPlayer( "clearMedia" );
-		}
-
-	} else {
-
-		if( 'console' in window && 'log' in window.console ) {
-						
-			console.log( "Checking to see if playerTwo's srcSet is true or false" );
-			console.log( $( "#playerTwo" ).data( "jPlayer" ).status );
-		}
-	
-		// We only want to try and stop playerTwo if it has it's src set to something
-		if ( $( "#playerTwo" ).data( "jPlayer" ).status.srcSet ) {
-		
-			// Pause the secondary player instance
-			$( "#playerTwo" ).jPlayer( "pause" );	
-			$( "#playerTwo" ).jPlayer( "clearMedia" );
-		}
+		// Pause the primary player instance
+		$( "#player" ).jPlayer( "pause" );
+		$( "#player" ).jPlayer( "clearMedia" );
 	}
 
 	// Reset the variable that holds the current track position from the server

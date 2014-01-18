@@ -81,6 +81,8 @@ $('body').on('pageinit', '#index', function( evt, ui ) {
 
 	// This is disabled on the Queue page for the drag and drop functionality - so, re-enable it
 	$( 'body' ).enableSelection();
+
+	control_mpd( "status" );
 });
 
 $( 'body' ).on( 'pageinit', '#genres', function( evt, ui ) {
@@ -1194,20 +1196,8 @@ $( 'body' ).on( 'click', '#playpause', function( evt ) {
 		// Hide the track info div and update the pause button to be a play button
 		updatePlayerDisplay( playing, "pause" );
 
-		if ( next_track_already_added ) {
-
-			// We only want to try and stop playerOne if it has it's src set to something
-			if ( $( inactivePlayerSelector ).data( "jPlayer" ).status.srcSet ) {
-		
-				$( inactivePlayerSelector ).jPlayer('stop');
-			}
-
-			$( inactivePlayerSelector ).jPlayer( "volume", 1 );
-			$( activePlayerSelector ).jPlayer( "volume", 1 );
-		}
-
 		// Pause the active player instance
-		$( activePlayerSelector ).jPlayer( "pause" );
+		$( "#player" ).jPlayer( "pause" );
 
 		// send the command to the MPD server to pause the currently playing track
 		control_mpd( 'pause' );
@@ -1226,17 +1216,13 @@ $( 'body' ).on( 'click', '#next', function( evt ) {
 	evt.preventDefault();
 
 	skipto( "next" );
-
-	return false;
 });
 
 $( 'body' ).on( 'click', '#prev', function( evt ) {
 
 	evt.preventDefault();	
 
-	skipto( "previous" );	
-
-	return false;
+	skipto( "previous" );
 });
 
 $( 'body' ).on( 'click', '#repeat', function( evt ) {
@@ -1280,7 +1266,7 @@ $( 'body' ).on( 'click', '#repeat', function( evt ) {
 		control_mpd( 'repeat', post.parameters[ 0 ] );	
 	}
 
-	$( activePlayerSelector ).jPlayer( "loop", repeat_track );
+	//$( "#player" ).jPlayer( "loop", repeat_track );
 });
 
 $( 'body' ).on( 'click', '#shuffle', function( evt ) {
@@ -1291,7 +1277,7 @@ $( 'body' ).on( 'click', '#shuffle', function( evt ) {
 
 			if ( !shuffle_queue ) {
 
-				$.mobile.loading( "show", theme.bars, "Shuffling the playlist", true );
+				//$.mobile.loading( "show", theme.bars, "Shuffling the playlist", true );
 
 				//current_audio_element.loop = false;
 				//repeat_track = false;
@@ -1305,13 +1291,13 @@ $( 'body' ).on( 'click', '#shuffle', function( evt ) {
 								.addClass( 'ui-btn-'+theme.action )
 								.addClass( 'ui-btn-up-'+theme.action );
 				
-				playlist = $.parseJSON( shuffle_playlist( JSON.stringify( playlist ) ) );
+				//playlist = $.parseJSON( shuffle_playlist( JSON.stringify( playlist ) ) );
 
-				setTimeout(function() { $.mobile.loading( "hide" ); }, 2000);
+				//setTimeout(function() { $.mobile.loading( "hide" ); }, 2000);
 
 			} else {
 
-				$.mobile.loading( "show", theme.bars, "Unshuffling the playlist", true);
+				//$.mobile.loading( "show", theme.bars, "Unshuffling the playlist", true);
 				
 				shuffle_queue = false;
 				
@@ -1326,11 +1312,11 @@ $( 'body' ).on( 'click', '#shuffle', function( evt ) {
 				// set the current_audio_element.pos to the mpd_index of the currently playing track, so that the user can proceed from there
 				//current_audio_element.pos = playlist.tracks[ current_audio_element.pos ].mpd_index;
 				
-				track_position = playlist.tracks[ track_position ].mpd_index;
+				//track_position = playlist.tracks[ track_position ].mpd_index;
 				
-				playlist = unshuffle_playlist();
+				//playlist = unshuffle_playlist();
 
-				setTimeout( function() { $.mobile.loading( "hide" ); }, 2000 );
+				//setTimeout( function() { $.mobile.loading( "hide" ); }, 2000 );
 			}
 
 		} else {

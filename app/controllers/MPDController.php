@@ -99,6 +99,11 @@ class MPDController extends MPDTunesController {
 				$this->MPD->DBRefresh();
 				break;
 
+			// Route: /mpd/control/status
+			case 'status':
+				$this->MPD->GetStatus();
+				break;
+
 			// Route: /mpd/control/volume
 			case 'volume':
 				$this->MPD->SetVolume(Request::get('volume'));

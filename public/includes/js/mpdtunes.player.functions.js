@@ -65,113 +65,30 @@ function initialize_timer_display() {
 
 function fade_out_current_track () {
 
-	try {
+	if ( out_volume_left_to_fade > 0 ) {
 
-		if ( out_volume_left_to_fade > 0 ) {
+		out_faded_volume = ( out_volume_left_to_fade / volume_fade );
 
-			out_faded_volume = ( out_volume_left_to_fade / volume_fade );
+		consoleLog( "Setting player volume to: " + out_faded_volume );
 
-			consoleLog( "Setting " + activePlayerSelector + " volume to: " + out_faded_volume );
+		$( "#player" ).jPlayer( "volume", out_faded_volume );
 
-			$( activePlayerSelector ).jPlayer( "volume", out_faded_volume );
-
-			out_volume_left_to_fade--;
-		}
-
-	} catch (err){
-		
-		/*txt="An error occurred in the 'fade_out_current_track' function:\n\n";
-		txt+="Error description: " + err.message + "\n\n";
-		txt+="Click OK to continue.\n\n";
-		alert(txt);*/
+		out_volume_left_to_fade--;
 	}
 }
 
 function fade_in_next_track () {
 
-	try {
+	if ((( volume_fade - in_volume_left_to_fade ) > 0 ) && ( in_volume_left_to_fade >= 0 )) {
 
-		if ((( volume_fade - in_volume_left_to_fade ) > 0 ) && ( in_volume_left_to_fade >= 0 )) {
+		in_faded_volume = (( volume_fade - in_volume_left_to_fade ) / volume_fade );
 
-			in_faded_volume = (( volume_fade - in_volume_left_to_fade ) / volume_fade );
+		consoleLog( "Setting player volume to: " + out_faded_volume );
 
-			consoleLog( "Setting " + activePlayerSelector + " volume to: " + out_faded_volume );
+		$( "#player" ).jPlayer( "volume", out_faded_volume );
 
-			$( activePlayerSelector ).jPlayer( "volume", out_faded_volume );
-
-			in_volume_left_to_fade--;
-		}
-
-	} catch (err){
-		
-		/*txt="An error occurred in the 'fade_in_next_track' function:\n\n";
-		txt+="Error description: " + err.message + "\n\n";
-		txt+="Click OK to continue.\n\n";
-		alert(txt);*/
+		in_volume_left_to_fade--;
 	}
-}
-
-function play_station_stream( station_id ) {
-
-	$.ajax({
-	   type: "POST",
-	   url: "/stations/get_station_details",
-	   async: true,
-	   data: "station_id="+station_id,
-	   success: function(msg){
-
-			result = $.parseJSON(msg);
-
-			station = result.station[0];
-
-			//alert("station.id: "+station.id+"\nstation.name: "+station.name+"\nstation.description: "+station.description+"\nstation.url: "+station.url+"\nstation.icon: "+station.icon+"\nstation.icon_path: "+station.icon_path+"\nstation.icon_url: "+station.icon_url);
-
-			if ( typeof station !== 'undefined' ) {
-
-				// set the src of the album art image to be the station icon
-				$( '#jukebox .albumart' ).attr( "src", station.icon_url + station.icon );
-
-				// set the info about the station being streamed then trigger updatelayout in case the new content messed something up
-				$( '#artistDiv' ).html( station.name );
-				$( '#albumDiv' ).html( station.description );
-				$( '#trackDiv' ).html( station.url ).trigger( 'updatelayout' );
-
-				$( inactivePlayerSelector ).jPlayer( 'setMedia', {mp3 : station.url} );
-				$( inactivePlayerSelector ).jPlayer( 'play' );
-	
-				consoleLog( "Checking to see if srcSet is true or false", $( activePlayerSelector ).data( "jPlayer" ).status );
-	
-				// We only want to try and stop playerOne if it has it's src set to something
-				if ( $( activePlayerSelector ).data( "jPlayer" ).status.srcSet ) {
-		
-					$( activePlayerSelector ).jPlayer('stop');
-				}
-
-				tmpPlayerSelector = activePlayerSelector;
-				activePlayerSelector = inactivePlayerSelector;
-				inactivePlayerSelector = tmpPlayerSelector;
-
-				primary_player = (( primary_player == 1 ) ? 2 : 1);
-
-				updatePlayerDisplay( playing );
-				
-				//initialize_timer_display();
-
-				$('#streamProgressDiv').css('width', "100%");
-				$('#streamProgressDiv').css('background', 'rgba(0, 0, 0, .4)');
-
-				playing = true;
-
-				// send the command to the MPD server to skip to the track that's next in the shuffle
-				post = { "parameters" : [ { "station_url" : station.url } ] }; 
-				control_mpd('add_url', post.parameters[0]);
-
-			} else {
-				
-				// show error dialog of some kind
-			}
-	   }
-	});
 }
 
 // This updates the play progress indicators in the footer on the home page
@@ -190,17 +107,6 @@ function updateLoadProgressDisplay( loaded ) {
 	consoleLog( "Inside updateLoadProgressDisplay - setting loadProgressDiv to ", loaded );
 
 	$( '#loadProgressDiv' ).css( 'width', loaded+'%' );	
-
-	/*trackProgressDivWidth = parseInt( $( '#trackProgressDiv' ).css( 'width' ).replace(/px/,'') );
-	loadProgressDivWidth = parseInt( $( '#loadProgressDiv' ).css( 'width' ).replace(/px/,'') );
-	loadProgressPercentage = ( loadProgressDivWidth / trackProgressDivWidth ) * 100;
-
-	if ( loadProgressPercentage < 100 ) {
-
-		consoleLog( "Inside updateLoadProgressDisplay and checking trackProgressDivWidth", trackProgressDivWidth );
-		consoleLog( "Inside updateLoadProgressDisplay and checking loadProgressDivWidth", loadProgressDivWidth );
-		consoleLog( "Inside updateLoadProgressDisplay and checking loadProgressPercentage", loadProgressPercentage );
-	}*/
 }
 
 function getNextTrackPosition( destination, currentTrackPosition, currentPlaylistLength ) {
@@ -264,6 +170,10 @@ function getNextTrackPosition( destination, currentTrackPosition, currentPlaylis
 
 				// If destination is numeric, then it should be a specific track number to which we should skip
 				nextTrackPosition = destination;
+			
+			} else {
+
+				nextTrackPosition = false;
 			}
 
 			break;
@@ -274,6 +184,7 @@ function getNextTrackPosition( destination, currentTrackPosition, currentPlaylis
 
 function processTimeUpdate( currentTime, totalDuration, playProgress ) {
 
+	// This hides the playing message
 	if( currentTime > 1 ) {
 
 		$.mobile.loading( "hide" ); 
@@ -282,7 +193,7 @@ function processTimeUpdate( currentTime, totalDuration, playProgress ) {
 
 	updatePlayProgressDisplay( currentTime, totalDuration, playProgress );
 
-	if (( totalDuration > 0 ) && ( currentTime > 0 ) && (!repeat_track)) {
+	/*if (( totalDuration > 0 ) && ( currentTime > 0 ) && (!repeat_track)) {
 
 		// Crossfade into the next song rather than just waiting for the 'ended' event to trigger next
 		if (	(( totalDuration - currentTime ) <= max_crossfade ) && 
@@ -298,6 +209,8 @@ function processTimeUpdate( currentTime, totalDuration, playProgress ) {
 	
 			// Reset the variable that holds the current track position from the server
 			current_track_position = 0;
+
+			alert("inside processTimeUpdate calling setMedia");
 
 			// Get the next track spun up on the secondary player which should be inactive and ready to load
 			$( inactivePlayerSelector ).jPlayer( "setMedia", {mp3 : playlist.tracks[ track_position ].url } );	
@@ -317,7 +230,7 @@ function processTimeUpdate( currentTime, totalDuration, playProgress ) {
 				fade_in_next_track();
 			}
 		}
-	}
+	}*/
 }
 
 function updatePlayerDisplay( playing, action ) {
@@ -393,9 +306,9 @@ function skipto( destination ){
 	// Reset the load progress complete tracker
 	load_progress_complete = false;
 	
-	if ( next_track_already_added ) {
+	/*if ( next_track_already_added ) {
 
-		// We only want to try and stop playerOne if it has it's src set to something
+		// We only want to try and stop the player if it has it's src set to something
 		if ( $( inactivePlayerSelector ).data( "jPlayer" ).status.srcSet ) {
 		
 			$( inactivePlayerSelector ).jPlayer('stop');
@@ -403,7 +316,7 @@ function skipto( destination ){
 
 		$( inactivePlayerSelector ).jPlayer( "volume", 1 );
 		$( activePlayerSelector ).jPlayer( "volume", 1 );
-	}
+	}*/
 
 	track_position = getNextTrackPosition( destination, track_position, playlist.tracks.length );
 
@@ -413,30 +326,34 @@ function skipto( destination ){
 	// Show the track info div if it's hidden and update the play/pause button
 	updatePlayerDisplay( playing );
 
+	/*alert("inside skipto calling setMedia");
+
 	$( inactivePlayerSelector ).jPlayer( 'setMedia', {mp3 : playlist.tracks[ track_position ].url} );
 	$( inactivePlayerSelector ).jPlayer( 'play' );
+	*/
+
+	consoleLog( "Checking to see if the player's srcSet is true or false", $( "#player" ).data( "jPlayer" ).status );
 	
-	consoleLog( "Checking to see if srcSet is true or false", $( activePlayerSelector ).data( "jPlayer" ).status );
-	
-	// We only want to try and stop playerOne if it has it's src set to something
-	if ( $( activePlayerSelector ).data( "jPlayer" ).status.srcSet ) {
-		
-		$( activePlayerSelector ).jPlayer('stop');
+	// We only need to set the player source to the users stream if it's not already set
+	if ( !$( "#player" ).data( "jPlayer" ).status.srcSet ) {
+
+		$( "#player" ).jPlayer( 'setMedia', {mp3 : usersStream } );
 	}
 
-	tmpPlayerSelector = activePlayerSelector;
+	/*tmpPlayerSelector = activePlayerSelector;
 	activePlayerSelector = inactivePlayerSelector;
 	inactivePlayerSelector = tmpPlayerSelector;
 
 	primary_player = (( primary_player == 1 ) ? 2 : 1);
+	*/
 
-	if ( shuffle_queue ) {
+	/*if ( shuffle_queue ) {
 
 		// send the command to the MPD server to skip to the track that's next in the shuffle
 		post = { "parameters" : [ { "index" : playlist.tracks[ track_position ].mpd_index } ] }; 
 		control_mpd( 'skip_to', post.parameters[ 0 ] );
 
-	} else {
+	} else {*/
 
 		if ( destination == "next" ) {
 
@@ -454,57 +371,19 @@ function skipto( destination ){
 
 		} else {
 
-			// whatever
-
-			if( Math.floor( destination ) == destination && $.isNumeric( destination )) {	
-	
-    				var currentart = document.getElementById( "currentalbumart" );
-    				var currently = document.getElementById( "currentlyPlayingInfoDiv" );
-    				var playerCurrently = document.getElementById( "playerCurrentlyPlayingDiv" );
-
-    				if (( typeof currently !== 'undefined' ) && ( currently != '' ) && ( currently != null )) {
-
-					$( '.currentalbumart' ).attr( 'src', playlist.tracks[ track_position ].art );
-					$( '#currentlyPlayingArtistDiv' ).html( playlist.tracks[ track_position ].artist );
-					$( '#currentlyPlayingAlbumDiv' ).html( playlist.tracks[ track_position ].album );
-					$( '#currentlyPlayingTrackDiv' ).html( playlist.tracks[ track_position ].title ).trigger( 'updatelayout' );
-
-					// slide down the info about currently playing track
-					$( '#currentlyPlayingInfoDiv' ).slideDown({
-
-						duration: default_easin_duration,
-						easing: default_easin_equation,
-						complete:function(){
+			// The destination must be a specific track position
+			if( track_position ) {
 			
-							//$.mobile.fixedToolbars.show();
-						}
-					});
-				}
-	
-				bumped_file = playlist.tracks[ track_position ].file;
-
-				if ( bumped_file.indexOf( "http://" ) == 0 ) {
-
-					$( '#streamProgressDiv' ).css( 'width', "100%" );
-					$( '#streamProgressDiv' ).css( 'background-color', '#000000' );
-		
-				} else {
-
-					$( '#streamProgressDiv' ).css( 'width', "0px" );
-					$( '#streamProgressDiv' ).css( 'background-color', '#000000' );
-				}
-
-				$( '#currentlyPlayingArtistDiv' ).css( 'max-width', ( $( window ).width() * .6 ) );
-				$( '#currentlyPlayingAlbumDiv' ).css( 'max-width', ( $( window ).width() * .6 ) );
-				$( '#currentlyPlayingTrackDiv' ).css( 'max-width', ( $( window ).width() * .6 ) );
-		
 				post = { "parameters" : [ { "index" : track_position } ] }; 
 				control_mpd( 'skip_to', post.parameters[0] );
 			}
 		}
-	}
+	//}
 
 	if ( !playing ) {
+
+		// If it's not playing, then let's make it play
+		$( "#player" ).jPlayer( 'play' );	
 
 		playing = true;
 	}
@@ -515,6 +394,31 @@ function updateCurrentTrackInfo( currentTrack ){
 	//alert(JSON.stringify( currentTrack ));
 
 	consoleLog( "Trying to set the info about the song being played using the track object", currentTrack );
+
+	// We need to check to see if these items exist because if so, then that means we're on the Queue page
+    	var currentart = document.getElementById( "currentalbumart" );
+    	var currently = document.getElementById( "currentlyPlayingInfoDiv" );
+    	var playerCurrently = document.getElementById( "playerCurrentlyPlayingDiv" );
+
+	// If currently exists, then we must be on the queue page, so we need to update/show the track info div
+    	if (( typeof currently !== 'undefined' ) && ( currently != '' ) && ( currently != null )) {
+
+		$( '.currentalbumart' ).attr( 'src', currentTrack.art );
+		$( '#currentlyPlayingArtistDiv' ).html( currentTrack.artist );
+		$( '#currentlyPlayingAlbumDiv' ).html( currentTrack.album );
+		$( '#currentlyPlayingTrackDiv' ).html( currentTrack.title ).trigger( 'updatelayout' );
+
+		// slide down the info about currently playing track
+		$( '#currentlyPlayingInfoDiv' ).slideDown({
+
+			duration: default_easin_duration,
+			easing: default_easin_equation,
+			complete:function(){
+			
+				//$.mobile.fixedToolbars.show();
+			}
+		});
+	}
 
 	// set the info about the song being played
 	$( '#currentAlbumArtImg' ).attr( 'src', currentTrack.art );
@@ -537,14 +441,22 @@ function updateCurrentTrackInfo( currentTrack ){
 
 	$( '#playerCurrentlyPlayingDiv' ).css( 'max-width', ( $( window ).width() * .9 ) );
 
-	if ( currentTrack.file.indexOf( "http://" ) == 0 ) {
+	if ( currentTrack.file.indexOf( "http://" ) === 0 ) {
 
 		$( '#streamProgressDiv' ).css( 'width', "100%" );
 		$( '#streamProgressDiv' ).css( 'background', 'rgba(0, 0, 0, .4)' );
 	} else {
 
 		$( '#streamProgressDiv' ).css( 'width', "0" );
-	} 
+	}
+
+	// If currently exists, then we must be on the queue page, so we need to update/show the track info div
+    	if (( typeof currently !== 'undefined' ) && ( currently != '' ) && ( currently != null )) {
+
+		$( '#currentlyPlayingArtistDiv' ).css( 'max-width', ( $( window ).width() * .6 ) );
+		$( '#currentlyPlayingAlbumDiv' ).css( 'max-width', ( $( window ).width() * .6 ) );
+		$( '#currentlyPlayingTrackDiv' ).css( 'max-width', ( $( window ).width() * .6 ) );
+	}
 }
 
 // Do the crossfading
