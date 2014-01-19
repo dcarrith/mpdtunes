@@ -59,12 +59,12 @@
 
 		<!--java -jar compiler.jar --compilation_level SIMPLE_OPTIMIZATIONS --js=jquery-2.0.3.js --js=jquery-ui-1.10.3.custom.js --js=jquery.easing.1.3.js --js=dust-core-2.0.2.js  --js=jquery.mobile.defaults.overrides.js --js=jquery.mobile.custom-1.4.0.js --js=jquery.mobile.lazyloader.js --js=fastclick.js --js=jquery.ui.touch-punch.js --js=jquery.jplayer.js --js_output_file=jqm.cc.min.js -->
 
-		<script>
+		<!--<script>
 			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
 			ga('create', '{{ $ga_property_id }}', 'mpdtunes.com');
 			ga('send', 'pageview');
-		</script>
+		</script>-->
 
 		<!--<script type="text/javascript">
                     // Google Analytics tracking code

@@ -1,9 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		@include('partials.htmlHeader')
-	
-		<script type="text/javascript" src="http://www.google.com/recaptcha/api/js/recaptcha_ajax.js"></script>
+		@include('partials.htmlHeaderAnon')
 	</head>
 
 	{{ flush() }}
