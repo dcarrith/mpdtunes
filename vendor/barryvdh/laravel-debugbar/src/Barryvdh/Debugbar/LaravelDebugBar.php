@@ -265,9 +265,13 @@ class LaravelDebugbar extends DebugBar
 
     }
 
+    protected function isDebugbarRequest(){
+        return $this->app['request']->segment(1) == '_debugbar';
+    }
+
     public function modifyResponse($request, $response){
         $app = $this->app;
-        if( $app->runningInConsole() or !$this->isEnabled() || $request->segment(1) == '_debugbar'){
+        if( $app->runningInConsole() or !$this->isEnabled() || $this->isDebugbarRequest()){
             return $response;
         }
 
@@ -277,7 +281,7 @@ class LaravelDebugbar extends DebugBar
         $this->setHttpDriver($httpDriver);
 
         if($this->shouldCollect('symfony_request', true) and !$this->hasCollector('request')){
-            $this->addCollector(new SymfonyRequestCollector($request, $response, $app['session'], $app->make('Symfony\Component\HttpKernel\DataCollector\RequestDataCollector')));
+            $this->addCollector(new SymfonyRequestCollector($request, $response, $sessionManager));
         }
 
         if($response->isRedirection()){
@@ -415,7 +419,11 @@ class LaravelDebugbar extends DebugBar
         $pos = $posrFunction($content, '</body>');
 
         $renderer = $this->getJavascriptRenderer();
-        $renderer->setOpenHandlerUrl('_debugbar/open');
+        if($this->getStorage()){
+            $openHandlerUrl = $this->app['url']->route('debugbar.openhandler');
+            $renderer->setOpenHandlerUrl($openHandlerUrl);
+        }
+
 
         $debugbar = $renderer->renderHead() . $renderer->render();
 

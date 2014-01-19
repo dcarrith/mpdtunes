@@ -9,6 +9,11 @@
             "name": "Pádraic Brady",
             "email": "padraic.brady@gmail.com",
             "homepage": "http://blog.astrumfutura.com"
+        },
+        {
+            "name": "Dave Marshall",
+            "email": "dave.marshall@atstsolutions.co.uk",
+            "homepage": "http://davedevelopment.co.uk"
         }
     ],
     "require": {
@@ -16,7 +21,8 @@
         "lib-pcre": ">=7.0"
     },
     "require-dev": {
-        "hamcrest/hamcrest-php": "~1.1"
+        "hamcrest/hamcrest-php": "~1.1",
+        "satooshi/php-coveralls": "dev-master"
     },
     "autoload": {
         "psr-0": { "Mockery": "library/" }
