@@ -11254,3 +11254,129 @@ class Debugbar extends Barryvdh\Debugbar\Facade{
 
 }
 
+class Latchet extends Sidney\Latchet\LatchetFacade{
+	/**
+	 * 
+	 *
+	 * @static 
+	 */
+	 public static function __construct($container = null){
+		 Sidney\Latchet\Latchet::__construct($container);
+	 }
+
+	/**
+	 * Create and add a new handler to the
+	 * RouteCollection a.k.a topicEventHandlers
+	 *
+	 * @param string $pattern
+	 * @param string $controller
+	 * @return void
+	 * @static 
+	 */
+	 public static function topic($pattern, $controller){
+		 Sidney\Latchet\Latchet::topic($pattern, $controller);
+	 }
+
+	/**
+	 * Create a new connection handler instance
+	 *
+	 * @param string $controller
+	 * @return void
+	 * @static 
+	 */
+	 public static function connection($controller){
+		 Sidney\Latchet\Latchet::connection($controller);
+	 }
+
+	/**
+	 * Push a message to a client
+	 * This function get's fired e.g after a ajax request and not
+	 * after a websocket request. Because of that we don't have access
+	 * to all the connections and there for have to connect to the
+	 * latchet/ratchet server
+	 *
+	 * @param string $channel
+	 * @param array $message
+	 * @return void
+	 * @static 
+	 */
+	 public static function publish($channel, $message){
+		 Sidney\Latchet\Latchet::publish($channel, $message);
+	 }
+
+	/**
+	 * Redirect serverPublish to LathcetPusher
+	 *
+	 * @param string $message
+	 * @return void
+	 * @static 
+	 */
+	 public static function serverPublish($message){
+		 Sidney\Latchet\Latchet::serverPublish($message);
+	 }
+
+	/**
+	 * 
+	 *
+	 * @static 
+	 */
+	 public static function onSubscribe($connection, $topic){
+		 Sidney\Latchet\Latchet::onSubscribe($connection, $topic);
+	 }
+
+	/**
+	 * 
+	 *
+	 * @static 
+	 */
+	 public static function onPublish($connection, $topic, $message, $exclude, $eligible){
+		 Sidney\Latchet\Latchet::onPublish($connection, $topic, $message, $exclude, $eligible);
+	 }
+
+	/**
+	 * 
+	 *
+	 * @static 
+	 */
+	 public static function onCall($connection, $id, $topic, $params){
+		 Sidney\Latchet\Latchet::onCall($connection, $id, $topic, $params);
+	 }
+
+	/**
+	 * 
+	 *
+	 * @static 
+	 */
+	 public static function onUnSubscribe($connection, $topic){
+		 Sidney\Latchet\Latchet::onUnSubscribe($connection, $topic);
+	 }
+
+	/**
+	 * 
+	 *
+	 * @static 
+	 */
+	 public static function onOpen($connection){
+		 Sidney\Latchet\Latchet::onOpen($connection);
+	 }
+
+	/**
+	 * 
+	 *
+	 * @static 
+	 */
+	 public static function onClose($connection){
+		 Sidney\Latchet\Latchet::onClose($connection);
+	 }
+
+	/**
+	 * 
+	 *
+	 * @static 
+	 */
+	 public static function onError($connection, $exception){
+		 Sidney\Latchet\Latchet::onError($connection, $exception);
+	 }
+
+}
+
