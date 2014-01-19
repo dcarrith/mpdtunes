@@ -14,7 +14,7 @@ class StationsController extends MPDTunesController {
                 // Get and merge all the words we need for the Stations controller into the main data array
                 $this->data = array_merge($this->data, Langurator::getLocalizedWords("stations"));
 		
-		Session::regenerate();
+		//Session::regenerate();
 	}
 
 	public function index() {
