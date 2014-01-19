@@ -57,7 +57,7 @@ use Psr\Log\LoggerInterface;
  */
 class {$options['class']} extends {$options['base_class']}
 {
-    private static \$declaredRoutes = {$this->generateDeclaredRoutes()};
+    static private \$declaredRoutes = {$this->generateDeclaredRoutes()};
 
     /**
      * Constructor.

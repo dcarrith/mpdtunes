@@ -1,6 +1,5 @@
 <?php namespace Illuminate\Database;
 
-use Illuminate\Support\Manager;
 use Illuminate\Database\Connectors\ConnectionFactory;
 
 class DatabaseManager implements ConnectionResolverInterface {
@@ -112,7 +111,7 @@ class DatabaseManager implements ConnectionResolverInterface {
 		// Closure and pass it the config allowing it to resolve the connection.
 		if (isset($this->extensions[$name]))
 		{
-			return call_user_func($this->extensions[$name], $config);
+			return call_user_func($this->extensions[$name], $config, $name);
 		}
 
 		$driver = $config['driver'];
@@ -122,7 +121,7 @@ class DatabaseManager implements ConnectionResolverInterface {
 		// resolver for the drivers themselves which applies to all connections.
 		if (isset($this->extensions[$driver]))
 		{
-			return call_user_func($this->extensions[$driver], $config);
+			return call_user_func($this->extensions[$driver], $config, $name);
 		}
 
 		return $this->factory->make($config, $name);
@@ -169,6 +168,8 @@ class DatabaseManager implements ConnectionResolverInterface {
 	 *
 	 * @param  string  $name
 	 * @return array
+	 *
+	 * @throws \InvalidArgumentException
 	 */
 	protected function getConfig($name)
 	{

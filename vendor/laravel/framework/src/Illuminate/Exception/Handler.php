@@ -123,14 +123,14 @@ class Handler {
 	 * @param  string  $file
 	 * @param  int     $line
 	 * @param  array   $context
+	 *
+	 * @throws \ErrorException
 	 */
 	public function handleError($level, $message, $file, $line, $context)
 	{
 		if (error_reporting() & $level)
 		{
-			$e = new ErrorException($message, $level, 0, $file, $line);
-
-			throw $e;
+			throw new ErrorException($message, $level, 0, $file, $line);
 		}
 	}
 
@@ -150,8 +150,6 @@ class Handler {
 		if ( ! is_null($response))
 		{
 			$response = $this->prepareResponse($response);
-
-			$response->send();
 		}
 
 		// If no response was sent by this custom exception handler, we will call the
@@ -159,10 +157,23 @@ class Handler {
 		// it show the exception to the user / developer based on the situation.
 		else
 		{
-			$this->displayException($exception);
+			$response = $this->displayException($exception);
 		}
 
-		$this->bail();
+		return $this->sendResponse($response);
+	}
+
+	/**
+	 * Send the repsonse back to the client.
+	 *
+	 * @param  \Symfony\Component\HttpFoundation\Response  $response
+	 * @return mixed
+	 */
+	protected function sendResponse($response)
+	{
+		return $this->responsePreparer->readyForResponses() && ! $this->runningInConsole()
+								? $response
+								: $response->send();
 	}
 
 	/**
@@ -183,7 +194,7 @@ class Handler {
 
 			if ( ! $this->isFatal($type)) return;
 
-			$this->handleException(new FatalError($message, $type, 0, $file, $line));
+			$this->handleException(new FatalError($message, $type, 0, $file, $line))->send();
 		}
 	}
 
@@ -201,7 +212,7 @@ class Handler {
 	/**
 	 * Handle a console exception.
 	 *
-	 * @param  Exception  $exception
+	 * @param  \Exception  $exception
 	 * @return void
 	 */
 	public function handleConsole($exception)
@@ -212,7 +223,7 @@ class Handler {
 	/**
 	 * Handle the given exception.
 	 *
-	 * @param  Exception  $exception
+	 * @param  \Exception  $exception
 	 * @param  bool  $fromConsole
 	 * @return void
 	 */
@@ -255,7 +266,7 @@ class Handler {
 			// If this handler returns a "non-null" response, we will return it so it will
 			// get sent back to the browsers. Once the handler returns a valid response
 			// we will cease iterating through them and calling these other handlers.
-			if (isset($response) and ! is_null($response))
+			if (isset($response) && ! is_null($response))
 			{
 				return $response;
 			}
@@ -272,28 +283,28 @@ class Handler {
 	{
 		$displayer = $this->debug ? $this->debugDisplayer : $this->plainDisplayer;
 
-		$displayer->display($exception);
+		return $displayer->display($exception);
 	}
 
 	/**
 	 * Determine if the given handler handles this exception.
 	 *
 	 * @param  Closure    $handler
-	 * @param  Exception  $exception
+	 * @param  \Exception  $exception
 	 * @return bool
 	 */
 	protected function handlesException(Closure $handler, $exception)
 	{
 		$reflection = new ReflectionFunction($handler);
 
-		return $reflection->getNumberOfParameters() == 0 or $this->hints($reflection, $exception);
+		return $reflection->getNumberOfParameters() == 0 || $this->hints($reflection, $exception);
 	}
 
 	/**
 	 * Determine if the given handler type hints the exception.
 	 *
 	 * @param  ReflectionFunction  $reflection
-	 * @param  Exception  $exception
+	 * @param  \Exception  $exception
 	 * @return bool
 	 */
 	protected function hints(ReflectionFunction $reflection, $exception)
@@ -302,13 +313,13 @@ class Handler {
 
 		$expected = $parameters[0];
 
-		return ! $expected->getClass() or $expected->getClass()->isInstance($exception);
+		return ! $expected->getClass() || $expected->getClass()->isInstance($exception);
 	}
 
 	/**
 	 * Format an exception thrown by a handler.
 	 *
-	 * @param  Exception  $e
+	 * @param  \Exception  $e
 	 * @return string
 	 */
 	protected function formatException(\Exception $e)
@@ -357,13 +368,13 @@ class Handler {
 	}
 
 	/**
-	 * Exit the application.
+	 * Determine if we are running in the console.
 	 *
-	 * @return void
+	 * @return bool
 	 */
-	protected function bail()
+	public function runningInConsole()
 	{
-		exit(1);
+		return php_sapi_name() == 'cli';
 	}
 
 	/**

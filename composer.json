@@ -10,7 +10,7 @@
 		}
 	],
 	"require": {
-                "laravel/framework": "4.0.*",
+                "laravel/framework": "4.1.*",
 		"Dcarrith/CIFirePHP": "dev-master",
                 "Dcarrith/CIZip": "dev-master",
 		"way/generators": "dev-master",
@@ -30,8 +30,8 @@
                         "url": "https://github.com/dcarrith/cizip"
                 },
 		{
-        		"type": "vcs",
-        		"url": "https://github.com/sidneywidmer/latchet"
+			"type": "vcs",
+			"url": "https://github.com/dcarrith/Latchet"
 		}
         ],
 	"autoload": {

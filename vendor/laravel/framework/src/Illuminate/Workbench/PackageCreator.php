@@ -7,7 +7,7 @@ class PackageCreator {
 	/**
 	 * The filesystem instance.
 	 *
-	 * @var \Illuminate\Filesystem
+	 * @var \Illuminate\Filesystem\Filesystem
 	 */
 	protected $files;
 
@@ -38,7 +38,7 @@ class PackageCreator {
 	/**
 	 * Create a new package creator instance.
 	 *
-	 * @param  \Illuminate\Filesystem  $files
+	 * @param  \Illuminate\Filesystem\Filesystem  $files
 	 * @return void
 	 */
 	public function __construct(Filesystem $files)
@@ -350,6 +350,8 @@ class PackageCreator {
 	 * @param  \Illuminate\Workbench\Package  $package
 	 * @param  string  $path
 	 * @return string
+	 *
+	 * @throws \InvalidArgumentException
 	 */
 	protected function createDirectory(Package $package, $path)
 	{

@@ -19,8 +19,22 @@
 
 namespace Doctrine\DBAL;
 
+use Doctrine\DBAL\Driver\ExceptionConverterDriver;
+
 class DBALException extends \Exception
 {
+    const ERROR_DUPLICATE_KEY = 1;
+    const ERROR_UNKNOWN_TABLE = 2;
+    const ERROR_TABLE_ALREADY_EXISTS = 3;
+    const ERROR_FOREIGN_KEY_CONSTRAINT = 4;
+    const ERROR_NOT_NULL = 5;
+    const ERROR_BAD_FIELD_NAME = 6;
+    const ERROR_NON_UNIQUE_FIELD_NAME = 7;
+    const ERROR_SYNTAX = 9;
+    const ERROR_UNABLE_TO_OPEN = 10;
+    const ERROR_WRITE_READONLY = 11;
+    const ERROR_ACCESS_DENIED = 12;
+
     /**
      * @param string $method
      *
@@ -74,13 +88,14 @@ class DBALException extends \Exception
     }
 
     /**
+     * @param \Doctrine\DBAL\Driver     $driver
      * @param \Exception $driverEx
      * @param string     $sql
      * @param array      $params
      *
      * @return \Doctrine\DBAL\DBALException
      */
-    public static function driverExceptionDuringQuery(\Exception $driverEx, $sql, array $params = array())
+    public static function driverExceptionDuringQuery(Driver $driver, \Exception $driverEx, $sql, array $params = array())
     {
         $msg = "An exception occurred while executing '".$sql."'";
         if ($params) {
@@ -88,7 +103,78 @@ class DBALException extends \Exception
         }
         $msg .= ":\n\n".$driverEx->getMessage();
 
-        return new self($msg, 0, $driverEx);
+        $code = ($driver instanceof ExceptionConverterDriver)
+            ? $driver->convertExceptionCode($driverEx)
+            : 0;
+
+        return self::createDriverException($msg, $code, $driverEx);
+    }
+
+    /**
+     * @param \Doctrine\DBAL\Driver     $driver
+     * @param \Exception $driverEx
+     *
+     * @return \Doctrine\DBAL\DBALException
+     */
+    public static function driverException(Driver $driver, \Exception $driverEx)
+    {
+        $msg = "An exception occured in driver: " . $driverEx->getMessage();
+
+        $code = ($driver instanceof ExceptionConverterDriver)
+            ? $driver->convertExceptionCode($driverEx)
+            : 0;
+
+        return self::createDriverException($msg, $code, $driverEx);
+    }
+
+    /**
+     * Factory method for subclasses of DBALException based on exception code.
+     *
+     * @param string     $msg      The driver error message.
+     * @param integer    $code     The DBAL driver error code. One of the DBALException::ERROR_* constants.
+     * @param \Exception $driverEx The underlying driver exception to wrap.
+     *
+     * @return \Doctrine\DBAL\DBALException
+     */
+    private static function createDriverException($msg, $code, $driverEx)
+    {
+        switch ($code) {
+            case self::ERROR_NOT_NULL:
+                return new Exception\NotNullableException($msg, $code, $driverEx);
+
+            case self::ERROR_DUPLICATE_KEY:
+                return new Exception\DuplicateKeyException($msg, $code, $driverEx);
+
+            case self::ERROR_FOREIGN_KEY_CONSTRAINT:
+                return new Exception\ForeignKeyConstraintViolationException($msg, $code, $driverEx);
+
+            case self::ERROR_ACCESS_DENIED:
+                return new Exception\AccessDeniedException($msg, $code, $driverEx);
+
+            case self::ERROR_BAD_FIELD_NAME:
+                return new Exception\InvalidFieldNameException($msg, $code, $driverEx);
+
+            case self::ERROR_NON_UNIQUE_FIELD_NAME:
+                return new Exception\NonUniqueFieldNameException($msg, $code, $driverEx);
+
+            case self::ERROR_SYNTAX:
+                return new Exception\SyntaxErrorException($msg, $code, $driverEx);
+
+            case self::ERROR_TABLE_ALREADY_EXISTS:
+                return new Exception\TableExistsException($msg, $code, $driverEx);
+
+            case self::ERROR_UNABLE_TO_OPEN:
+                return new Exception\FailedToOpenException($msg, $code, $driverEx);
+
+            case self::ERROR_UNKNOWN_TABLE:
+                return new Exception\TableNotFoundException($msg, $code, $driverEx);
+
+            case self::ERROR_WRITE_READONLY:
+                return new Exception\ReadOnlyException($msg, $code, $driverEx);
+
+            default:
+                return new self($msg, $code, $driverEx);
+        }
     }
 
     /**
@@ -101,7 +187,7 @@ class DBALException extends \Exception
      */
     private static function formatParameters(array $params)
     {
-        return '[' . implode(', ', array_map(function($param) {
+        return '[' . implode(', ', array_map(function ($param) {
             $json = @json_encode($param);
 
             if (! is_string($json) || $json == 'null' && is_string($param)) {

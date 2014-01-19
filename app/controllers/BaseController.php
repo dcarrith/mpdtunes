@@ -1,9 +1,9 @@
 <?php
 
 // Laravel 4.0.x
-use Illuminate\Routing\Controllers\Controller;
+//use Illuminate\Routing\Controllers\Controller;
 // Laravel 4.1.x
-//use Illuminate\Routing\Controller;
+use Illuminate\Routing\Controller;
 
 class BaseController extends Controller {
 

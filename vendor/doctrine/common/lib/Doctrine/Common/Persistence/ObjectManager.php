@@ -30,7 +30,7 @@ namespace Doctrine\Common\Persistence;
 interface ObjectManager
 {
     /**
-     * Finds an object by its identifier.
+     * Finds a object by its identifier.
      *
      * This is just a convenient shortcut for getRepository($className)->find($id).
      *

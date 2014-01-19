@@ -25,7 +25,7 @@ use Doctrine\DBAL\Types\Type;
 /**
  * SQL Server Schema Manager.
  *
- * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
+ * @license http://www.opensource.org/licenses/mit-license.php MIT
  * @author  Konsta Vesterinen <kvesteri@cc.hut.fi>
  * @author  Lukas Smith <smith@pooteeweet.org> (PEAR MDB2 library)
  * @author  Juozas Kaziukenas <juozas@juokaz.com>
@@ -79,26 +79,24 @@ class SQLServerSchemaManager extends AbstractSchemaManager
                 break;
         }
 
-        $type = $this->_platform->getDoctrineTypeMapping($dbType);
-
-        switch ($type) {
-            case 'char':
-                $fixed = true;
-                break;
-            case 'text':
-                $fixed = false;
-                break;
+        if ('char' === $dbType || 'nchar' === $dbType || 'binary' === $dbType) {
+            $fixed = true;
         }
 
+        $type                   = $this->_platform->getDoctrineTypeMapping($dbType);
+        $type                   = $this->extractDoctrineTypeFromComment($tableColumn['comment'], $type);
+        $tableColumn['comment'] = $this->removeDoctrineTypeFromComment($tableColumn['comment'], $type);
+
         $options = array(
-            'length' => ($length == 0 || !in_array($type, array('text', 'string'))) ? null : $length,
-            'unsigned' => false,
-            'fixed' => (bool) $fixed,
-            'default' => $default !== 'NULL' ? $default : null,
-            'notnull' => (bool) $tableColumn['notnull'],
-            'scale' => $tableColumn['scale'],
-            'precision' => $tableColumn['precision'],
+            'length'        => ($length == 0 || !in_array($type, array('text', 'string'))) ? null : $length,
+            'unsigned'      => false,
+            'fixed'         => (bool) $fixed,
+            'default'       => $default !== 'NULL' ? $default : null,
+            'notnull'       => (bool) $tableColumn['notnull'],
+            'scale'         => $tableColumn['scale'],
+            'precision'     => $tableColumn['precision'],
             'autoincrement' => (bool) $tableColumn['autoincrement'],
+            'comment'       => $tableColumn['comment'] !== '' ? $tableColumn['comment'] : null,
         );
 
         $platformOptions = array(
@@ -223,8 +221,8 @@ class SQLServerSchemaManager extends AbstractSchemaManager
      */
     public function alterTable(TableDiff $tableDiff)
     {
-        if(count($tableDiff->removedColumns) > 0) {
-            foreach($tableDiff->removedColumns as $col){
+        if (count($tableDiff->removedColumns) > 0) {
+            foreach ($tableDiff->removedColumns as $col) {
                 $columnConstraintSql = $this->getColumnConstraintSQL($tableDiff->name, $col->getName());
                 foreach ($this->_conn->fetchAll($columnConstraintSql) as $constraint) {
                     $this->_conn->exec("ALTER TABLE $tableDiff->name DROP CONSTRAINT " . $constraint['Name']);

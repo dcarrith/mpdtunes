@@ -43,7 +43,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
     {
         $rows = $this->_conn->fetchAll("SELECT nspname as schema_name FROM pg_namespace WHERE nspname !~ '^pg_.*' and nspname != 'information_schema'");
 
-        return array_map(function($v) { return $v['schema_name']; }, $rows);
+        return array_map(function ($v) { return $v['schema_name']; }, $rows);
     }
 
     /**
@@ -182,7 +182,7 @@ class PostgreSqlSchemaManager extends AbstractSchemaManager
      */
     protected function _getPortableViewDefinition($view)
     {
-        return new View($view['viewname'], $view['definition']);
+        return new View($view['schemaname'].'.'.$view['viewname'], $view['definition']);
     }
 
     /**

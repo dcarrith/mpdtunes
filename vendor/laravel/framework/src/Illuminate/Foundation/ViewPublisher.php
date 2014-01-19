@@ -47,7 +47,7 @@ class ViewPublisher {
 	 */
 	public function publish($package, $source)
 	{
-		$destination = $this->publishPath."/{$package}";
+		$destination = $this->publishPath."/packages/{$package}";
 
 		$this->makeDestination($destination);
 
@@ -77,6 +77,8 @@ class ViewPublisher {
 	 * @param  string  $name
 	 * @param  string  $packagePath
 	 * @return string
+	 *
+	 * @throws \InvalidArgumentException
 	 */
 	protected function getSource($package, $name, $packagePath)
 	{

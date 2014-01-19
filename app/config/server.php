@@ -4,7 +4,7 @@ $config = array();
 
 $config['debug']		= FALSE;
 
-$config['environment'] 	= "development";
+$config['environment'] 		= "development";
 //$config['environment'] 		= "production";
 
 // This is in case you want to email the site admin when PHP errors are encountered
@@ -19,10 +19,18 @@ $config['base_domain']		= "demo.mpdtunes.com";
 
 $config['base_site_title']	= "MPDTunes - free your music, own your cloud";
 
-// This is so we can set this to whatever we want and not have to change 100 includes
-$config['document_root']	= $_SERVER['DOCUMENT_ROOT'];
+$environment = App::environment();
 
-$config['base_config_dir']	= $_SERVER['DOCUMENT_ROOT']."/includes/xml/";
+if ($environment == "testing") {
+	
+	// This is so we can set this to whatever we want and not have to change 100 includes
+	$config['document_root']	= $_SERVER['PWD'].'/public/';
+
+} else {
+	
+	// This is so we can set this to whatever we want and not have to change 100 includes
+	$config['document_root']	= $_SERVER['DOCUMENT_ROOT'];
+}
 
 return $config;
 
