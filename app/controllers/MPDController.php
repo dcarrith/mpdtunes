@@ -50,6 +50,13 @@ class MPDController extends MPDTunesController {
 			// Route: /mpd/control/play
 			case 'play':
 				$this->MPD->Play();
+
+				$newCurrentTrack = $this->MPD->playlist[$this->MPD->current_track_id]; 
+				$this->firephp->log($newCurrentTrack, "switched to track");
+	
+				// Publish the new track to all listeners of the station through the WebSocket
+				Latchet::publish('radio/station/'.$this->data['station']->id, array('msg' => $newCurrentTrack));
+
 				break;
 
 			// Route: /mpd/control/pause
@@ -66,17 +73,38 @@ class MPDController extends MPDTunesController {
 			case 'next':
 				$this->MPD->Next();
 				$this->MPD->Play();
+
+				$newCurrentTrack = $this->MPD->playlist[$this->MPD->current_track_id]; 
+				$this->firephp->log($newCurrentTrack, "switched to track");
+	
+				// Publish the new track to all listeners of the station through the WebSocket
+				Latchet::publish('radio/station/'.$this->data['station']->id, array('msg' => $newCurrentTrack));
+
 				break;
 
 			// Route: /mpd/control/previous
 			case 'previous':
 				$this->MPD->Previous();
 				$this->MPD->Play();
+
+				$newCurrentTrack = $this->MPD->playlist[$this->MPD->current_track_id]; 
+				$this->firephp->log($newCurrentTrack, "switched to track");
+	
+				// Publish the new track to all listeners of the station through the WebSocket
+				Latchet::publish('radio/station/'.$this->data['station']->id, array('msg' => $newCurrentTrack));
+
 				break;
 			
 			// Route: /mpd/control/skip
 			case 'skip':
 				$this->MPD->SkipTo(Request::get('index'));
+
+				$newCurrentTrack = $this->MPD->playlist[$this->MPD->current_track_id]; 
+				$this->firephp->log($newCurrentTrack, "switched to track");
+
+				// Publish the new track to all listeners of the station through the WebSocket
+				Latchet::publish('radio/station/'.$this->data['station']->id, array('msg' => $newCurrentTrack));
+
 				break;
 			
 			// Route: /mpd/control/crossfade

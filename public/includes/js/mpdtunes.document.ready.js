@@ -1,5 +1,34 @@
 
+function onUpdate(topicUri, event) {
+   console.log(topicUri);
+   console.log(event);
+}
+
 $( document ).ready( function() {
+
+   // connect to WAMP server
+   ab.connect("ws://demo.mpdtunes.com:16610",
+ 
+      // WAMP session was established
+      function (session) {
+
+	sess = session;
+
+	//alert(JSON.stringify(sess)); 
+         // things to do once the session has been established
+ 
+		var channel = 'radio/station/'+usersStationId;
+                
+		sess.subscribe(channel, onUpdate);
+      },
+ 
+      // WAMP session is gone
+      function (code, reason) {
+
+	//alert("no session"); 
+         // things to do once the session fails
+      }
+   );
 
 	$( "#player" ).jPlayer({	errorAlerts : 		false,
 					warningAlerts : 	false,

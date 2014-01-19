@@ -16,7 +16,9 @@
 		"way/generators": "dev-master",
 		"barryvdh/laravel-debugbar": "dev-master",	
 		"barryvdh/laravel-ide-helper": "1.*",
-		"mockery/mockery": "dev-master"	
+		"mockery/mockery": "dev-master",	
+		"sidney/latchet": "dev-master",
+		"react/zmq": "dev-master"
 	},
         "repositories": [
                 {
@@ -26,7 +28,11 @@
                 {
                         "type": "vcs",
                         "url": "https://github.com/dcarrith/cizip"
-                }
+                },
+		{
+        		"type": "vcs",
+        		"url": "https://github.com/sidneywidmer/latchet"
+		}
         ],
 	"autoload": {
 		"classmap": [

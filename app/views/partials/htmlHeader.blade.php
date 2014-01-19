@@ -41,6 +41,7 @@
 		<script type="text/javascript" src="/includes/js/jquery.ui.touch-punch.js"></script>
 		<script type="text/javascript" src="/includes/js/jquery.jplayer.js"></script>
 
+		<script type="text/javascript" src="/includes/js/autobahn.js"></script>
         @else
 		{{-- There is currently an issue with minification of the CSS with yuicompressor v2.4.8 --}}
 		{{-- When using the minified version of the CSS, the link back to home is broken in some browsers (eg. Safari 6.0.5 and Dolphin) --}}

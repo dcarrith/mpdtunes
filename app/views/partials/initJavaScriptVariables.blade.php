@@ -1,6 +1,11 @@
 <script type="text/javascript">
 
+// WAMP session object
+var sess;
+
 var usersStream = '<?php echo $station->url; ?>';
+
+var usersStationId = <?php echo $station->id; ?>;
 
 <?php if( $debug ) : ?>
 

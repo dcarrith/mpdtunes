@@ -159,3 +159,6 @@ Route::group(array('before' => 'auth'), function() {
 
 	Route::get('{section}/confirm_delete', array('uses' => 'MPDTunesController@confirmDelete'))->where('section', 'admin|playlist|station');
 });
+
+Latchet::connection('Connection');
+Latchet::topic('radio/station/{stationid}', 'RadioStationController');

@@ -39,5 +39,19 @@ class Station extends Eloquent {
 		return $this->belongsTo('User', 'creator_id');
 	}
 
-	//
+        /**
+         * define relationship to listeners
+         */
+         public function listeners()
+         {
+                 return $this->hasMany('listener');
+         }
+
+         /**
+         * define relationship to messages
+         */
+         public function messages()
+         {
+                 return $this->hasMany('message');
+         }
 }
