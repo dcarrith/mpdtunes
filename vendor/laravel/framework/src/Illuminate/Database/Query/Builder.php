@@ -403,7 +403,7 @@ class Builder {
 	 * Determine if the given operator and value combination is legal.
 	 *
 	 * @param  string  $operator
-	 * @param  mxied  $value
+	 * @param  mixed  $value
 	 * @return bool
 	 */
 	protected function invalidOperatorAndValue($operator, $value)
@@ -928,7 +928,7 @@ class Builder {
 		return $this->orderBy($column, 'asc');
 	}
 
-	/*
+	/**
 	 * Add a raw "order by" clause to the query.
 	 *
 	 * @param  string  $sql
