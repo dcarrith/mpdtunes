@@ -73,7 +73,7 @@ class Container
         $this->_generator = $generator ?: \Mockery::getDefaultGenerator();
         $this->_loader = $loader ?: \Mockery::getDefaultLoader();
     }
-    
+
     /**
      * Generates a new mock object for this container
      *
@@ -95,8 +95,8 @@ class Container
         if (count($args) > 1) {
             $finalArg = end($args);
             reset($args);
-            if (is_callable($finalArg)) {
-                $expectationClosure = array_pop($args);
+            if (is_callable($finalArg) && is_object($finalArg)) {
+                 $expectationClosure = array_pop($args);
             }
         }
 
@@ -167,7 +167,7 @@ class Container
             } else if (is_array($arg)) {
                 $constructorArgs = array_shift($args);
                 continue;
-            } 
+            }
 
             throw new \Mockery\Exception(
                 'Unable to parse arguments sent to '
@@ -217,7 +217,7 @@ class Container
     {
         return $this->_generator;
     }
-    
+
     /**
      *  Tear down tasks for this container
      *

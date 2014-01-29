@@ -548,7 +548,7 @@ class ContainerTest extends PHPUnit_Framework_TestCase
      * @expectedException BadMethodCallException
      */
     public function testMockedStaticThrowsExceptionWhenMethodDoesNotExist(){
-    	\Mockery::setContainer($this->container);
+        \Mockery::setContainer($this->container);
         $m = $this->container->mock('alias:MyNamespace\StaticNoMethod');
         $this->assertEquals('bar', \MyNameSpace\StaticNoMethod::staticFoo());
         \Mockery::resetContainer();
@@ -686,7 +686,37 @@ class ContainerTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(1, $b);
     }
 
+    /**
+     * Meant to test the same logic as
+     * testCanOverrideExpectedParametersOfExtensionPHPClassesToPreserveRefs,
+     * but:
+     * - doesn't require an extension
+     * - isn't actually known to be used
+     */
     public function testCanOverrideExpectedParametersOfInternalPHPClassesToPreserveRefs()
+    {
+        \Mockery::getConfiguration()->setInternalClassMethodParamMap(
+            'DateTime', 'modify', array('&$string')
+        );
+        // @ used to avoid E_STRICT for incompatible signature
+        @$m = $this->container->mock('DateTime');
+        $this->assertInstanceOf("Mockery\MockInterface", $m, "Mocking failed, remove @ error suppresion to debug");
+        $m->shouldReceive('modify')->with(
+            \Mockery::on(function(&$string) {$string = 'foo'; return true;})
+        );
+        $data ='bar';
+        $m->modify($data);
+        $this->assertEquals('foo', $data);
+        $this->container->mockery_verify();
+        \Mockery::resetContainer();
+        \Mockery::getConfiguration()->resetInternalClassMethodParamMaps();
+    }
+
+    /**
+     * Real world version of
+     * testCanOverrideExpectedParametersOfInternalPHPClassesToPreserveRefs
+     */
+    public function testCanOverrideExpectedParametersOfExtensionPHPClassesToPreserveRefs()
     {
         if (!class_exists('MongoCollection', false)) $this->markTestSkipped('ext/mongo not installed');
         \Mockery::getConfiguration()->setInternalClassMethodParamMap(
@@ -705,6 +735,33 @@ class ContainerTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(123, $data['_id']);
         $this->container->mockery_verify();
         \Mockery::resetContainer();
+        \Mockery::getConfiguration()->resetInternalClassMethodParamMaps();
+    }
+
+    public function testCanCreateNonOverridenInstanceOfPreviouslyOverridenInternalClasses()
+    {
+        \Mockery::getConfiguration()->setInternalClassMethodParamMap(
+            'DateTime', 'modify', array('&$string')
+        );
+        // @ used to avoid E_STRICT for incompatible signature
+        @$m = $this->container->mock('DateTime');
+        $this->assertInstanceOf("Mockery\MockInterface", $m, "Mocking failed, remove @ error suppresion to debug");
+        $rc = new ReflectionClass($m);
+        $rm = $rc->getMethod('modify');
+        $params = $rm->getParameters();
+        $this->assertTrue($params[0]->isPassedByReference());
+
+        \Mockery::getConfiguration()->resetInternalClassMethodParamMaps();
+
+        $m = $this->container->mock('DateTime');
+        $this->assertInstanceOf("Mockery\MockInterface", $m, "Mocking failed");
+        $rc = new ReflectionClass($m);
+        $rm = $rc->getMethod('modify');
+        $params = $rm->getParameters();
+        $this->assertFalse($params[0]->isPassedByReference());
+
+        \Mockery::resetContainer();
+        \Mockery::getConfiguration()->resetInternalClassMethodParamMaps();
     }
 
     /**
@@ -787,9 +844,9 @@ class ContainerTest extends PHPUnit_Framework_TestCase
 
     public function testMockCallableTypeHint()
     {
-		if(PHP_VERSION_ID >= 50400) {
-        	$this->container->mock('MockeryTest_MockCallableTypeHint');
-		}
+        if(PHP_VERSION_ID >= 50400) {
+            $this->container->mock('MockeryTest_MockCallableTypeHint');
+        }
     }
 
     public function testCanMockClassWithReservedWordMethod()
@@ -932,8 +989,9 @@ class ContainerTest extends PHPUnit_Framework_TestCase
 
     public function testMockeryShouldDistinguishBetweenConstructorParamsAndClosures()
     {
+        $obj = new MockeryTestFoo();
         $mock = $this->container->mock('MockeryTest_ClassMultipleConstructorParams[dave]',
-            array(new stdClass, 'bar'));
+            array( &$obj, 'foo' ));
     }
 
     /** @group nette */
