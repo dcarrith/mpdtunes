@@ -117,11 +117,14 @@ return array(
 		'Illuminate\Workbench\WorkbenchServiceProvider',
  		'Dcarrith\CIFirePHP\CIFirePHPServiceProvider',
  		'Dcarrith\CIZip\CIZipServiceProvider',
+ 		'Dcarrith\LxMPD\LxMPDServiceProvider',
+ 		'Dcarrith\LetId3\LetId3ServiceProvider',
  		'Way\Generators\GeneratorsServiceProvider',
 		'Barryvdh\Debugbar\ServiceProvider',
 		'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
 		'Sidney\Latchet\LatchetServiceProvider',
 		'Illuminate\Remote\RemoteServiceProvider',
+		'Intervention\Image\ImageServiceProvider',
 	),
 
 	/*
@@ -191,6 +194,9 @@ return array(
  		'CIZip'		  => 'Dcarrith\CIZip\CIZip',
 		'Debugbar' 	  => 'Barryvdh\Debugbar\Facade',
 		'Latchet'    	  => 'Sidney\Latchet\LatchetFacade',
+ 		'LxMPD'		  => 'Dcarrith\LxMPD\LxMPD',
+ 		'LetId3'	  => 'Dcarrith\LetId3\LetId3',
+		'Image' 	  => 'Intervention\Image\Facades\Image',
 	),
 
 );
