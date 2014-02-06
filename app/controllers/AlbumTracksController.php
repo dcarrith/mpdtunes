@@ -12,43 +12,24 @@ class AlbumTracksController extends MPDTunesController {
 
 	public function index() {
 
-		$default_num_tracks_to_display = $this->data['default_num_tracks_to_display'];
-		$tracks_so_far = 0;
-		$this->data['tracks_so_far'] = $tracks_so_far;
-
                 // Get and merge all the words we need for the Tracks controller into the main data array
                 $this->data = array_merge($this->data, Langurator::getLocalizedWords("tracks"));
         	
 		$this->data['data_url'] = "";
 
-		$encoded_artist_name 	= Request::segment(2);
-		$encoded_album_name 	= Request::segment(4);
-
-		require_once('includes/php/library/art.inc.php');
-
-		$this->data['heading_name'] = '';
+		$encoded_artist_name = Request::segment(2);
+		$encoded_album_name = Request::segment(4);
 
 		$this->data['add_tracks_post_json'] = "{ 'parameters' : [ { 'source' : '' } ] }";
 
 		// only try to retrive the artists list from MPD if there is a valid connection to MPD
-		if (isset($this->MPD->connected) && ($this->MPD->connected != "")) {
+		if ($this->xMPD->isConnected()) {
 
 			//$artist_name = $this->data['artist_name'];
-
-			$configs = array();
-
-			$configs['music_dir']			= $this->data['music_dir'];
-			$configs['art_dir']			= $this->data['art_dir'];
-			$configs['document_root']		= $this->data['document_root'];
-			$configs['default_no_album_art_image']	= $this->data['default_no_album_art_image'];
-
-			$this->firephp->log($configs, "configs");
 
 			$artist_name = urldecode(urldecode($encoded_artist_name));
 			$this->data['artist_name'] 		= $artist_name;
 			$this->data['encoded_artist_name']	= $encoded_artist_name;
-
-			$this->firephp->log($encoded_album_name, "encoded_album_name");
 
 			$album_name = urldecode(urldecode($encoded_album_name));
 			$this->data['album_name'] 		= $album_name;
@@ -59,37 +40,22 @@ class AlbumTracksController extends MPDTunesController {
 
 			$this->data['heading_name'] 		= $album_name;
 
-			$first_song = $this->MPD->GetOneTrack("album", $album_name);
+			$first_song = $this->xMPD->GetFirstTrack("album", $album_name);
 
-			$this->data['album_art_file'] = Request::root()."/".get_album_art	(	$first_song, 
-													$artist_name, 
-													$album_name, 
-													$configs,
-													$this->firephp	);
+			$this->data['album_art_file'] = Request::root()."/".$this->getAlbumArt(	$first_song, 
+												$artist_name, 
+												$album_name	);
 
-			$this->firephp->log($album_name, "album_name");
+			$tracks = $this->xMPD->find("album", $album_name);
 
-			$tracks = $this->MPD->GetTracks("album", $album_name);
+			$this->data['tracks'] = $tracks;
 
-			$this->firephp->log($tracks, "tracks");
+			//$track_filenames = array_column( $tracks, "file" );
 
-			$this->data['tracks'] 	= $tracks;
-
-			$track_filenames 	= array();
-
-			$tracks_count 		= count($tracks);
-
-			// let's pass this to the view so we don't have to count twice
-			$this->data['tracks_count'] = $tracks_count;
-
-			$total_length = 0;
-
-			for($i=0; $i<$tracks_count; $i++){
-					
-				$track_filenames[] = $tracks[$i][1];
-
-				$total_length += $tracks[$i][2];
-			}
+			$total_length = array_reduce( array_column( $tracks, "Time" ), function($a, $b) {
+				
+				return ($a += $b);
+			});
 
 			$this->data['total_length'] 		= get_timer_display($total_length);
 			$this->data['tracksUlId'] 		= "albumTracks";
@@ -97,16 +63,15 @@ class AlbumTracksController extends MPDTunesController {
 			$this->data['popupMenuId'] 		= "albumTrackPopupMenu";
 			$this->data['dataNameAttribute'] 	= 'data-album-name="'.$album_name.'"';
 
-			$playlists = $this->MPD->GetPlaylists();
+			// We need to get all the playlists so we can list them in the add to playlist popup
+			$playlists = $this->xMPD->GetPlaylists();
 
 			foreach($playlists as $playlist) {
 
-				$this->data['playlists'][]	= array('playlist'=>$playlist);
+				$this->data['playlists'][] = array('playlist'=>$playlist);
 
 				$this->firephp->log($playlist, "playlist");
 			}
-
-			//$this->data['serialized_tracks'] = urlencode(serialize($track_filenames));
 		}
 
 		$this->firephp->log($this->data, "data");

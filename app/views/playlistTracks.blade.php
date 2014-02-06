@@ -23,11 +23,11 @@
 
 			<li data-role="list-divider" data-icon="plus">{{ $tracks_i18n }}</li>
 			
-			@for($i = 0; $i < count($tracks); $i++)
+			@foreach($tracks as $index => $track)
 
                                 @include('partials.playlistTrack')
 
-                        @endfor
+                        @endforeach
 			
 			<li data-role="list-divider"></li>
 

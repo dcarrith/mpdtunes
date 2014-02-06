@@ -10,7 +10,7 @@
 
 		<ul data-role="listview" data-inset="true" data-divider-theme="{{ $theme_bars }}" data-theme="{{ $theme_buttons }}"> 
 
-			<li data-role="list-divider">{{ $selected_album_i18n }}</li>
+			<li data-role="list-divider">{{{ $selected_album_i18n }}}</li>
 
 			<li>
 				<table class="width-hundred-percent align-left">
@@ -45,7 +45,7 @@
 			<li data-role="list-divider"></li>
 		</ul>
 
-		<a href="#" onclick="post = {{ $add_tracks_post_json }}; control_mpd('add_all', post.parameters[0]);" data-role="button" data-theme="{{ $theme_action }}" class="ui-btn ui-btn-corner-all ui-shadow ui-btn-up-{{ $theme_action }}">
+		<a href="#" onclick="post = {{{ $add_tracks_post_json }}}; control_mpd('add_all', post.parameters[0]);" data-role="button" data-theme="{{ $theme_action }}" class="ui-btn ui-btn-corner-all ui-shadow ui-btn-up-{{ $theme_action }}">
 
 			<span class="ui-btn-inner ui-btn-corner-all">
 				<span class="ui-btn-text">{{ $add_all_songs_to_queue_i18n }}</span>
@@ -62,11 +62,11 @@
 
 			<li data-role="list-divider" data-icon="plus"><{{ $tracks_i18n }}</li>
 			
-			@for($i = 0; $i < count($tracks); $i++)
+			@foreach($tracks as $index => $track)
 
                                 @include('partials.albumTrack')
 
-                        @endfor
+                        @endforeach
 
 			<li data-role="list-divider"></li>
 		</ul>

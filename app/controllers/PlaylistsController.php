@@ -23,37 +23,39 @@ class PlaylistsController extends MPDTunesController {
 		$this->data['playlists'] = array();
 		$this->data['data_url'] = "";
 
-		if (isset($this->MPD->connected) && ($this->MPD->connected != "")) {
+		if ($this->xMPD->isConnected()) {
 
-			$playlists = $this->MPD->GetPlaylists();
+			$playlists = $this->xMPD->listplaylists();
+			$this->firephp->log($playlists, "playlists");
+
+			//$playlists = $this->xMPD->GetPlaylists();
+			//$this->firephp->log($playlists, "playlists");
 
 			$this->firephp->log($show_playlist_track_count_bubbles, "show_playlist_track_count_bubbles");
 
 			// only perform the extra overhead processing of getting the track counts if configured to show count bubbles
 			if ($show_playlist_track_count_bubbles) {
 
-				foreach($playlists as $playlist) {
+				foreach($playlists[0] as $playlist) {
 
-					$tracks = $this->MPD->GetTracks("playlist", $playlist);
+					$tracks = $this->xMPD->listplaylist($playlist['name']);
 
 					$tracks_count = count($tracks);
 
-					$this->data['playlists'][] = array('playlist'=>$playlist, 'tracks_count'=>$tracks_count);
+					$this->data['playlists'][] = array_merge($playlist, array('tracks_count'=>$tracks_count));
 				}
 
 			} else {
 
-				foreach($playlists as $playlist) {
+				foreach($playlists[0] as $playlist) {
 
-					$this->data['playlists'][] = array('playlist'=>$playlist);
+					$this->data['playlists'][] = $playlist;
 				}
 			}
 
-			$this->data['current_volume'] = $this->MPD->volume;
-			$this->data['current_xfade'] = $this->MPD->xfade;
+			$this->data['current_volume'] = $this->xMPD->volume;
+			$this->data['current_xfade'] = $this->xMPD->xfade;
 		}
-
-                $this->firephp->log($this->data, "data");
 
                 return View::make('playlists', $this->data);		
 	}
@@ -93,7 +95,7 @@ class PlaylistsController extends MPDTunesController {
 		if (isset($posted_playlist_name)) {
 
 			// Create a playlist containing the tracks currently in the queue and name it based on the posted playlist name		
-			$this->MPD->PLSave($posted_playlist_name);
+			$this->xMPD->save($posted_playlist_name);
 
 			Session::flash('success', true);
 		}	

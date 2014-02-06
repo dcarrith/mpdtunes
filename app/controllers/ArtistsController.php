@@ -48,19 +48,21 @@ class ArtistsController extends MPDTunesController {
 		}
 
 		// only try to retrive the artists list from MPD if there is a valid connection to MPD
-		if (isset($this->MPD->connected) && ($this->MPD->connected != "")) {
+		if ($this->xMPD->isConnected()) {
 
 			if (!isset($selected_genre)){
 
 				// get the artists from mpd
-				$artists = $this->MPD->GetArtists();
+				$artists = $this->xMPD->list("artist");
+
+				//$this->firephp->log($artists, "artists");
 
 			} else {
 
 				// need to double decode it in case the user is coming back to the page in history
 				$selected_genre = urldecode(urldecode($selected_genre));
 
-				$artists = $this->MPD->GetArtists($selected_genre);
+				$artists = $this->xMPD->list("artist", "genre", $selected_genre);
 
 				$this->firephp->log($selected_genre, "selected_genre");
 
@@ -77,30 +79,18 @@ class ArtistsController extends MPDTunesController {
 				//$this->data['data_url'] = 'data-url="/genre/'.$selected_genre.'/artists"';
 			}
 
-			$this->firephp->log($show_album_count_bubbles, "show_album_count_bubbles");
-
 			// only perform the extra overhead processing of getting the album counts if configured to show count bubbles
 			if ($show_album_count_bubbles) {
 
-				foreach($artists as $artist) {
+				foreach($artists as $index => $artist) {
 
-					$album_count = 0;
+					//$this->firephp->log($artist, "artist");
 
-					$this->firephp->log($artist, "artist");
+					$albums = $this->xMPD->list("album", $artist);
 
-					$albums = $this->MPD->GetAlbums($artist);
+					$this->data['artists'][] = array('artist'=>$artist, 'album_count'=>count($albums));
 
-					$this->firephp->log($albums, "albums");
-
-					$album_count = count($albums);
-
-					$this->firephp->log($album_count, "album_count");
-
-					$this->data['artists'][] = array('artist'=>$artist, 'album_count'=>$album_count);
-
-					$artists_so_far++;
-
-					if ($artists_so_far == $default_num_artists_to_display) {
+					if (($index + 1) == $default_num_artists_to_display) {
 
 						break;
 					}
@@ -108,28 +98,20 @@ class ArtistsController extends MPDTunesController {
 			
 			} else {
 
-				foreach($artists as $artist) {
-
-					$this->firephp->log($artist, "artist");
+				foreach($artists as $index => $artist) {
 
 					$this->data['artists'][] = array('artist'=>$artist);
 
-					$artists_so_far++;
-
-					if ($artists_so_far == $default_num_artists_to_display) {
+					if (($index + 1) == $default_num_artists_to_display) {
 
 						break;
 					}
 				}
 			}
-
-			$this->firephp->log($this->data['artists'], "this->data['artists']");
 		}
 
 		// this is used by the scroll down button in the footer
 		$this->data['section'] = Request::segment(1);
-
-		$this->firephp->log($this->data, "data");
 	
 		return View::make('artists', $this->data);
 	}
@@ -169,123 +151,90 @@ class ArtistsController extends MPDTunesController {
 			$default_num_artists_to_display = $artists_listed_so_far_session;
 		}
 
-		$artists 			= array();
-		$artists_li_elements_ra 	= array();
-		$artists_li_elements_html 	= "";
-		$artists_li_elements_as_json	= "";
-		$more_artists_json 		= "";
+		// This will be the final array to json_encode and return to the client
+		$response = array('data' => array( 'count' => 0, 'html' => array()));
 
 		// only try to retrive the artists list from MPD if there is a valid connection to MPD
-		if (isset($this->MPD->connected) && ($this->MPD->connected != "")) {
+		if ($this->xMPD->isConnected()) {
 
 			if (!isset($selected_genre)){
 
 				// get the artists from mpd
-				$artists = $this->MPD->GetArtists();
+				$artists = $this->xMPD->list("artist");
 
 			} else {
 
 				// need to double decode it in case the user is coming back to the page in history
 				$selected_genre = urldecode(urldecode($selected_genre));
 
-				$artists = $this->MPD->GetArtists($selected_genre);
-
-				$this->firephp->log($selected_genre, "selected_genre");
+				$artists = $this->xMPD->list("artist", "genre", $selected_genre);
 
 				$encoded_selected_genre = urlencode(urlencode($selected_genre));
-
-				$this->firephp->log($encoded_selected_genre, "encoded_selected_genre");
 			}
-
-			$this->firephp->log($show_album_count_bubbles, "show_album_count_bubbles");
 
 			// only perform the extra overhead processing of getting the album counts if configured to show count bubbles
 			if ($show_album_count_bubbles) {
 
-				foreach($artists as $artist) {
+				foreach($artists as $index => $artist) {
 
-					if ($artists_count >= $artists_listed_so_far) {
+					//$this->firephp->log($artist, "artist");
+
+					if ($index >= $artists_listed_so_far) {
 
 						if (!$retrieving_the_rest) {
 
-							if ($artists_count >= ($artists_to_retrieve + $artists_listed_so_far)) {
+							if ($index >= ($artists_to_retrieve + $artists_listed_so_far)) {
 
 								break;
 							}
 						}
 
-						$album_count = 0;
+						$albums = $this->xMPD->list("album", $artist);
 
-						$this->firephp->log($artist, "artist");
+						$artistUrl = 'artist/'.urlencode(urlencode($artist)).'/albums';
 
-						$albums = $this->MPD->GetAlbums(addslashes($artist));
-
-						$this->firephp->log($albums, "albums");
-
-						$album_count = count($albums);
-
-						$this->firephp->log($album_count, "album_count");
-
-						//$artists_li_elements_html .= "<li><a href='artist/".urlencode(urlencode(str_replace('"', '\\"', $artist)))."/albums' data-transition='".$this->data['default_page_transition']."'>".str_replace('"', '\\"', $artist)."<span class='ui-li-count ui-btn-up-".$this->data['theme_buttons']." ui-btn-corner-all'>".$album_count."</span></a></li>";
-						$artists_li_elements_as_json .= '{ "href" : "artist/'.urlencode(urlencode(str_replace('"', '\\"', $artist))).'/albums", "transition":"'.$this->data['default_page_transition'].'", "name":"'.str_replace('"', '\\"', $artist).'", "theme_buttons":"'.$this->data['theme_buttons'].'", "count_bubble_value":"'.$album_count.'" },';
-
-						//$this->firephp->log($artists_li_elements_html, "artists_li_elements_html");
+						$response['data']['json'][] = array( 	'href' => $artistUrl,
+											'transition' => $this->data['default_page_transition'],
+											'name' => $artist, 
+											'theme_buttons' => $this->data['theme_buttons'],
+											'count_bubble_value' => count($albums)	);
 
 						$artists_retrieved++;
 					}
-
-					$artists_count++;
 				}
-
-				$artists_li_elements_as_json = rtrim($artists_li_elements_as_json, ",");
 			
 			} else {
 
-				foreach($artists as $artist) {
+				foreach($artists as $index => $artist) {
 
-					if ($artists_count >= $artists_listed_so_far) {
+					if ($index >= $artists_listed_so_far) {
 
 						if (!$retrieving_the_rest) {
 
-							if ($artists_count >= ($artists_to_retrieve + $artists_listed_so_far)) {
+							if ($index >= ($artists_to_retrieve + $artists_listed_so_far)) {
 
 								break;
 							}
 						}
 
-						$this->firephp->log($artist, "artist");
+						$artistUrl = 'artist/'.urlencode(urlencode($artist)).'/albums';
 
-						//$artists_li_elements_html .= "<li><a href='artist/".urlencode(urlencode(str_replace('"', '\\"', $artist)))."/albums' data-transition='".$this->data['default_page_transition']."'>".str_replace('"', '\\"', $artist)."</a></li>";
-						$artists_li_elements_as_json .= '{ "href" : "artist/'.urlencode(urlencode(str_replace('"', '\\"', $artist))).'/albums", "transition":"'.$this->data['default_page_transition'].'", "name":"'.str_replace('"', '\\"', $artist).'", "theme_buttons":"'.$this->data['theme_buttons'].'" },';
-
-						//$this->firephp->log($artists_li_elements_html, "artists_li_elements_html");
+						$response['data']['json'][] = array( 	'href' => $artistUrl,
+											'transition' => $this->data['default_page_transition'],
+											'name' => $artist, 
+											'theme_buttons' => $this->data['theme_buttons']	);
 
 						$artists_retrieved++;
 					}
-
-					$artists_count++;
 				}
-
-				$artists_li_elements_as_json = rtrim($artists_li_elements_as_json, ",");
 			}
+		} 
 
-			//$more_artists_json = '{ "data" : [{ "count" : "'.$artists_retrieved.'", "html" : "' . $artists_li_elements_html . '" } ] }';
-			$more_artists_json = '{ "data" : [{ "count" : "'.$artists_retrieved.'", "json" : [' . $artists_li_elements_as_json . '] } ] }';
-
-			//$more_artists_json = json_encode($artists_li_elements_ra);
-
-		} else {
-
-			//$artists_li_elements_ra['data'] = array("count"=>"0", "html"=>"");
-
-			$more_artists_json = '{ "data" : [{ "count" : "'.$artists_retrieved.'", "html" : "" } ] }';
-
-			//$more_artists_json = json_encode($artists_li_elements_ra);
-		}
+		$response['data']['count'] = $artists_retrieved;
 
 		Session::put('artists_listed_so_far', ($artists_listed_so_far + $artists_retrieved));
 
-		// echo out the HTML for the next set of artist li elements
-		echo $more_artists_json;
+		// Echo out the JSON representation of the next set of li elements to display
+		echo json_encode($response);
 	}
 }

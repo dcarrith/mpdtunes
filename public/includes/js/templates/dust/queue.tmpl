@@ -1,10 +1,10 @@
 {#json}
-    <li id='{id}' style='position:relative;' class='ui-li-has-thumb' data-queue-track-index='{playlist_index}' data-queue-track-title='{title}' data-queue-track-file='{file}' data-queue-track-link='{symbolic_link_filename}' class='ui-li-has-thumb ui-btn ui-btn-icon-right'>
+    <li id='{id}' style='position:relative;' class='ui-li-has-thumb' data-queue-track-index='{index}' data-queue-track-title='{Title}' data-queue-track-file='{file}' class='ui-li-has-thumb ui-btn ui-btn-icon-right'>
         <a href='#queueTrackPopupMenu' data-rel="popup" data-icon="none" class="ui-link-inherit">
-            <img src='{art}' class='ui-li-thumb track-item-image' />
-            <h3 class='track-title-heading ui-li-heading'>{title}</h3>
-            <p class='ui-li-aside ui-li-desc'>{time}</p>
+            <img src='{Art}' class='ui-li-thumb track-item-image' />
+            <h3 class='track-title-heading ui-li-heading'>{Track} - {Title}</h3>
+            <p class='ui-li-aside ui-li-desc'>{length}</p>
         </a>
-        <a href='' data-icon='move' class='{theme_icon_class} ui-li-link-alt ui-btn ui-btn-up-{theme_buttons} move' data-theme='{theme_buttons}' title='{move_tooltip}'>{move_tooltip}</a>
+        <a href='' data-icon='move' class='{theme_icon_class} ui-li-link-alt ui-btn ui-btn-up-{theme_buttons} move' data-theme='{theme_buttons}' title='{anchorTitle}'>{anchorTitle}</a>
     </li>
 {/json}
