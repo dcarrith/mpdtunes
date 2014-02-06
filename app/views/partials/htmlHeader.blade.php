@@ -28,12 +28,12 @@
 		<link rel="stylesheet" href="/includes/css/jquery.mobile.structure.overrides.css" />
 		<link rel="stylesheet" href="/includes/css/mpdtunes.fileinput.enhanced.css" />
 		<link rel="stylesheet" href="/includes/css/mpdtunes.player.css" />
-		<link rel="stylesheet" href="/includes/css/jquery.plupload.v2.0.0-beta.queue.css" />
+		<link rel="stylesheet" href="/includes/css/jquery.plupload.v2.1.1.queue.css" />
 	    
 		<script type="text/javascript" src="/includes/js/jquery-2.0.3.js"></script>
 		<script type="text/javascript" src="/includes/js/jquery-ui-1.10.3.custom.js"></script>
 		<script type="text/javascript" src="/includes/js/jquery.easing.1.3.js"></script>
-		<script type="text/javascript" src="/includes/js/dust-core-2.0.2.js"></script>
+		<script type="text/javascript" src="/includes/js/dust-core-2.3.1.js"></script>
 		<script type="text/javascript" src="/includes/js/jquery.mobile.defaults.overrides.js"></script>
 		<script type="text/javascript" src="/includes/js/jquery.mobile.custom-1.4.0.js"></script>
 		<script type="text/javascript" src="/includes/js/jquery.mobile.lazyloader.js"></script>
@@ -52,13 +52,13 @@
 			<link rel="stylesheet" href="/includes/css/mpdtunes.css" />
 		@endif
 
-		<!-- cat themes/mpdtunes.theme.custom.alt-1.4.0.css themes/jquery.mobile.icons.min.css mpdtunes.main.css jquery.mobile.custom.structure-1.4.0.css jquery.mobile.structure.overrides.css mpdtunes.player.css jquery.plupload.v2.0.0-beta.queue.css > mpdtunes.alt.css -->
+		<!-- cat themes/mpdtunes.theme.custom.alt-1.4.0.css themes/jquery.mobile.icons.min.css mpdtunes.main.css jquery.mobile.custom.structure-1.4.0.css jquery.mobile.structure.overrides.css mpdtunes.player.css jquery.plupload.v2.1.1.queue.css > mpdtunes.alt.css -->
 
 		<!-- java -jar yuicompressor.jar mpdtunes.alt.css > mpdtunes.alt.min.css -->
 
 		<script type="text/javascript" src="/includes/js/jqm.cc.min.js"></script>
 
-		<!--java -jar compiler.jar --compilation_level SIMPLE_OPTIMIZATIONS --js=jquery-2.0.3.js --js=jquery-ui-1.10.3.custom.js --js=jquery.easing.1.3.js --js=dust-core-2.0.2.js  --js=jquery.mobile.defaults.overrides.js --js=jquery.mobile.custom-1.4.0.js --js=jquery.mobile.lazyloader.js --js=fastclick.js --js=jquery.ui.touch-punch.js --js=jquery.jplayer.js --js_output_file=jqm.cc.min.js -->
+		<!--java -jar compiler.jar --compilation_level SIMPLE_OPTIMIZATIONS --js=jquery-2.0.3.js --js=jquery-ui-1.10.3.custom.js --js=jquery.easing.1.3.js --js=dust-core-2.3.1.js  --js=jquery.mobile.defaults.overrides.js --js=jquery.mobile.custom-1.4.0.js --js=jquery.mobile.lazyloader.js --js=fastclick.js --js=jquery.ui.touch-punch.js --js=jquery.jplayer.js --js_output_file=jqm.cc.min.js -->
 
 		<script>
 			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');

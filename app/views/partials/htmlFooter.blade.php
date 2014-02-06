@@ -4,14 +4,16 @@
 
                 @if ($environment === "development")
 
-			<script type="text/javascript" src="/includes/js/plupload.v2.0.0-beta.full.min.js"></script>
-                        <script type="text/javascript" src="/includes/js/jquery.plupload.v2.0.0-beta.queue.js"></script>
+			<script type="text/javascript" src="/includes/js/moxie.v2.1.1.js"></script>
+			<script type="text/javascript" src="/includes/js/plupload.v2.1.1.full.js"></script>
+                        <script type="text/javascript" src="/includes/js/jquery.plupload.v2.1.1.queue.js"></script>
 			<script type="text/javascript" src="/includes/js/jquery.iframe-transport.js"></script>
 			<script type="text/javascript" src="/includes/js/jquery.fileupload.js"></script>
                         <script type="text/javascript" src="/includes/js/mpdtunes.document.ready.js"></script>
                         <script type="text/javascript" src="/includes/js/mpdtunes.mpd.functions.js"></script>
                         <script type="text/javascript" src="/includes/js/mpdtunes.player.functions.js"></script>
-                        <script type="text/javascript" src="/includes/js/mpdtunes.playlist.functions.js"></script>
+			<script type="text/javascript" src="/includes/js/mpdtunes.socket.handlers.js"></script>
+			<script type="text/javascript" src="/includes/js/mpdtunes.playlist.functions.js"></script>
                         <script type="text/javascript" src="/includes/js/mpdtunes.queue.functions.js"></script>
                         <script type="text/javascript" src="/includes/js/mpdtunes.navigation.functions.js"></script>
                         <script type="text/javascript" src="/includes/js/mpdtunes.page.listeners.js"></script>
