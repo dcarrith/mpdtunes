@@ -4,26 +4,23 @@ function clearQueue() {
 
 	track_position = 0;
 
-	playlist = "";
+	playlist = { "tracks" : []};
 
 	$( '#jukebox #playpause' ).attr( 'data-icon', 'play' );
-	$( '#jukebox #playpause' ).buttonMarkup( 'refresh' );
+	$( '#jukebox #playpause' ).removeClass('ui-icon-pause')
+					.addClass('ui-icon-play');
 
-	$('#playpause-span-one').attr('class', 'play ui-btn-inner ui-btn-corner-all');
-	$('#playpause-span-two').attr('class', 'play ui-btn-text');
-	$('#playpause-span-three').attr('class', 'play-inner ui-icon ui-icon-play ui-icon-shadow');
+	//$( '#jukebox #playpause' ).buttonMarkup( 'refresh' );
 
 	shuffle_queue = false;
 
 	$('#shuffle').attr('data-theme', theme.buttons);
 	$('#shuffle').attr('data-icon', "shuffle");
-	$('#shuffle').removeClass($.mobile.activeBtnClass);
-
-	if( 'console' in window && 'log' in window.console ) {
+	$('#shuffle').removeClass( theme.actions )
+			.addClass( theme.buttons );
 						
-		console.log( "Checking to see if player's srcSet is true or false" );
-		console.log( $( "#player" ).data( "jPlayer" ).status );
-	}
+	//consoleLog( "Checking to see if player's srcSet is true or false" );
+	//consoleLog( $( "#player" ).data( "jPlayer" ).status );
 	
 	// We only want to try and stop playerTwo if it has it's src set to something
 	if ( $( "#player" ).data( "jPlayer" ).status.srcSet ) {
@@ -36,10 +33,13 @@ function clearQueue() {
 	// Reset the variable that holds the current track position from the server
 	current_track_position = 0;
 
+	//alert("calling updatePlayerDisplay");
+	//updatePlayerDisplay( playing, "pause");
+
 	// adjust the tracking variables so we know what state the player is in
 	playing = false;
 	paused = true;
-
+	
 	setTimeout(function(){  
 
 		$('#trackProgressDiv').slideUp('slow');
