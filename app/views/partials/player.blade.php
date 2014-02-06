@@ -58,7 +58,7 @@
 							<tr>
 								<td class="player-little-cell">
 
-									<?php echo HTML::link('#', '', array('id'=>'repeat', 'data-role'=>'button', 'data-icon'=>'repeat', 'data-iconpos'=>'notext', 'data-theme'=>$theme_buttons, 'class'=>$theme_icon_class, 'title'=>$repeat_i18n, 'style'=>'z-index:101;')); ?>
+									<?php echo HTML::link('#repeatOptionsPopup', '', array('id'=>'repeat', 'data-role'=>'button', 'data-rel'=>'popup', 'data-icon'=>'repeat', 'data-iconpos'=>'notext', 'data-theme'=>(($repeat) ? $theme_action : $theme_buttons), 'class'=>$theme_icon_class, 'title'=>$repeat_i18n, 'style'=>'z-index:101;')); ?>
 
 								</td>
 								<td class="player-main-cell width-hundred-percent align-center">
@@ -92,7 +92,7 @@
 
 								<td class="player-little-cell">
 
-									<?php echo HTML::link('#', '', array('id'=>'shuffle', 'data-role'=>'button', 'data-icon'=>'shuffle', 'data-iconpos'=>'notext', 'data-theme'=>$theme_buttons, 'class'=>$theme_icon_class, 'title'=>$shuffle_i18n, 'style'=>'z-index:101;')); ?>
+									<?php echo HTML::link('#', '', array('id'=>'shuffle', 'data-role'=>'button', 'data-icon'=>'shuffle', 'data-iconpos'=>'notext', 'data-theme'=>(($shuffle) ? $theme_action : $theme_buttons), 'class'=>$theme_icon_class, 'title'=>$shuffle_i18n, 'style'=>'z-index:101;')); ?>
 
 								</td>
 							</tr>
@@ -102,4 +102,6 @@
 			</table>
 		</div>
 	</div>
+
+	@include('partials/repeatOptionsPopup')
 </div>
