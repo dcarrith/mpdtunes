@@ -505,7 +505,7 @@
 
                                                 try {
 
-                                                    var count                       = more.data[0].count;
+                                                    var count                       = more.data.count;
                                                     var html                        = "";
                                                     var json                        = "";
                                                     var template                    = "";
@@ -525,9 +525,9 @@
 
                                                         $bottomElement = $that._getBottomElement( mainElementSelector, bottomElementSelector );
 
-                                                        if ( ( typeof more.data[0].html != 'undefined' ) && ( more.data[0].html != '' ) ) {
+                                                        if ( ( typeof more.data.html != 'undefined' ) && ( more.data.html != '' ) ) {
                                                         
-                                                            html = more.data[0].html;
+                                                            html = more.data.html;
 
                                                             if ( $bottomElement ) {
 
@@ -587,7 +587,7 @@
                                                                 // First check to see if json2html is being used since it needs special handling
                                                                 if ( templateType === "json2html" ) {
 
-                                                                    json = more.data[0].json;
+                                                                    json = more.data.json;
 
                                                                     // first make sure there was a bottom element to work around
                                                                     if ( $bottomElement ) {
@@ -608,7 +608,7 @@
 
                                                                 } else {
 
-                                                                    json = more.data[0];
+                                                                    json = more.data;
 
                                                                     switch( templateType ) {
 
