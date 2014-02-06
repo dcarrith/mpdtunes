@@ -18,8 +18,9 @@ class Configurator {
 
                 $defaults['mode'] 				= Config::get('defaults.default_mode');
                 $defaults['crossfade'] 				= Config::get('defaults.default_crossfade');
+                $defaults['mixrampdb']	 			= Config::get('defaults.default_mixrampdb');
+                $defaults['mixrampdelay'] 			= Config::get('defaults.default_mixrampdelay');
                 $defaults['volume_fade'] 			= Config::get('defaults.default_volume_fade');
-
                 $defaults['default_page_transition'] 		= Config::get('defaults.default_page_transition');
                 $defaults['default_dialog_transition'] 		= Config::get('defaults.default_dialog_transition');
                 $defaults['default_alert_transition'] 		= Config::get('defaults.default_alert_transition');
@@ -96,7 +97,7 @@ class Configurator {
                 $defaults['default_num_genres_to_display'] 		= Config::get('defaults.default_num_genres_to_display');
                 $defaults['default_num_artists_to_display'] 		= Config::get('defaults.default_num_artists_to_display');
                 $defaults['default_num_albums_to_display'] 		= Config::get('defaults.default_num_albums_to_display');
-                $defaults['default_num_tracks_to_display'] 		= Config::get('defaults.default_num_tracks_to_display');
+                $defaults['default_num_playlist_tracks_to_display'] 	= Config::get('defaults.default_num_playlist_tracks_to_display');
                 $defaults['default_num_queue_tracks_to_display']	= Config::get('defaults.default_num_queue_tracks_to_display');
                 $defaults['default_num_playlists_to_display'] 		= Config::get('defaults.default_num_playlists_to_display');
                 $defaults['default_num_stations_to_display'] 		= Config::get('defaults.default_num_stations_to_display');

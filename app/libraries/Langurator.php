@@ -203,6 +203,8 @@ class Langurator {
                 		$words['operating_mode_i18n']              	= Lang::get($page.'.operating_mode');
                 		$words['volume_control_i18n']              	= Lang::get($page.'.volume');
                 		$words['xfade_control_i18n']               	= Lang::get($page.'.xfade_in_seconds');
+                		$words['mixrampdb_control_i18n']               	= Lang::get($page.'.mixrampdb_in_decibels');
+                		$words['mixrampdelay_control_i18n']             = Lang::get($page.'.mixrampdelay_in_seconds');
                 		$words['volume_fade_control_i18n']         	= Lang::get($page.'.volume_fade_in_seconds');
                 		$words['preferred_language_i18n']          	= Lang::get($page.'.preferred_language');
                 		$words['refresh_mpd_database_i18n']        	= Lang::get($page.'.refresh_mpd_database');

@@ -34,6 +34,28 @@
 
 			 	</div>
 
+				<div class="width-hundred-percent align-left">
+
+                                {{ Form::label('mixrampdb_control', $mixrampdb_control_i18n) }}
+				
+				<br />
+				
+				{{-- Form :: input ( type, name, value, other attributes ) --}}
+                                {{ Form::input('range', 'mixrampdb_control', $current_mixrampdb, array('id'=>'mixrampdb_control', 'min'=>'-30', 'max'=>'0', 'step'=>'1', 'data-theme'=>$theme_buttons, 'data-track-theme'=>$theme_buttons, 'class'=>'width-ninety-five-percent', 'data-highlight'=>'true')) }}
+
+			 	</div>
+
+				<div class="width-hundred-percent align-left">
+
+                                {{ Form::label('mixrampdelay_control', $mixrampdelay_control_i18n) }}
+				
+				<br />
+				
+				{{-- Form :: input ( type, name, value, other attributes ) --}}
+                                {{ Form::input('range', 'mixrampdelay_control', $current_mixrampdelay, array('id'=>'mixrampdelay_control', 'min'=>'0', 'max'=>'100', 'step'=>'5', 'data-theme'=>$theme_buttons, 'data-track-theme'=>$theme_buttons, 'class'=>'width-ninety-five-percent', 'data-highlight'=>'true')) }}
+
+			 	</div>
+
 				<br />
 				<div class="width-hundred-percent align-left">
 	

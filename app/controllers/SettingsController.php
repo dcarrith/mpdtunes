@@ -27,10 +27,12 @@ class SettingsController extends MPDTunesController {
 		$this->data['data_url'] = "";
 
 		// if mpd is connected, make sure we have the current volume and crossfade settings
-		if (isset($this->MPD->connected) && ($this->MPD->connected != "")) {
+		if ($this->xMPD->isConnected()) {
 			
-			$this->data['current_volume'] = $this->MPD->volume;
-			$this->data['current_xfade'] = $this->MPD->xfade;
+			$this->data['current_volume'] = $this->xMPD->volume;
+			$this->data['current_xfade'] = $this->xMPD->xfade;
+			$this->data['current_mixrampdb'] = $this->xMPD->mixrampdb;
+			$this->data['current_mixrampdelay'] = $this->xMPD->mixrampdelay;
 		}
 
 		// First check to see if all themes are in cache already 
@@ -129,11 +131,13 @@ class SettingsController extends MPDTunesController {
                 $this->data['data_url'] = "";
 
                 // if mpd is connected, make sure we have the current volume and crossfade settings
-                if (isset($this->MPD->connected) && ($this->MPD->connected != "")) {
+                if ($this->xMPD->isConnected()) {
 
-                        $this->data['current_volume']   = $this->MPD->volume;
-                        $this->data['current_xfade']    = $this->MPD->xfade;
-                }
+                        $this->data['current_volume']   = $this->xMPD->volume;
+                        $this->data['current_xfade']    = $this->xMPD->xfade; 
+			$this->data['current_mixrampdb'] = $this->xMPD->mixrampdb;
+			$this->data['current_mixrampdelay'] = $this->xMPD->mixrampdelay;
+		}
 
                 $this->firephp->log( $this->data, "this->data");
 
@@ -216,18 +220,27 @@ class SettingsController extends MPDTunesController {
 
 	                	$volume 	= Request::get('volume');
                 		$crossfade      = Request::get('crossfade');
-                		$volume_fade    = Request::get('volume_fade');
+                		$mixrampdb      = Request::get('mixrampdb');
+				$mixrampdelay   = Request::get('mixrampdelay');
+				$volume_fade    = Request::get('volume_fade');
 
                         	// if mpd is connected, make sure we have the current volume and crossfade settings
-                        	if (isset($this->MPD->connected) && ($this->MPD->connected != "")) {
+                        	if ($this->xMPD->isConnected()) {
 
                                 	if ($this->data['admin_user']) {
 
-                                        	$this->MPD->SetVolume($volume);
+						if ($volume < 0) {
+
+							$volume = 10;
+						}
+
+                                        	$this->xMPD->setvol($volume);
                                 	}
 
-                                	$this->MPD->SetXFade($crossfade);
-                        	}
+                                	$this->xMPD->crossfade($crossfade/10);
+		                        $this->xMPD->mixrampdb($mixrampdb);		
+					$this->xMPD->mixrampdelay($mixrampdelay/10);
+				}
 
                                 // Get the logged in user's preferences
                                 $preferences = $user->preferences;
@@ -378,123 +391,5 @@ class SettingsController extends MPDTunesController {
 
 		// Just in case we had no results above
 		echo '';
-	}
-
-
-	public function create_theme() {
-
-		$this->data['theme_name_i18n']  	= $this->lang->line('theme_name');
-		$this->data['save_i18n']		= $this->lang->line('save');
-		$this->data['cancel_i18n']		= $this->lang->line('cancel');
-		$this->data['bars_i18n'] 	 	= $this->lang->line('bars');
-		$this->data['buttons_i18n']		= $this->lang->line('buttons');
-		$this->data['body_i18n']		= $this->lang->line('body');
-		$this->data['controls_i18n']  		= $this->lang->line('controls');
-		$this->data['action_i18n']		= $this->lang->line('action');
-		$this->data['active_state_i18n']	= $this->lang->line('active_state');
-
-		require_once('includes/php/library/themes.inc.php');
-
-		$this->load->database();
-
-		// get all the available colors that can be used when mixing together a new theme
-		$theme_colors = get_theme_colors($this->db);
-
-		// default the theme color options to blank (none)
-		$this->data['theme_color_options'] = "";
-
-		// only try to generate some options if there are actually some available colors to use
-		if (isset($theme_colors) && (count($theme_colors) > 0) && $theme_colors != '') {
-
-			foreach($theme_colors as $letter_code=>$theme_name){
-
-				// this is out here in the logic for performance reasons (so we don't have to iterate 
-				// through the same loop 6 times in the view)
-				$this->data['theme_color_options'][$letter_code] = $theme_name;
-			}
-		}
-
-		// The view that should be loaded into the template
-		$this->data['view'] = 'create_theme';
-
-		$this->firephp->log($this->data, "data");
-
-		$this->load->view('templates/base.php', $this->data);
-	}
-
-	public function save_theme() {
-
-		$this->firephp->log($_POST, "_POST");
-
-		$user_id 			= $this->session->userdata('user_id');
-		$theme_name 			= Request::get('theme_name');
-		$bars_letter_code 		= Request::get('bars_letter_code');
-		$buttons_letter_code 		= Request::get('buttons_letter_code');
-		$body_letter_code 		= Request::get('body_letter_code');
-		$controls_letter_code 		= Request::get('controls_letter_code');
-		$action_buttons_letter_code 	= Request::get('action_letter_code');
-		$active_state_letter_code 	= Request::get('active_state_letter_code');
-
-		if (isset($theme_name) && isset($user_id) && isset($bars_letter_code) && isset($buttons_letter_code) && isset($body_letter_code) && isset($controls_letter_code) && isset($action_buttons_letter_code) && isset($active_state_letter_code)) {
-
-			require_once('includes/php/library/themes.inc.php');
-
-			$this->load->database();
-
-			$success = insert_new_theme($this->db, $user_id, $theme_name, $bars_letter_code, $buttons_letter_code, $body_letter_code, $controls_letter_code, $action_buttons_letter_code, $active_state_letter_code);
-
-			if ($success) {
-				
-				return true;
-			} 
-		}
-
-		return false;
-	}
-
-	public function theme_name_check($theme_name) {
-
-		if (isset($theme_name)) {
-			
-			$theme_name = trim($theme_name);
-
-			if ($theme_name != '') {
-
-				require_once('includes/php/library/themes.inc.php');
-
-				$this->load->database();
-
-				// get all the available themes
-				$themes = get_themes($this->db);
-
-				if (isset($themes) && (count($themes) > 0) && $themes != '') {
-
-					foreach($themes as $theme) {
-
-						if ($theme_name == $theme['name']) {
-						
-							$this->form_validation->set_message('theme_name_check', $this->lang->line('theme_with_that_name_exists'));
-							return false;
-						}
-					}
-
-				} else {
-					
-					return true;
-				}
-
-			} else {
-
-				$this->form_validation->set_message('theme_name_check', $this->lang->line('enter_theme_name'));
-				return false;
-			}
-
-		} else {
-			
-			$this->form_validation->set_message('theme_name_check', $this->lang->line('enter_theme_name'));
-			return false;
-		}
-
-		return true;
 	}
 }
