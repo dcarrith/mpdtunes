@@ -2221,6 +2221,18 @@ class Cache extends Illuminate\Support\Facades\Cache{
 		 Illuminate\Cache\Repository::offsetUnset($key);
 	 }
 
+	/**
+	 * Register a macro with the Cache class.
+	 *
+	 * @param string $name
+	 * @param callable $callback
+	 * @return void
+	 * @static 
+	 */
+	 public static function macro($name, $callback){
+		 Illuminate\Cache\Repository::macro($name, $callback);
+	 }
+
 }
 
 class ClassLoader extends Illuminate\Support\ClassLoader{
@@ -3542,6 +3554,33 @@ class Eloquent extends Illuminate\Database\Eloquent\Model{
 	 }
 
 	/**
+	 * Add a basic where clause to the query.
+	 *
+	 * @param string  $column
+	 * @param string  $operator
+	 * @param mixed   $value
+	 * @param string  $boolean
+	 * @return \Illuminate\Database\Eloquent\Builder|static
+	 * @static 
+	 */
+	 public static function where($column, $operator = null, $value = null, $boolean = 'and'){
+		return Illuminate\Database\Eloquent\Builder::where($column, $operator, $value, $boolean);
+	 }
+
+	/**
+	 * Add an "or where" clause to the query.
+	 *
+	 * @param string  $column
+	 * @param string  $operator
+	 * @param mixed   $value
+	 * @return \Illuminate\Database\Eloquent\Builder|static
+	 * @static 
+	 */
+	 public static function orWhere($column, $operator = null, $value = null){
+		return Illuminate\Database\Eloquent\Builder::orWhere($column, $operator, $value);
+	 }
+
+	/**
 	 * Add a relationship count condition to the query.
 	 *
 	 * @param string  $relation
@@ -3672,6 +3711,17 @@ class Eloquent extends Illuminate\Database\Eloquent\Model{
 	 }
 
 	/**
+	 * Add a new "raw" select expression to the query.
+	 *
+	 * @param string  $expression
+	 * @return \Illuminate\Database\Query\Builder|static
+	 * @static 
+	 */
+	 public static function selectRaw($expression){
+		return Illuminate\Database\Query\Builder::selectRaw($expression);
+	 }
+
+	/**
 	 * Add a new select column to the query.
 	 *
 	 * @param mixed  $column
@@ -3763,34 +3813,6 @@ class Eloquent extends Illuminate\Database\Eloquent\Model{
 	 }
 
 	/**
-	 * Add a basic where clause to the query.
-	 *
-	 * @param string  $column
-	 * @param string  $operator
-	 * @param mixed   $value
-	 * @param string  $boolean
-	 * @return \Illuminate\Database\Query\Builder|static
-	 * @throws \InvalidArgumentException
-	 * @static 
-	 */
-	 public static function where($column, $operator = null, $value = null, $boolean = 'and'){
-		return Illuminate\Database\Query\Builder::where($column, $operator, $value, $boolean);
-	 }
-
-	/**
-	 * Add an "or where" clause to the query.
-	 *
-	 * @param string  $column
-	 * @param string  $operator
-	 * @param mixed   $value
-	 * @return \Illuminate\Database\Query\Builder|static
-	 * @static 
-	 */
-	 public static function orWhere($column, $operator = null, $value = null){
-		return Illuminate\Database\Query\Builder::orWhere($column, $operator, $value);
-	 }
-
-	/**
 	 * Add a raw where clause to the query.
 	 *
 	 * @param string  $sql
@@ -3877,6 +3899,18 @@ class Eloquent extends Illuminate\Database\Eloquent\Model{
 	 */
 	 public static function whereNested($callback, $boolean = 'and'){
 		return Illuminate\Database\Query\Builder::whereNested($callback, $boolean);
+	 }
+
+	/**
+	 * Add another query builder as a nested where to the query builder.
+	 *
+	 * @param \Illuminate\Database\Query\Builder|static $query
+	 * @param string  $boolean
+	 * @return \Illuminate\Database\Query\Builder|static
+	 * @static 
+	 */
+	 public static function addNestedWhereQuery($query, $boolean = 'and'){
+		return Illuminate\Database\Query\Builder::addNestedWhereQuery($query, $boolean);
 	 }
 
 	/**
@@ -5818,12 +5852,12 @@ class Input extends Illuminate\Support\Facades\Input{
 	/**
 	 * Determine if the current request URI matches a pattern.
 	 *
-	 * @param string  $pattern
+	 * @param dynamic  string
 	 * @return bool
 	 * @static 
 	 */
-	 public static function is($pattern){
-		return Illuminate\Http\Request::is($pattern);
+	 public static function is(){
+		return Illuminate\Http\Request::is();
 	 }
 
 	/**
@@ -7236,6 +7270,27 @@ class Lang extends Illuminate\Support\Facades\Lang{
 	 }
 
 	/**
+	 * Set the fallback locale being used.
+	 *
+	 * @return string
+	 * @static 
+	 */
+	 public static function getFallback(){
+		return Illuminate\Translation\Translator::getFallback();
+	 }
+
+	/**
+	 * Set the fallback locale being used.
+	 *
+	 * @param string  $fallback
+	 * @return void
+	 * @static 
+	 */
+	 public static function setFallback($fallback){
+		 Illuminate\Translation\Translator::setFallback($fallback);
+	 }
+
+	/**
 	 * Set the parsed value of a key.
 	 *
 	 * @param string  $key
@@ -7330,6 +7385,17 @@ class Log extends Illuminate\Support\Facades\Log{
 	 */
 	 public static function setEventDispatcher($dispatcher){
 		 Illuminate\Log\Writer::setEventDispatcher($dispatcher);
+	 }
+
+	/**
+	 * Dynamically pass log calls into the writer.
+	 *
+	 * @param dynamic (level, param, param)
+	 * @return mixed
+	 * @static 
+	 */
+	 public static function write(){
+		return Illuminate\Log\Writer::write();
 	 }
 
 	/**
@@ -8443,12 +8509,12 @@ class Request extends Illuminate\Support\Facades\Request{
 	/**
 	 * Determine if the current request URI matches a pattern.
 	 *
-	 * @param string  $pattern
+	 * @param dynamic  string
 	 * @return bool
 	 * @static 
 	 */
-	 public static function is($pattern){
-		return Illuminate\Http\Request::is($pattern);
+	 public static function is(){
+		return Illuminate\Http\Request::is();
 	 }
 
 	/**
@@ -9911,6 +9977,17 @@ class Route extends Illuminate\Support\Facades\Route{
 	 }
 
 	/**
+	 * Register a route matched event listener.
+	 *
+	 * @param callable  $callback
+	 * @return void
+	 * @static 
+	 */
+	 public static function matched($callback){
+		 Illuminate\Routing\Router::matched($callback);
+	 }
+
+	/**
 	 * Register a new "before" filter with the router.
 	 *
 	 * @param mixed  $callback
@@ -9954,6 +10031,19 @@ class Route extends Illuminate\Support\Facades\Route{
 	 */
 	 public static function when($pattern, $name, $methods = null){
 		 Illuminate\Routing\Router::when($pattern, $name, $methods);
+	 }
+
+	/**
+	 * Register a regular expression based filter with the router.
+	 *
+	 * @param string     $pattern
+	 * @param string     $name
+	 * @param array|null $methods
+	 * @return void
+	 * @static 
+	 */
+	 public static function whenRegex($pattern, $name, $methods = null){
+		 Illuminate\Routing\Router::whenRegex($pattern, $name, $methods);
 	 }
 
 	/**
@@ -10337,6 +10427,18 @@ class Schema extends Illuminate\Support\Facades\Schema{
 		return Illuminate\Database\Schema\MySqlBuilder::setConnection($connection);
 	 }
 
+	/**
+	 * Set the Schema Blueprint resolver callback.
+	 *
+	 * @param \Closure  $resolver
+	 * @return void
+	 * @static 
+	 */
+	 public static function blueprintResolver($resolver){
+		//Method inherited from Illuminate\Database\Schema\Builder
+		 Illuminate\Database\Schema\MySqlBuilder::blueprintResolver($resolver);
+	 }
+
 }
 
 class Seeder extends Illuminate\Database\Seeder{
@@ -10529,11 +10631,12 @@ class Session extends Illuminate\Support\Facades\Session{
 	/**
 	 * Generate a new session identifier.
 	 *
+	 * @param bool  $destroy
 	 * @return bool
 	 * @static 
 	 */
-	 public static function regenerate(){
-		return Illuminate\Session\Store::regenerate();
+	 public static function regenerate($destroy = false){
+		return Illuminate\Session\Store::regenerate($destroy);
 	 }
 
 	/**
@@ -11144,7 +11247,7 @@ class Validator extends Illuminate\Support\Facades\Validator{
 	 * Register a custom validator extension.
 	 *
 	 * @param string  $rule
-	 * @param Closure|string  $extension
+	 * @param \Closure|string  $extension
 	 * @param string  $message
 	 * @return void
 	 * @static 
@@ -11157,13 +11260,25 @@ class Validator extends Illuminate\Support\Facades\Validator{
 	 * Register a custom implicit validator extension.
 	 *
 	 * @param string   $rule
-	 * @param Closure  $extension
+	 * @param \Closure|string  $extension
 	 * @param string  $message
 	 * @return void
 	 * @static 
 	 */
 	 public static function extendImplicit($rule, $extension, $message = null){
 		 Illuminate\Validation\Factory::extendImplicit($rule, $extension, $message);
+	 }
+
+	/**
+	 * Register a custom implicit validator message replacer.
+	 *
+	 * @param string   $rule
+	 * @param \Closure|string  $replacer
+	 * @return void
+	 * @static 
+	 */
+	 public static function replacer($rule, $replacer){
+		 Illuminate\Validation\Factory::replacer($rule, $replacer);
 	 }
 
 	/**
@@ -12252,6 +12367,586 @@ class Latchet extends Sidney\Latchet\LatchetFacade{
 	 */
 	 public static function onError($connection, $exception){
 		 Sidney\Latchet\Latchet::onError($connection, $exception);
+	 }
+
+}
+
+class LxMPD extends Dcarrith\LxMPD\LxMPD{
+}
+
+class LetId3 extends Dcarrith\LetId3\LetId3{
+}
+
+class Image extends Intervention\Image\Facades\Image{
+	/**
+	 * Create a new instance of Image class
+	 *
+	 * @param string  $source
+	 * @param integer $width
+	 * @param integer $height
+	 * @param mixed   $bgcolor
+	 * @static 
+	 */
+	 public static function __construct($source = null, $width = null, $height = null, $bgcolor = null){
+		 Intervention\Image\Image::__construct($source, $width, $height, $bgcolor);
+	 }
+
+	/**
+	 * Open a new image resource from image file
+	 *
+	 * @param mixed $source
+	 * @return Image
+	 * @static 
+	 */
+	 public static function make($source){
+		return Intervention\Image\Image::make($source);
+	 }
+
+	/**
+	 * Create a new empty image resource
+	 *
+	 * @param int   $width
+	 * @param int   $height
+	 * @param mixed $bgcolor
+	 * @return Image
+	 * @static 
+	 */
+	 public static function canvas($width, $height, $bgcolor = null){
+		return Intervention\Image\Image::canvas($width, $height, $bgcolor);
+	 }
+
+	/**
+	 * Create a new image resource with image data from string
+	 *
+	 * @param string $data
+	 * @return Image
+	 * @static 
+	 */
+	 public static function raw($string){
+		return Intervention\Image\Image::raw($string);
+	 }
+
+	/**
+	 * Create new cached image and run callback
+	 * (requires additional package intervention/imagecache)
+	 *
+	 * @param Closure $callback
+	 * @param integer $lifetime
+	 * @param boolean $returnObj
+	 * @return Image
+	 * @static 
+	 */
+	 public static function cache($callback = null, $lifetime = null, $returnObj = false){
+		return Intervention\Image\Image::cache($callback, $lifetime, $returnObj);
+	 }
+
+	/**
+	 * Open a new image resource from image file
+	 *
+	 * @param string $path
+	 * @return Image
+	 * @static 
+	 */
+	 public static function open($path){
+		return Intervention\Image\Image::open($path);
+	 }
+
+	/**
+	 * Resize current image based on given width/height
+	 * 
+	 * Width and height are optional, the not given parameter is calculated
+	 * based on the given. The ratio boolean decides whether the resizing
+	 * should keep the image ratio. You can also pass along a boolean to
+	 * prevent the image from being upsized.
+	 *
+	 * @param integer $width  The target width for the image
+	 * @param integer $height The target height for the image
+	 * @param boolean $ratio  Determines if the image ratio should be preserved
+	 * @param boolean $upsize Determines whether the image can be upsized
+	 * @return Image
+	 * @static 
+	 */
+	 public static function resize($width = null, $height = null, $ratio = false, $upsize = true){
+		return Intervention\Image\Image::resize($width, $height, $ratio, $upsize);
+	 }
+
+	/**
+	 * Legacy method to support old resizing calls
+	 *
+	 * @param array $dimensions
+	 * @return Image
+	 * @static 
+	 */
+	 public static function legacyResize($dimensions = array()){
+		return Intervention\Image\Image::legacyResize($dimensions);
+	 }
+
+	/**
+	 * Resize image to new width, constraining proportions
+	 *
+	 * @param integer $width
+	 * @return Image
+	 * @static 
+	 */
+	 public static function widen($width){
+		return Intervention\Image\Image::widen($width);
+	 }
+
+	/**
+	 * Resize image to new height, constraining proportions
+	 *
+	 * @param integer $height
+	 * @return Image
+	 * @static 
+	 */
+	 public static function heighten($height){
+		return Intervention\Image\Image::heighten($height);
+	 }
+
+	/**
+	 * Resize image canvas
+	 *
+	 * @param int     $width
+	 * @param int     $height
+	 * @param string  $anchor
+	 * @param boolean $relative
+	 * @param mixed   $bgcolor
+	 * @return Image
+	 * @static 
+	 */
+	 public static function resizeCanvas($width, $height, $anchor = null, $relative = false, $bgcolor = null){
+		return Intervention\Image\Image::resizeCanvas($width, $height, $anchor, $relative, $bgcolor);
+	 }
+
+	/**
+	 * Crop the current image
+	 *
+	 * @param integer $width
+	 * @param integer $height
+	 * @param integer $pos_x
+	 * @param integer $pos_y
+	 * @return Image
+	 * @static 
+	 */
+	 public static function crop($width, $height, $pos_x = null, $pos_y = null){
+		return Intervention\Image\Image::crop($width, $height, $pos_x, $pos_y);
+	 }
+
+	/**
+	 * Cut out a detail of the image in given ratio and resize to output size
+	 *
+	 * @param integer $width
+	 * @param integer $height
+	 * @return Image
+	 * @static 
+	 */
+	 public static function grab($width = null, $height = null){
+		return Intervention\Image\Image::grab($width, $height);
+	 }
+
+	/**
+	 * Legacy Method to support older grab calls
+	 *
+	 * @param array $dimensions
+	 * @return Image
+	 * @static 
+	 */
+	 public static function legacyGrab($dimensions = array()){
+		return Intervention\Image\Image::legacyGrab($dimensions);
+	 }
+
+	/**
+	 * Trim away image space in given color
+	 *
+	 * @param string $base Position of the color to trim away
+	 * @param array  $away Borders to trim away
+	 * @return Image
+	 * @static 
+	 */
+	 public static function trim($base = null, $away = null){
+		return Intervention\Image\Image::trim($base, $away);
+	 }
+
+	/**
+	 * Mirror image horizontally or vertically
+	 *
+	 * @param mixed $mode
+	 * @return Image
+	 * @static 
+	 */
+	 public static function flip($mode = null){
+		return Intervention\Image\Image::flip($mode);
+	 }
+
+	/**
+	 * Insert another image on top of the current image
+	 *
+	 * @param mixed   $source
+	 * @param integer $pos_x
+	 * @param integer $pos_y
+	 * @param string  $anchor
+	 * @return Image
+	 * @static 
+	 */
+	 public static function insert($source, $pos_x = 0, $pos_y = 0, $anchor = null){
+		return Intervention\Image\Image::insert($source, $pos_x, $pos_y, $anchor);
+	 }
+
+	/**
+	 * Set opacity of current image
+	 *
+	 * @param integer $transparency
+	 * @return Image
+	 * @static 
+	 */
+	 public static function opacity($transparency){
+		return Intervention\Image\Image::opacity($transparency);
+	 }
+
+	/**
+	 * Apply given image as alpha mask on current image
+	 *
+	 * @param mixed   $source
+	 * @param boolean $mask_with_alpha
+	 * @return Image
+	 * @static 
+	 */
+	 public static function mask($source, $mask_with_alpha = false){
+		return Intervention\Image\Image::mask($source, $mask_with_alpha);
+	 }
+
+	/**
+	 * Rotate image with given angle
+	 *
+	 * @param float  $angle
+	 * @param string $color
+	 * @param int    $ignore_transparent
+	 * @return Image
+	 * @static 
+	 */
+	 public static function rotate($angle = 0, $bgcolor = '#000000', $ignore_transparent = 0){
+		return Intervention\Image\Image::rotate($angle, $bgcolor, $ignore_transparent);
+	 }
+
+	/**
+	 * Fill image with given color or image source at position x,y
+	 *
+	 * @param mixed   $source
+	 * @param integer $pos_x
+	 * @param integer $pos_y
+	 * @return Image
+	 * @static 
+	 */
+	 public static function fill($source, $pos_x = 0, $pos_y = 0){
+		return Intervention\Image\Image::fill($source, $pos_x, $pos_y);
+	 }
+
+	/**
+	 * Set single pixel
+	 *
+	 * @param string  $color
+	 * @param integer $pos_x
+	 * @param integer $pos_y
+	 * @return Image
+	 * @static 
+	 */
+	 public static function pixel($color, $pos_x = 0, $pos_y = 0){
+		return Intervention\Image\Image::pixel($color, $pos_x, $pos_y);
+	 }
+
+	/**
+	 * Draw rectangle in current image starting at point 1 and ending at point 2
+	 *
+	 * @param string  $color
+	 * @param integer $x1
+	 * @param integer $y1
+	 * @param integer $x2
+	 * @param integer $y2
+	 * @param boolean $filled
+	 * @return Image
+	 * @static 
+	 */
+	 public static function rectangle($color, $x1 = 0, $y1 = 0, $x2 = 10, $y2 = 10, $filled = true){
+		return Intervention\Image\Image::rectangle($color, $x1, $y1, $x2, $y2, $filled);
+	 }
+
+	/**
+	 * Draw a line in current image starting at point 1 and ending at point 2
+	 *
+	 * @param string  $color
+	 * @param integer $x1
+	 * @param integer $y1
+	 * @param integer $x2
+	 * @param integer $y2
+	 * @return Image
+	 * @static 
+	 */
+	 public static function line($color, $x1 = 0, $y1 = 0, $x2 = 10, $y2 = 10){
+		return Intervention\Image\Image::line($color, $x1, $y1, $x2, $y2);
+	 }
+
+	/**
+	 * Draw an ellipse centered at given coordinates.
+	 *
+	 * @param string  $color
+	 * @param integer $pos_x
+	 * @param integer $pos_y
+	 * @param integer $width
+	 * @param integer $height
+	 * @return Image
+	 * @static 
+	 */
+	 public static function ellipse($color, $pos_x = 0, $pos_y = 0, $width = 10, $height = 10, $filled = true){
+		return Intervention\Image\Image::ellipse($color, $pos_x, $pos_y, $width, $height, $filled);
+	 }
+
+	/**
+	 * Draw a circle centered at given coordinates
+	 *
+	 * @param string  $color
+	 * @param integer $x
+	 * @param integer $y
+	 * @param integer $radius
+	 * @param boolean $filled
+	 * @return Image
+	 * @static 
+	 */
+	 public static function circle($color, $x = 0, $y = 0, $radius = 10, $filled = true){
+		return Intervention\Image\Image::circle($color, $x, $y, $radius, $filled);
+	 }
+
+	/**
+	 * Write text in current image
+	 *
+	 * @param string  $text
+	 * @param integer $pos_x
+	 * @param integer $pos_y
+	 * @param integer $angle
+	 * @param integer $size
+	 * @param string  $color
+	 * @param string  $fontfile
+	 * @return Image
+	 * @static 
+	 */
+	 public static function text($text, $pos_x = 0, $pos_y = 0, $size = 16, $color = '000000', $angle = 0, $fontfile = null){
+		return Intervention\Image\Image::text($text, $pos_x, $pos_y, $size, $color, $angle, $fontfile);
+	 }
+
+	/**
+	 * Changes the brightness of the current image
+	 *
+	 * @param int $level [description]
+	 * @return Image
+	 * @static 
+	 */
+	 public static function brightness($level){
+		return Intervention\Image\Image::brightness($level);
+	 }
+
+	/**
+	 * Changes the contrast of the current image
+	 *
+	 * @param int $level
+	 * @return Image
+	 * @static 
+	 */
+	 public static function contrast($level){
+		return Intervention\Image\Image::contrast($level);
+	 }
+
+	/**
+	 * Pixelate current image
+	 *
+	 * @param integer $size
+	 * @param boolean $advanced
+	 * @return Image
+	 * @static 
+	 */
+	 public static function pixelate($size = 10, $advanced = true){
+		return Intervention\Image\Image::pixelate($size, $advanced);
+	 }
+
+	/**
+	 * Turn current image into a greyscale verision
+	 *
+	 * @return Image
+	 * @static 
+	 */
+	 public static function grayscale(){
+		return Intervention\Image\Image::grayscale();
+	 }
+
+	/**
+	 * Alias of greyscale
+	 *
+	 * @return Image
+	 * @static 
+	 */
+	 public static function greyscale(){
+		return Intervention\Image\Image::greyscale();
+	 }
+
+	/**
+	 * Invert colors of current image
+	 *
+	 * @return Image
+	 * @static 
+	 */
+	 public static function invert(){
+		return Intervention\Image\Image::invert();
+	 }
+
+	/**
+	 * Apply colorize filter to current image
+	 *
+	 * @param integer $red
+	 * @param integer $green
+	 * @param integer $blue
+	 * @return Image
+	 * @static 
+	 */
+	 public static function colorize($red, $green, $blue){
+		return Intervention\Image\Image::colorize($red, $green, $blue);
+	 }
+
+	/**
+	 * Apply blur filter on the current image
+	 *
+	 * @param integer $amount
+	 * @return Image
+	 * @static 
+	 */
+	 public static function blur($amount = 1){
+		return Intervention\Image\Image::blur($amount);
+	 }
+
+	/**
+	 * Set a maximum number of colors for the current image
+	 *
+	 * @param integer $count
+	 * @param mixed   $matte
+	 * @return Image
+	 * @static 
+	 */
+	 public static function limitColors($count = null, $matte = null){
+		return Intervention\Image\Image::limitColors($count, $matte);
+	 }
+
+	/**
+	 * Determine whether an Image should be interlaced
+	 *
+	 * @param boolean $interlace
+	 * @return Image
+	 * @static 
+	 */
+	 public static function interlace($interlace = true){
+		return Intervention\Image\Image::interlace($interlace);
+	 }
+
+	/**
+	 * Applies gamma correction
+	 *
+	 * @param float $input
+	 * @param float $output
+	 * @return Image
+	 * @static 
+	 */
+	 public static function gamma($input, $output){
+		return Intervention\Image\Image::gamma($input, $output);
+	 }
+
+	/**
+	 * Reset to original image resource
+	 *
+	 * @return void
+	 * @static 
+	 */
+	 public static function reset(){
+		 Intervention\Image\Image::reset();
+	 }
+
+	/**
+	 * Encode image in different formats
+	 *
+	 * @param string  $format
+	 * @param integer $quality
+	 * @return string
+	 * @static 
+	 */
+	 public static function encode($format = null, $quality = 90){
+		return Intervention\Image\Image::encode($format, $quality);
+	 }
+
+	/**
+	 * Picks and formats color at position
+	 *
+	 * @param int    $x
+	 * @param int    $y
+	 * @param string $format
+	 * @return mixed
+	 * @static 
+	 */
+	 public static function pickColor($x, $y, $format = null){
+		return Intervention\Image\Image::pickColor($x, $y, $format);
+	 }
+
+	/**
+	 * Allocate color from given string
+	 *
+	 * @param string $value
+	 * @return int
+	 * @static 
+	 */
+	 public static function parseColor($value){
+		return Intervention\Image\Image::parseColor($value);
+	 }
+
+	/**
+	 * Save image in filesystem
+	 *
+	 * @param string  $path
+	 * @param integer $quality
+	 * @return Image
+	 * @static 
+	 */
+	 public static function save($path = null, $quality = 90){
+		return Intervention\Image\Image::save($path, $quality);
+	 }
+
+	/**
+	 * Read Exif data from the current image
+	 * 
+	 * Note: Windows PHP Users - in order to use this method you will need to
+	 * enable the mbstring and exif extensions within the php.ini file.
+	 *
+	 * @param string $key
+	 * @return mixed
+	 * @static 
+	 */
+	 public static function exif($key = null){
+		return Intervention\Image\Image::exif($key);
+	 }
+
+	/**
+	 * Send direct output with proper header
+	 *
+	 * @param string  $type
+	 * @param integer $quality
+	 * @return string
+	 * @static 
+	 */
+	 public static function response($type = null, $quality = 90){
+		return Intervention\Image\Image::response($type, $quality);
+	 }
+
+	/**
+	 * Returns image stream
+	 *
+	 * @return string
+	 * @static 
+	 */
+	 public static function __toString(){
+		return Intervention\Image\Image::__toString();
 	 }
 
 }

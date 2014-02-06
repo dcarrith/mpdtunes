@@ -480,23 +480,32 @@ class Router implements HttpKernelInterface, RouteFiltererInterface {
 	{
 		if (isset($options['names'][$method])) return $options['names'][$method];
 
-		if (count($this->groupStack) == 0) return $resource.'.'.$method;
+		// If a global prefix has been assigned to all names for this resource, we will
+		// grab that so we can prepend it onto the name when we create this name for
+		// the resource action. Otherwise we'll just use an empty string for here.
+		$prefix = isset($options['as']) ? $options['as'].'.' : '';
 
-		return $this->getGroupResourceName($resource, $method);
+		if (count($this->groupStack) == 0)
+		{
+			return $prefix.$resource.'.'.$method;
+		}
+
+		return $this->getGroupResourceName($prefix, $resource, $method);
 	}
 
 	/**
 	 * Get the resource name for a grouped resource.
 	 *
+	 * @param  string  $prefix
 	 * @param  string  $resource
 	 * @param  string  $method
 	 * @return string
 	 */
-	protected function getGroupResourceName($resource, $method)
+	protected function getGroupResourceName($prefix, $resource, $method)
 	{
-		$prefix = str_replace('/', '.', $this->getLastGroupPrefix());
+		$group = str_replace('/', '.', $this->getLastGroupPrefix());
 
-		return trim("{$prefix}.{$resource}.{$method}", '.');
+		return trim("{$prefix}{$group}.{$resource}.{$method}", '.');
 	}
 
 	/**
@@ -979,6 +988,8 @@ class Router implements HttpKernelInterface, RouteFiltererInterface {
 	{
 		$route = $this->findRoute($request);
 
+        $this->events->fire('router.matched', array($route, $request));
+
 		// Once we have successfully matched the incoming request to a given route we
 		// can call the before filters on that route. This works similar to global
 		// filters in that if a response is returned we will not call the route.
@@ -1042,6 +1053,17 @@ class Router implements HttpKernelInterface, RouteFiltererInterface {
 	protected function performBinding($key, $value, $route)
 	{
 		return call_user_func($this->binders[$key], $value, $route);
+	}
+
+	/**
+	 * Register a route matched event listener.
+	 *
+	 * @param  callable  $callback
+	 * @return void
+	 */
+	public function matched($callback)
+	{
+		$this->events->listen('router.matched', $callback);
 	}
 
 	/**

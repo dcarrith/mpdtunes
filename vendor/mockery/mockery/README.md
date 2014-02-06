@@ -12,8 +12,8 @@ phpunit-mock-objects without the World ending.
 
 Mockery is released under a New BSD License.
 
-The current released version for PEAR is 0.8.0. Composer users may instead opt to use
-the current master branch in lieu of using the more static 0.8.0 git tag.
+The current released version for PEAR is 0.9.0. Composer users may instead opt to use
+the current master branch in lieu of using the more static 0.9.0 git tag.
 The build status of the current master branch is tracked by Travis CI:
 [![Build Status](https://travis-ci.org/padraic/mockery.png?branch=master)](http://travis-ci.org/padraic/mockery)
 
@@ -420,6 +420,22 @@ The above class being mocked, as the next() method suggests, is an iterator. In
 many cases, you can replace all the iterated elements (since they are the same type
 many times) with just the one mock object which is programmed to act as discrete
 iterated elements.
+
+```PHP
+$mock = \Mockery::namedMock('MyClassName', 'DateTime');
+```
+
+The `namedMock` method will generate a class called by the first argument, so in
+this example `MyClassName`. The rest of the arguments are treat in the same way
+as the `mock` method, so again, this example would create a class called
+`MyClassName` that extends `DateTime`. 
+
+Named mocks are quite an edge case, but they can be useful when code depends on
+the `__CLASS__` magic constant, or when you need two derivatives of an abstract
+type, that are actually different classes.
+
+*Warning*: You can only create a named mock once, any subsequent calls to
+`namedMock`, with different arguments are likely to cause exceptions.
 
 ### Behaviour Modifiers
 

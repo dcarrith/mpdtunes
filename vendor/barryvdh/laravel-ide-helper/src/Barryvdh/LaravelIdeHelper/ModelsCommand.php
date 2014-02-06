@@ -141,7 +141,13 @@ class ModelsCommand extends Command {
             $this->properties = array();
             $this->methods = array();
             if(class_exists($name)){
-                try{
+                try {
+                    // handle abstract classes, interfaces, ...
+                    $reflectionClass = new \ReflectionClass($name);
+                    if (!$reflectionClass->IsInstantiable()) {
+                        throw new \Exception($name . ' is not instanciable.');
+                    }
+
                     $model = new $name();
                     $this->getPropertiesFromTable($model);
                     $this->getPropertiesFromMethods($model);
@@ -177,7 +183,7 @@ class ModelsCommand extends Command {
      * @param \Illuminate\Database\Eloquent\Model $model
      */
     protected function getPropertiesFromTable($model){
-        $table = $model->getTable();
+        $table = $model->getConnection()->getTablePrefix() . $model->getTable();
         $schema = $model->getConnection()->getDoctrineSchemaManager($table);
         $schema->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');
 
