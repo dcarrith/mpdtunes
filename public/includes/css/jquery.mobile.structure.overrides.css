@@ -281,3 +281,9 @@
 		margin-right: .625em;
 	}
 }
+
+.ui-field-contain > label + [class*="ui-"], .ui-field-contain .ui-controlgroup-controls {
+    -moz-box-sizing: border-box;
+    float: left;
+    width: 100%;
+}
