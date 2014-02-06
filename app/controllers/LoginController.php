@@ -33,8 +33,8 @@ class LoginController extends BaseController {
 		// Get and merge all the words we need for the login controller into the main data array
                 $this->data = array_merge($this->data, Langurator::getLocalizedWords("login"));
 
-                $email 			= Request::old('username');
-                $password       	= Request::old('password');
+                $email = Request::old('username');
+                $password = Request::old('password');
 
                 $this->firephp->log($email, "email");
                 $this->firephp->log($password, "password");
@@ -54,7 +54,6 @@ class LoginController extends BaseController {
 		$this->beforeFilter('csrf');
 
 		try {
-
 			$validation = new UserValidationService(Input::all());
 
 			$validation->login();

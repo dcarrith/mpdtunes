@@ -432,8 +432,6 @@ class StationsController extends MPDTunesController {
 				// Get the id of the station to edit from the URL
 				$edit_station_id = Request::segment(3);
 
-
-
 				$users_station_id = $user->station_id;
 
 				$this->firephp->log($edit_station_id, "edit_station_id");
@@ -504,10 +502,6 @@ class StationsController extends MPDTunesController {
 
 			$this->firephp->log($posted_station_url_hash, "forgetting the station with url hash");			
 
-
-
-
-
 			$is_a_users_station = false;
 
 			// http://demo.mpdtunes.com:16604/mpd.ogg
@@ -533,20 +527,11 @@ class StationsController extends MPDTunesController {
 				$is_a_users_station = true;
 
 				$this->firephp->log($posted_station_url." is a user's station.", "message");
-			}
-
-
-
-			//$this->firephp->log("flushing cache", "message");
-			//Cache::flush();	
-
-		
-
+			}	
 
 			// Remove the station entry from cache
 			$forgotten = Cache::forget($posted_station_url_hash."_".($is_a_users_station ? "null" : $this->user->id));
 			$this->firephp->log($forgotten, "forgotten?");
-
 
 			if (($oldStationIcon->id > 1) && ($oldStationIcon->id != $posted_station_icon_id)) {
 				
@@ -566,11 +551,6 @@ class StationsController extends MPDTunesController {
 
 			// We want to redirect to the edit page after we save the newly added station
 			$edit_station_id = $station->id;
-
-			//$this->firephp->log("flushing cache", "message");
-			//Cache::flush();
-
-			//exit();
 		}	
 
 		// Redirect to itself - which will naturally arrive at the getAdd action - so, we need to set two session variables and inputs
@@ -607,107 +587,4 @@ class StationsController extends MPDTunesController {
 			}
 		}
 	}
-	
-	/*public function get_station_details() {
-		
-		//$user_id 		= $this->session->userdata('user_id');
-		$station_id 	= $this->input->post('station_id');
-
-		//$this->firephp->log($user_id, "user_id");
-		$this->firephp->log($station_id, "station_id");
-
-		$json_response 	= '';
-
-		if (isset($station_id)) {
-
-			require_once('includes/php/library/stations.inc.php');
-
-			$this->load->database();
-
-			$station = get_station_with_id($this->db, $station_id);
-
-			$this->firephp->log($station, "station");
-
-			if (isset($station)) {
-
-				$json_response = '{ "station" :
-									[ {
-										"id" 			: "'.$station['id'].'",
-										"name" 			: "'.stripslashes($station['name']).'",
-										"description" 	: "'.stripslashes($station['description']).'",
-										"url" 			: "'.$station['url'].'",
-										"icon"			: "'.$station['icon'].'",
-										"icon_path" 	: "'.$station['icon_path'].'",
-										"icon_url" 		: "'.$station['icon_url'].'"
-									} ]
-								  }'; 
-			}
-		}
-								
-		echo($json_response);
-	}
-
-    function is_valid_url_and_real( $posted_station_url ) {
-        
-        //$pattern = "/^((ht|f)tp(s?)\:\/\/|~/|/)?([w]{2}([\w\-]+\.)+([\w]{2,5}))(:[\d]{1,5})?/";
-
-        $pattern = "/\b(?:(?:https?|http):\/\/|www\.)[-a-z0-9+&@#\/%?=~_|!:,.;]*[-a-z0-9+&@#\/%=~_|]/i";
-
-        if (!preg_match($pattern, $posted_station_url)) {
-
-        	$this->form_validation->set_message('is_valid_url_and_real', $this->lang->line('station_url_not_valid'));
-            return false;
-        }
-
-        $host = $posted_station_url;
-        $port_number = 80;
-
-        // let's get account for an get rid of the protocol
-        if ( strpos( $host, "https://" ) !== false ) {
-
-        	$host = str_replace("https://", "", $host);
-        	$port_number = 443;
-
-        } else if ( strpos( $host, "http://" ) !== false ) {
-
-        	$host = str_replace( "http://", "", $host );
-
-        } else {
-
-        	// what else is there for streaming audio?
-        } 
-
-		$posted_station_url_ra = explode( ":", $host );
-
-		$this->firephp->log($posted_station_url_ra, "posted_station_url_ra");
-
-        if ( count($posted_station_url_ra) == 2 ) {
-
-        	$port_number_ra = explode("/", $posted_station_url_ra[1]);
-        	$port_number = $port_number_ra[0];
-
-        } else {
-        	// leave it at 80
-        }
-
-        $this->firephp->log($host, "host");
-        $this->firephp->log($port_number, "port_number");        
-
-        $timeout = 1;
-
-        $socket = @fsockopen($host, $port_number, $errno, $errstr, $timeout);
-
-        if ( !$socket ) {
-
-        	$this->form_validation->set_message('is_valid_url_and_real', $this->lang->line('station_url_not_real')." Error: ".$errstr."(".$errno.")");
-			return false;
-        
-        } else {
-
-        	// stream ok so close the socket
-        	fclose($socket); 
-        }
-
-        return true;
-    }*/
 }
