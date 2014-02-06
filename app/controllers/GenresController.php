@@ -21,9 +21,9 @@ class GenresController extends MPDTunesController {
 
 		$genres_artists = array();
 
-		if (isset($this->MPD->connected) && ($this->MPD->connected != "")) {
+		if ($this->xMPD->isConnected()) {
 
-			$this->data['genres'] = $this->MPD->GetGenres();
+			$this->data['genres'] = $this->xMPD->list("genre");
 		}
 
                 $this->firephp->log($this->data, "data");

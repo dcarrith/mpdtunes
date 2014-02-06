@@ -46,6 +46,8 @@ class BaseController extends Controller {
                 $this->firephp = new CIFirePHP();
                 $this->firephp->setName("CIFirePHP");
                 $this->firephp->setEnvironment($this->data["environment"]);
+		// FirePHP causes HTTP 502 Gateway errors in HAProxy - so, turn it off for now
+		//$this->firephp->setEnvironment("production");
                 $this->firephp->createLogger();
 
 		$this->firephp->log($this->data['recaptcha_translations'], "recaptcha_translations");
