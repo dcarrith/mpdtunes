@@ -17,7 +17,7 @@ class SessionController extends BaseController {
 			Session::forget('genres_listed_so_far');
 			Session::forget('artists_listed_so_far');
 			Session::forget('albums_listed_so_far');
-			Session::forget('tracks_listed_so_far');
+			Session::forget('playlist_tracks_listed_so_far');
 			Session::forget('queue_tracks_listed_so_far');
 			Session::forget('playlists_listed_so_far');
 			Session::forget('stations_listed_so_far');
@@ -52,9 +52,9 @@ class SessionController extends BaseController {
                 		}
                 	break;
             	
-			case 'tracks' :
-                		if (Session::has('tracks_listed_so_far')) {
-                    			Session::forget('tracks_listed_so_far');
+			case 'playlist' :
+                		if (Session::has('playlist_tracks_listed_so_far')) {
+                    			Session::forget('playlist_tracks_listed_so_far');
                 		}
                 	break;
             	

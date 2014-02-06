@@ -91,6 +91,12 @@ var waiting_to_adjust_volume = false;
 // This variable is used with the delayed calls to MPD so that the xfade stepping works as it should
 var waiting_to_adjust_xfade = false;
 
+// This variable is used with the delayed calls to MPD so that the xfade stepping works as it should
+var waiting_to_adjust_mixrampdb = false;
+
+// This variable is used with the delayed calls to MPD so that the xfade stepping works as it should
+var waiting_to_adjust_mixrampdelay = false;
+
 // This variable is used so that the volume fade stepping works as it should
 var waiting_to_adjust_volume_fade = false;
 
@@ -192,25 +198,25 @@ var mousewheel_event_just_fired 	= false;
 var default_genres_bottom_threshold		= 480;
 var default_artists_bottom_threshold		= 640;
 var default_albums_bottom_threshold		= 480;
-var default_tracks_bottom_threshold		= 640;
+var default_playlist_tracks_bottom_threshold	= 640;
 var default_queue_tracks_bottom_threshold	= 640;
 var default_playlists_bottom_threshold		= 480;
 var default_stations_bottom_threshold		= 480;
 
 // These are to control the default number of starting list items for each type of items
-var default_genres_listed_so_far 	= 20;
-var default_artists_listed_so_far 	= 20;
-var default_albums_listed_so_far 	= 20;
-var default_tracks_listed_so_far 	= 50;
-var default_queue_tracks_listed_so_far 	= 20;
-var default_playlists_listed_so_far 	= 20;
-var default_stations_listed_so_far 	= 20;
+var default_genres_listed_so_far 		= 20;
+var default_artists_listed_so_far 		= 20;
+var default_albums_listed_so_far 		= 20;
+var default_playlist_tracks_listed_so_far 	= 50;
+var default_queue_tracks_listed_so_far 		= 20;
+var default_playlists_listed_so_far 		= 20;
+var default_stations_listed_so_far 		= 20;
 
 // These are to track the number of list items have been displayed so far for each type of items
 var genres_listed_so_far 		= default_genres_listed_so_far;
 var artists_listed_so_far 		= default_artists_listed_so_far;
 var albums_listed_so_far 		= default_albums_listed_so_far;
-var tracks_listed_so_far 		= default_tracks_listed_so_far;
+var playlist_tracks_listed_so_far 	= default_playlist_tracks_listed_so_far;
 var queue_tracks_listed_so_far 		= default_queue_tracks_listed_so_far;
 var playlists_listed_so_far 		= default_playlists_listed_so_far;
 var stations_listed_so_far 		= default_stations_listed_so_far;
@@ -219,7 +225,7 @@ var stations_listed_so_far 		= default_stations_listed_so_far;
 var genres_to_retrieve 			= 20;
 var artists_to_retrieve 		= 20;
 var albums_to_retrieve 			= 20;
-var tracks_to_retrieve 			= 50;
+var playlist_tracks_to_retrieve 	= 50;
 var queue_tracks_to_retrieve 		= 20;
 var playlists_to_retrieve 		= 20;
 var stations_to_retrieve 		= 20;
@@ -228,7 +234,7 @@ var stations_to_retrieve 		= 20;
 var in_process_of_getting_more_genres 		= false;
 var in_process_of_getting_more_artists 		= false;
 var in_process_of_getting_more_albums 		= false;
-var in_process_of_getting_more_tracks 		= false;
+var in_process_of_getting_more_playlist_tracks 	= false;
 var in_process_of_getting_more_queue_tracks 	= false;
 var in_process_of_getting_more_playlists 	= false;
 var in_process_of_getting_more_stations 	= false;
