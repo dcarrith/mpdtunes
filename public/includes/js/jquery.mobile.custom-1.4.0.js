@@ -6075,6 +6075,7 @@ $.fn.fieldcontain = function(/* options */) {
 						data:		$.param( formData ),
 						transition:	$form.jqmData( "transition" ),
 						reverse:	$form.jqmData( "direction" ) === "reverse",
+						changeHash:     $form.is( ":jqmData(history='false')" ) ? false : true,
 						reloadPage:	true
 					}
 				};
