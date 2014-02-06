@@ -10,8 +10,8 @@ class RadioStationController extends BaseTopic {
         public function subscribe($connection, $channel, $stationId = null)
         {	
                 // Check if the station exists first
-                if($station = Station::where('id', '=', $stationId)->first())
-                {
+                if($station = Station::where('id', '=', $stationId)->first()) {
+
                         // Save current listener to the database
                         $listener = $station->listeners()->save($connection->MPDTunes->listener);
 
@@ -33,21 +33,29 @@ class RadioStationController extends BaseTopic {
                         $this->broadcast($channel, $msg, $exclude = array($listener->session_id));
 
                         // List all currently connected listeners to the new listener
-                        foreach ($this->listeners[$stationId] as $existingListener)
-                        {
-                                if($existingListener->session_id != $listener->session_id)
-                                {
-                                        $msg = array(
-                                                'action' => 'newListener',
-                                                'listener' => $existingListener->toJson()
-                                        );
+                        foreach ($this->listeners[$stationId] as $existingListener) {
 
-                                        $this->broadcast($channel, $msg, $exclude = array(), $eligible = array($listener->session_id));
-                                }
+                                if($existingListener->session_id != $listener->session_id) {
+
+					if($existingListener->connected) {
+
+	                                        $msg = array(
+        	                                        'action' => 'newListener',
+                	                                'listener' => $existingListener->toJson()
+                        	                );
+
+                                	        $this->broadcast($channel, $msg, $exclude = array(), $eligible = array($listener->session_id));
+
+                                	} else {
+
+						// Delete listeners that are no longer connected
+						$existingListener->delete();
+					}
+				}
                         }
-                }
-                else
-                {
+                
+		} else {
+
                         // Station does not exist
                         $connection->close();
                 }
@@ -116,13 +124,13 @@ class RadioStationController extends BaseTopic {
                 $listener = $connection->MPDTunes->listener;
                 $listener->name = $model['name'];
 
-                if($listener->save() && $listener->isUnique($model['name'], $model['station']))
-                {
+                if($listener->save() && $listener->isUnique($model['name'], $model['station'])) {
+
                         // Just send back the new model so its in sync with the client version
                         $connection->callResult($id, $listener->toArray());
-                }
-                else
-                {
+
+                } else {
+
                         // If there was a validation error, then raise an error
                         $connection->callError($id, $channel, $listener->validationErrors->first());
                 }
@@ -145,8 +153,8 @@ class RadioStationController extends BaseTopic {
                 $newMessage->content = $model['content'];
                 $newMessage->stationId = $listener->stationId;
 
-                if($listener->messages()->save($newMessage))
-                {
+                if($listener->messages()->save($newMessage)) {
+
                         // Broadcast new message to all other listeners
                         $msg = array(
                                 'action' => 'newMessage',
@@ -155,9 +163,9 @@ class RadioStationController extends BaseTopic {
                         );
                         $this->broadcast($channel, $msg, $exclude = array($listener->session_id));
                         $connection->callResult($id, $newMessage->toArray());
-                }
-                else
-                {
+
+                } else {
+
                         $connection->callError($id, $channel, $listener->validationErrors->first('content'));
                 }
         }
