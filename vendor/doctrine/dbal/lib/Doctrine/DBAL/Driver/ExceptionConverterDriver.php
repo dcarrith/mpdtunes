@@ -19,25 +19,26 @@
 
 namespace Doctrine\DBAL\Driver;
 
-use Exception;
-
 /**
- * Drivers marked as ExceptionConverters can convert to standardized codes.
+ * Contract for a driver that is capable of converting DBAL driver exceptions into standardized DBAL driver exceptions.
  *
- * @since 2.5
+ * @author Benjamin Eberlei <kontakt@beberlei.de>
+ * @author Steve Müller <st.mueller@dzh-online.de>
+ * @link   www.doctrine-project.org
+ * @since  2.5
  */
 interface ExceptionConverterDriver
 {
     /**
-     * Method converts driver exceptions to standard error codes from
-     * {@see Doctrine\DBAL\DBALException}.
+     * Converts a given DBAL driver exception into a standardized DBAL driver exception.
      *
-     * The DBALException error codes are returned from this method
-     * and the DBAL decides how to convert them into a common exception.
+     * It evaluates the vendor specific error code and SQLSTATE and transforms
+     * it into a unified {@link Doctrine\DBAL\Exception\DriverException} subclass.
      *
-     * @param \Exception $exception
+     * @param string                                $message   The DBAL exception message to use.
+     * @param \Doctrine\DBAL\Driver\DriverException $exception The DBAL driver exception to convert.
      *
-     * @return int
+     * @return \Doctrine\DBAL\Exception\DriverException An instance of one of the DriverException subclasses.
      */
-    public function convertExceptionCode(Exception $exception);
+    public function convertException($message, DriverException $exception);
 }

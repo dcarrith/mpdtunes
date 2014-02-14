@@ -19,15 +19,13 @@
 
 namespace Doctrine\DBAL\Exception;
 
-use Doctrine\DBAL\DBALException;
-
 /**
- * Thrown when {@link DBALException::ERROR_WRITE_READONLY} is detected in driver.
+ * Exception for a write operation attempt on a read-only database element detected in the driver.
  *
  * @author Steve Müller <st.mueller@dzh-online.de>
  * @link   www.doctrine-project.org
  * @since  2.5
  */
-class ReadOnlyException extends DBALException
+class ReadOnlyException extends ServerException
 {
 }

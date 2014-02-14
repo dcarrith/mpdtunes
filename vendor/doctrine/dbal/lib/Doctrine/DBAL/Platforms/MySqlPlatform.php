@@ -23,6 +23,8 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Types\BlobType;
+use Doctrine\DBAL\Types\TextType;
 
 /**
  * The MySqlPlatform provides the behavior, features and SQL dialect of the
@@ -332,6 +334,8 @@ class MySqlPlatform extends AbstractPlatform
      * Obtain DBMS specific SQL code portion needed to set the COLLATION
      * of a field declaration to be used in statements like CREATE TABLE.
      *
+     * @deprecated Deprecated since version 2.5, Use {@link self::getColumnCollationDeclarationSQL()} instead.
+     *
      * @param string $collation   name of the collation
      *
      * @return string  DBMS specific SQL code portion needed to set the COLLATION
@@ -339,7 +343,7 @@ class MySqlPlatform extends AbstractPlatform
      */
     public function getCollationFieldDeclaration($collation)
     {
-        return 'COLLATE ' . $collation;
+        return $this->getColumnCollationDeclarationSQL($collation);
     }
 
     /**
@@ -374,6 +378,11 @@ class MySqlPlatform extends AbstractPlatform
     /**
      * {@inheritDoc}
      */
+    public function supportsColumnCollation()
+    {
+        return true;
+    }
+
     public function getListTablesSQL()
     {
         return "SHOW FULL TABLES WHERE Table_type = 'BASE TABLE'";
@@ -385,13 +394,15 @@ class MySqlPlatform extends AbstractPlatform
     public function getListTableColumnsSQL($table, $database = null)
     {
         if ($database) {
-            return "SELECT COLUMN_NAME AS Field, COLUMN_TYPE AS Type, IS_NULLABLE AS `Null`, ".
-                   "COLUMN_KEY AS `Key`, COLUMN_DEFAULT AS `Default`, EXTRA AS Extra, COLUMN_COMMENT AS Comment, " .
-                   "CHARACTER_SET_NAME AS CharacterSet, COLLATION_NAME AS CollationName ".
-                   "FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = '" . $database . "' AND TABLE_NAME = '" . $table . "'";
+            $database = "'" . $database . "'";
+        } else {
+            $database = 'DATABASE()';
         }
 
-        return 'DESCRIBE ' . $table;
+        return "SELECT COLUMN_NAME AS Field, COLUMN_TYPE AS Type, IS_NULLABLE AS `Null`, ".
+               "COLUMN_KEY AS `Key`, COLUMN_DEFAULT AS `Default`, EXTRA AS Extra, COLUMN_COMMENT AS Comment, " .
+               "CHARACTER_SET_NAME AS CharacterSet, COLLATION_NAME AS Collation ".
+               "FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = " . $database . " AND TABLE_NAME = '" . $table . "'";
     }
 
     /**
@@ -461,6 +472,19 @@ class MySqlPlatform extends AbstractPlatform
         }
 
         return $sql;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDefaultValueDeclarationSQL($field)
+    {
+        // Unset the default value if the given field definition does not allow default values.
+        if ($field['type'] instanceof TextType || $field['type'] instanceof BlobType) {
+            $field['default'] = null;
+        }
+
+        return parent::getDefaultValueDeclarationSQL($field);
     }
 
     /**
@@ -570,6 +594,15 @@ class MySqlPlatform extends AbstractPlatform
             /* @var $columnDiff \Doctrine\DBAL\Schema\ColumnDiff */
             $column = $columnDiff->column;
             $columnArray = $column->toArray();
+
+            // Don't propagate default value changes for unsupported column types.
+            if ($columnDiff->hasChanged('default') &&
+                count($columnDiff->changedProperties) === 1 &&
+                ($columnArray['type'] instanceof TextType || $columnArray['type'] instanceof BlobType)
+            ) {
+                continue;
+            }
+
             $columnArray['comment'] = $this->getColumnComment($column);
             $queryParts[] =  'CHANGE ' . ($columnDiff->getOldColumnName()->getQuotedName($this)) . ' '
                     . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnArray);

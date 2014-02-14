@@ -60,26 +60,22 @@ class SQLAnywherePlatform extends AbstractPlatform
 
     /**
      * {@inheritdoc}
-     *
-     * @throws \InvalidArgumentException
      */
     public function appendLockHint($fromClause, $lockMode)
     {
         switch (true) {
             case $lockMode === LockMode::NONE:
-                $lockClause = ' WITH (NOLOCK)';
-                break;
-            case $lockMode === LockMode::PESSIMISTIC_READ:
-                $lockClause = ' WITH (UPDLOCK)';
-                break;
-            case $lockMode === LockMode::PESSIMISTIC_WRITE:
-                $lockClause = ' WITH (XLOCK)';
-                break;
-            default:
-                throw new \InvalidArgumentException('Invalid lock mode: ' . $lockMode);
-        }
+                return $fromClause . ' WITH (NOLOCK)';
 
-        return $fromClause . $lockClause;
+            case $lockMode === LockMode::PESSIMISTIC_READ:
+                return $fromClause . ' WITH (UPDLOCK)';
+
+            case $lockMode === LockMode::PESSIMISTIC_WRITE:
+                return $fromClause . ' WITH (XLOCK)';
+
+            default:
+                return $fromClause;
+        }
     }
 
     /**
@@ -1266,12 +1262,8 @@ class SQLAnywherePlatform extends AbstractPlatform
 
         if ( ! empty($options['indexes'])) {
             /** @var \Doctrine\DBAL\Schema\Index $index */
-            foreach ((array) $options['indexes'] as $name => $index) {
-                if ($index->isUnique()) {
-                    $columnListSql .= ', ' . $this->getUniqueConstraintDeclarationSQL($name, $index);
-                } else {
-                    $indexSql[] = $this->getCreateIndexSQL($index, $tableName);
-                }
+            foreach ((array) $options['indexes'] as $index) {
+                $indexSql[] = $this->getCreateIndexSQL($index, $tableName);
             }
         }
 

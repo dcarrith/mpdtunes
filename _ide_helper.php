@@ -11912,6 +11912,16 @@ class Debugbar extends Barryvdh\Debugbar\Facade{
 	 }
 
 	/**
+	 * Collect data in a CLI request
+	 *
+	 * @return array
+	 * @static 
+	 */
+	 public static function collectConsole(){
+		return Barryvdh\Debugbar\LaravelDebugbar::collectConsole();
+	 }
+
+	/**
 	 * Magic calls for adding messages
 	 *
 	 * @param string $method
@@ -12853,6 +12863,16 @@ class Image extends Intervention\Image\Facades\Image{
 	 */
 	 public static function gamma($input, $output){
 		return Intervention\Image\Image::gamma($input, $output);
+	 }
+
+	/**
+	 * Set current image as original (reset will return to this)
+	 *
+	 * @return void
+	 * @static 
+	 */
+	 public static function backup(){
+		 Intervention\Image\Image::backup();
 	 }
 
 	/**

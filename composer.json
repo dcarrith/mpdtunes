@@ -11,14 +11,20 @@
 	],
 	"require": {
                 "laravel/framework": "4.1.*",
+		"nesbot/Carbon": "*",
 		"Dcarrith/CIFirePHP": "dev-master",
                 "Dcarrith/CIZip": "dev-master",
+                "Dcarrith/LxMPD": "dev-master",
+                "Dcarrith/LetId3": "dev-master",
 		"way/generators": "dev-master",
 		"barryvdh/laravel-debugbar": "dev-master",	
 		"barryvdh/laravel-ide-helper": "1.*",
 		"mockery/mockery": "dev-master",	
 		"sidney/latchet": "dev-master",
-		"react/zmq": "dev-master"
+		"react/zmq": "dev-master",
+		"intervention/image": "dev-master",
+		"intervention/imagecache": "dev-master",
+		"phansys/getid3": "2.1.*@dev"
 	},
         "repositories": [
                 {
@@ -29,6 +35,14 @@
                         "type": "vcs",
                         "url": "https://github.com/dcarrith/cizip"
                 },
+		{
+			"type": "vcs",
+			"url": "https://github.com/dcarrith/lxmpd"
+		},
+		{
+			"type": "vcs",
+			"url": "https://github.com/dcarrith/letid3"
+		},
 		{
 			"type": "vcs",
 			"url": "https://github.com/dcarrith/Latchet"

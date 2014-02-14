@@ -1,0 +1,35 @@
+{
+	"name": "orchestra/testbench",
+	"description": "Laravel 4 Package Unit Testing Helper",
+	"homepage": "http://orchestraplatform.com/docs/latest/components/testbench/",
+	"keywords": ["laravel"],
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Mior Muhammad Zaki",
+			"email": "crynobone@gmail.com",
+			"homepage": "https://github.com/crynobone"
+		}
+	],
+	"autoload": {
+		"psr-0": {
+			"Orchestra\\Testbench" : "src/"
+		}
+	},
+	"repositories": [
+        {
+            "type": "vcs",
+            "url": "git://github.com/orchestral/phpseclib.git"
+        }
+    ],
+	"require": {
+		"php": ">=5.3.3",
+		"laravel/framework": "4.1.*"
+	},
+	"extra": {
+		"branch-alias": {
+			"dev-master": "2.2-dev"
+		}
+	},
+	"minimum-stability": "dev"
+}

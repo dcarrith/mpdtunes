@@ -1,15 +1,19 @@
 <?php namespace Dcarrith\LxMPD;
 /**
-* MPD.php: A PHP class for controlling MPD
+* LxMPD.php: A Laravel-ready class for controlling MPD
 */
 
 use Dcarrith\LxMPD\Exception\MPDException as MPDException; 
 
 /**
-* A PHP class for controlling MPD
+* A Laravel-ready class for controlling MPD
 * @package MPD
 */
-class LxMPD {
+class LxMPD { //extends \Thread {
+
+        // MPD Responses
+        const MPD_OK = 'OK';
+        const MPD_ERROR = 'ACK';
 
         // Connection, read, write errors
         const MPD_CONNECTION_FAILED = -1;
@@ -18,53 +22,79 @@ class LxMPD {
         const MPD_STATUS_EMPTY = -4;
         const MPD_UNEXPECTED_OUTPUT = -5;
         const MPD_TIMEOUT = -5;
+	const MPD_DISCONNECTION_FAILED = -6;      
+ 
+	// MPD ACK_ERROR constants from Ack.hxx
+	const ACK_ERROR_NOT_LIST = 1;
+	const ACK_ERROR_ARG = 2;
+	const ACK_ERROR_PASSWORD = 3;
+	const ACK_ERROR_PERMISSION = 4;
+	const ACK_ERROR_UNKNOWN = 5;
+	const ACK_ERROR_NO_EXIST = 50;
+	const ACK_ERROR_PLAYLIST_MAX = 51;
+	const ACK_ERROR_SYSTEM = 52;
+	const ACK_ERROR_PLAYLIST_LOAD = 53;
+	const ACK_ERROR_UPDATE_ALREADY = 54;
+	const ACK_ERROR_PLAYER_SYNC = 55;
+	const ACK_ERROR_EXIST = 56;
 
-        // MPD Errors
-        const MPD_NOT_LIST = 1;
-        const MPD_ARG = 2;
-        const MPD_PASSWORD = 3;
-        const MPD_PERMISSION = 4;
-        const MPD_UNKOWN = 5;
-        const MPD_NO_EXIST = 50;
-        const MPD_PLAYLIST_MAX = 51;
-        const MPD_SYSTEM = 52;
-        const MPD_PLAYLIST_LOAD = 53;
-        const MPD_UPDATE_ALREADY = 54;
-        const MPD_PLAYER_SYNC = 55;
-        const MPD_EXIST = 56;
-        const MPD_COMMAND_FAILED = -100;
+	// Missing tag errors
+	const ESSENTIAL_TAGS_MISSING = 70;
+	const ESSENTIAL_ID3_TAGS_MISSING = 71;
+	const ESSENTIAL_MPD_TAGS_MISSING = 72;
 
-        // MPD Responses
-        const MPD_OK = 'OK';
-        const MPD_ERROR = 'ACK';
+	// A general command failed 
+	const MPD_COMMAND_FAILED = -100;
+
+	// Output array chunk sizes
+	const PLAYLISTINFO_CHUNK_SIZE = 8;
 
         // Connection and details
+	private $_local = true;
         private $_connection = null;
         private $_host = 'localhost';
         private $_port = 6600;
         private $_password = null;
         private $_version = '0';
+	
+	// Default socket timeout
+	private $_timeout = 5;
 
 	// Variable to switch on and off debugging
 	private $_debugging = false;
 
 	// Variable to track whether or not we're connected to MPD
-	public $_connected = false;
+	private $_connected = false;
 
 	// Variable to store a list of commands for sending to MPD in bulk
 	private $_commandQueue = "";
 
 	// Variable for storing properties available via PHP magic methods: __set(), __get(), __isset(), __unset()
-	private $_data = array();
+	private $_properties = array();
+
+	// Variable to specify whether or not playlist tracks should be filtered down to only contain essential tags
+	private $_tagFiltering = true;
+
+	// Variable to specify whether or not to throw missing tag exceptions for tracks that are missing essetial tags
+	private $_throwMissingTagExceptions = false;
+
+	// The essential id3 tags that we need when chunking an array of output into chunks of 8 elements
+	private $_essentialID3Tags = array( "Artist", "Album", "Title", "Track", "Time" );
+
+	// The essential MPD tags that we need in combination with essentialID3Tags when chunking an array of output into chunks of 8 elements
+	private $_essentialMPDTags = array( "file", "Pos", "Id" );
+
+	// This is an array of commands that return either single tracks or a list of tracks that would contain tags that we could filter
+	private $_outputContainsTracks = array( 'playlistinfo' );
 
         // This is an array of commands whose output is expected to be an array
-        private $_expectArrayOutput = array( 'commands', 'decoders', 'find', 'list', 'listall', 'listallinfo', 'listplaylist', 'listplaylistinfo', 'listplaylists', 'notcommands', 'lsinfo', 'outputs', 'playlist', 'playlistfind', 'playlistid', 'playlistinfo', 'playlistsearch', 'plchanges', 'plchangesposid', 'search', 'tagtypes', 'urlhandlers' );
-      
-	// The output from these commands require special parsing  
-	private $_specialCases = array( 'listplaylists', 'lsinfo', 'decoders' );
+        private $_expectArrayOutput = array( 'commands', 'decoders', 'find', 'list', 'listall', 'listallinfo', 'listplaylist', 'listplaylistinfo', 'listplaylists', 'notcommands', 'lsinfo', 'outputs', 'playlist', 'playlistfind', 'playlistinfo', 'playlistsearch', 'plchanges', 'plchangesposid', 'search', 'tagtypes', 'urlhandlers' );
  
 	// This is an array of MPD commands that are available through the __call() magic method
-	private $_commands = array( 'add', 'addid', 'clear', 'clearerror', 'close', 'commands', 'consume', 'count', 'crossfade', 'currentsong', 'decoders', 'delete', 'deleteid', 'disableoutput', 'enableoutput', 'find', 'findadd', 'idle', 'kill', 'list', 'listall', 'listallinfo', 'listplaylist', 'listplaylistinfo', 'listplaylists', 'load', 'lsinfo', 'mixrampdb', 'mixrampdelay', 'move', 'moveid', 'next', 'notcommands', 'outputs', 'password', 'pause', 'ping', 'play', 'playid', 'playlist', 'playlistadd', 'playlistclear', 'playlistdelete', 'playlistfind', 'playlistid', 'playlistinfo', 'playlistmove', 'playlistsearch', 'plchanges', 'plchangesposid', 'previous', 'random', 'rename', 'repeat', 'replay_gain_mode', 'replay_gain_status', 'rescan', 'rm', 'save', 'search', 'seek', 'seekid', 'setvol', 'shuffle', 'single', 'stats', 'status', 'sticker', 'stop', 'swap', 'swapid', 'tagtypes', 'update', 'urlhandlers' );
+	private $_methods = array( 'add', 'addid', 'clear', 'clearerror', 'close', 'commands', 'consume', 'count', 'crossfade', 'currentsong', 'decoders', 'delete', 'deleteid', 'disableoutput', 'enableoutput', 'find', 'findadd', 'idle', 'kill', 'list', 'listall', 'listallinfo', 'listplaylist', 'listplaylistinfo', 'listplaylists', 'load', 'lsinfo', 'mixrampdb', 'mixrampdelay', 'move', 'moveid', 'next', 'notcommands', 'outputs', 'password', 'pause', 'ping', 'play', 'playid', 'playlist', 'playlistadd', 'playlistclear', 'playlistdelete', 'playlistfind', 'playlistid', 'playlistinfo', 'playlistmove', 'playlistsearch', 'plchanges', 'plchangesposid', 'previous', 'random', 'rename', 'repeat', 'replay_gain_mode', 'replay_gain_status', 'rescan', 'rm', 'save', 'search', 'seek', 'seekid', 'setvol', 'shuffle', 'single', 'stats', 'status', 'sticker', 'stop', 'swap', 'swapid', 'tagtypes', 'update', 'urlhandlers' );
+
+	// This is an array of MPD commands that should return a bool
+	private $_responseShouldBeBoolean = array( 'delete' );
 
         /**
          * Set connection paramaters.
@@ -74,9 +104,25 @@ class LxMPD {
          * @return void
          */
         function __construct( $host = 'localhost', $port = 6600, $password = null ) {
+
                 $this->_host = $host;
                 $this->_port = $port;
                 $this->_password = $password;
+
+		// Determine if the connection is local based on host
+		$this->determineIfLocal();
+
+		// If the connection is local, then we can set the timeout to something small
+		if( $this->isLocal() ) {
+
+			// Set the timeout to whatever is set as the php default
+			$this->_timeout = 1;
+
+		} else {
+	
+			// Set the timeout to whatever is set as the php default
+			$this->_timeout = ini_get( 'default_socket_timeout' );
+		}
         }
 
         /**
@@ -84,47 +130,58 @@ class LxMPD {
          * @return bool
          */
         public function connect() {
+
                 // Check whether the socket is already connected
                 if( $this->isConnected() ) {
                         return true;
                 }
+                
+		// Try to open the socket connection to MPD with a 5 second timeout
+		if( !$this->_connection = @fsockopen( $this->_host, $this->_port, $errn, $errs, 5 ) ) {
 
-                // Open the socket
-                $connection = @fsockopen( $this->_host, $this->_port, $errn, $errs, 5 );
-                if( $connection == false ) {
-                        throw new MPDException( 'Connection failed: '.$errs, self::MPD_CONNECTION_FAILED );
-                }
-
-		// Store the connection in a local variable
-                $this->_connection = $connection;
+			// Throw an MPDException along with the connection errors
+			throw new MPDException( 'Connection failed: '.$errs, self::MPD_CONNECTION_FAILED );
+		}
 
                 // Clear connection messages
                 while( !feof( $this->_connection ) ) {
+
                         $response = trim( fgets( $this->_connection ) );
+
                         // If the connection messages have cleared
                         if( strncmp( self::MPD_OK, $response, strlen( self::MPD_OK ) ) == 0 ) {
+
+				// Successully connected
                                 $this->_connected = true;
-                                // Read off MPD version
-                                list( $this->_version ) = sscanf( $response, self::MPD_OK . " MPD %s\n" );
+
+                                // Parse the MPD version from the response and replace the ending 0 with an xs
+                                $this->_version = preg_replace('/[0]$/','x', current( sscanf( $response, self::MPD_OK . " MPD %s\n" )));
+
                                 // Send the connection password
                                 if( !is_null( $this->_password ) ) {
                                         $this->password( $this->_password );
                                 }
+
 				// Refresh all the status and statistics variables
 				$this->RefreshInfo();
-                                return true;
-                                break;
+
+				// Connected successfully
+				return true;
                         }
-                        // Catch MPD errors on connection
+
+                        // Check to see if there is a connection error message that was sent in the response
                         if( strncmp( self::MPD_ERROR, $response, strlen( self::MPD_ERROR ) ) == 0 ) {
-                                $this->_connected = false;
+
+				// Parse out the error message from the response
                                 preg_match( '/^ACK \[(.*?)\@(.*?)\] \{(.*?)\} (.*?)$/', $response, $matches );
+
+				// Throw an exception and include the response errors
                                 throw new MPDException( 'Connection failed: '.$matches[4], self::MPD_CONNECTION_FAILED );
-                                return false;
-                                break;
                         }
                 }
-                throw new MPDException( 'Connection failed', self::MPD_CONNECTION_FAILED );
+      
+		// Throw a general connection failed exception 
+		throw new MPDException( 'Connection failed', self::MPD_CONNECTION_FAILED );
         }
 
         /**
@@ -132,22 +189,31 @@ class LxMPD {
          * @return bool
          */
         public function disconnect() {
-                if( !is_null( $this->_connection ) ) {
-                        $this->close();
-                        fclose( $this->_connection );
-                        $this->_connection = null;
-                        $this->_connected = false;
-                }
+
+		// Make sure nothing unexpected happens
+		try {
+		
+			// Check that a connection exists first
+                	if( !is_null( $this->_connection ) ) {
+
+				// Send the close command to MPD
+                        	$this->close();
+
+				// Close the socket
+                        	fclose( $this->_connection );
+
+				// Adjust our class properties to denote that we disconnected
+                        	$this->_connection = null;
+                        	$this->_connected = false;
+                	}
+
+		} catch (Exception $e) {
+
+			throw new MPDException( 'Disconnection failed: '.$e->getMessage(), self::MPD_DISCONNECTION_FAILED );		
+		}
+
+		// We'll assume it was successful
                 return true;
-        }
-
-        /**
-         * Checks whether the socket has connected
-         * @return bool
-         */
-        public function isConnected() {
-
-                return $this->_connected;
         }
 
         /**
@@ -156,15 +222,13 @@ class LxMPD {
          * @return bool
          */
         private function write( $data ) {
-                
+ 
 		if( !$this->isConnected() ) {
                         $this->connect();
                 }
 
 		if( !fputs( $this->_connection, "$data\n" ) ) {
-                //if( !fwrite( $this->_connection, $data."\r\n" ) ) {
-                        throw new MPDException( 'Failed to write to MPD socket', self::MPD_WRITE_FAILED );
-                        return false;
+			throw new MPDException( 'Failed to write to MPD socket', self::MPD_WRITE_FAILED );
                 }
 
                 return true;
@@ -181,8 +245,13 @@ class LxMPD {
                         $this->connect();
                 }
 
-                // Set up output array and get stream information
-                $output = array();
+                // Set up the array to use for storing the read in MPD response
+                $response = array();
+
+		// This will be used in case there is an empty array as the response
+		$ok = false;
+
+		// Get the stream meta-data
                 $info = stream_get_meta_data( $this->_connection );
 
                 // Wait for output to finish or time out
@@ -191,6 +260,7 @@ class LxMPD {
                         $line = trim( fgets( $this->_connection ) );
 
 			$info = stream_get_meta_data( $this->_connection );
+
                         $matches = array();
 
                         // We get empty lines sometimes. Ignore them.
@@ -200,16 +270,26 @@ class LxMPD {
 
                         } else if( strcmp( self::MPD_OK, $line ) == 0 ) {
 
+				$ok = true;
                                 break;
 
                         } else if( strncmp( self::MPD_ERROR, $line, strlen( self::MPD_ERROR ) ) == 0 && preg_match( '/^ACK \[(.*?)\@(.*?)\] \{(.*?)\} (.*?)$/', $line, $matches ) ) {
-                                throw new MPDException( 'Command failed: '.$line, self::MPD_COMMAND_FAILED );
+
+				$errorConstant = $matches[1];
+				$indexOfFailedCommand = $matches[2];
+				$command = $matches[3];
+				$errorMessage = $matches[4];
+
+				throw new MPDException( 'Command failed: '.$errorMessage, self::MPD_COMMAND_FAILED );
+                                //throw new MPDException( 'Command failed: '.$line, self::MPD_COMMAND_FAILED );
                         
 			} else {
                         
-			        $output[] = $line;
+			        $response[] = $line;
                         }
                 }
+
+		//var_dump($response);
 
                 if( $info['timed_out'] ) {
 
@@ -222,7 +302,12 @@ class LxMPD {
 
                 } else {
 
-                        return $output;
+			if( !count($response) ) {
+			
+				$response = $ok;
+			}
+
+                        return $response;
                 }
         }
 
@@ -235,271 +320,177 @@ class LxMPD {
          */
         public function runCommand( $command, $args = array(), $timeout = null ) {
 
-		/*if ($command == "add") {
-			var_dump($command);
-			var_dump($args);
-		}*/
+		// Set a timeout so it's always set to either the default or the passed in parameter
+		$timeout = ( isset( $timeout ) ? intval( $timeout ) : $this->_timeout );
 
                 // Trim and then cast the command to a string, just to make sure
-                $toWrite = strval(trim($command));
+                $toWrite = strval( trim( $command ));
 
-		if (isset($args)) {
-
-			// Loop through the array of arguments and concatenate the list of arguments to send to MPD
-        	        foreach( (is_array( $args )? $args : array( $args )) as $arg ) {
-	
-				// Make sure the arg variable isn't an empty array
-				if (is_array($arg) && !count($arg)) {
-					continue;
-				} 
-
-				// Escape double quotes and make sure to cast arguments to strings
-				$toWrite .= ' "'.str_replace( '"', '\"', strval( $arg ) ) .'"';
-                	}
+		// If the args is an array, then first escape double quotes in every element, then implode to strings delimted by enclosing quotes
+		if( is_array( $args ) && ( count( $args ) > 0 )) {
+	 	
+			$toWrite .= ' "' . implode('" "', str_replace( '"', '\"', $args )) . '"';
 		}
-
-		/*if ($command == "add") {
-
-			var_dump($toWrite);
-			exit();
-		}*/
 
                 // Write command to MPD socket
                 $this->write( $toWrite );
 
-                // Set the timeout
-                if( is_int( $timeout ) ) {
+		// Set the timeout in seconds
+		stream_set_timeout( $this->_connection, $timeout );
 
-                        stream_set_timeout( $this->_connection, $timeout );
+                // Read the response from the MPD socket
+                $response = $this->read();
 
-                } else if( is_float( $timeout ) ) {
+		// Reset the timeout
+		stream_set_timeout( $this->_connection, $this->_timeout );
 
-                        stream_set_timeout( $this->_connection, floor( $timeout ), round( ($timeout - floor( $timeout ))*1000000 ) );
-                }
-
-                // Read output
-                $output = $this->read();
-
-                // Reset timeout
-                if( !is_null( $timeout ) ) {
-                        stream_set_timeout( $this->_connection, ini_get( 'default_socket_timeout' ) );
-                }
-
-                // Return output
-                return $this->parseOutput( $output, $command );
+                // Return the parsed response array
+                return $this->parse( $response, $command, $args );
         }
 
         /**
-         * Parses an array of lines of output from MPD into tidier forms
-         * @param array $output The output from MPD
-         * @return string|array
+         * Parses an array of output lines from MPD into a common array format
+         * @param array $response the output read from the connection to MPD
+         * @return mixed (string || array)
          */
-        private function parseOutput( $output, $command = '' ) {
+        private function parse( $response, $command = '', $args = array() ) {
 
-                $parsedOutput = array();
+		// This is the array for storing all the parsed output
+                $parsed = array();
 
-                // Output lines should look like 'key: value'.
-                // Explode the lines, and filter out any empty values
-                $output = array_filter( array_map( function( $line ) {
+		// If the response is a boolean, and the command is one that expects a boolean response, then return the response
+		if( is_bool($response) ) {
 
-                        $parts = explode( ': ', $line, 2 );
+			if( in_array( $command, $this->_responseShouldBeBoolean )) {
 
-                        return (count( $parts ) == 2)? $parts : false;
+				return $response;
+			
+			} else {
 
-                }, $output ));
+				// If the command isn't expecting a boolean result, then we need to set the response back to an empty array
+				$response = array();
+			}
+		}
 
-                // If there's no output the command succeded
-                if( count( $output ) == 0 ) {
-
-                        // For some commands returning an empty array makes more sense than true
-                        return (in_array( $command, $this->_expectArrayOutput ))? array() : true;
-
-                } else if( count( $output ) == 1 ) { // If there's only one line of output, just return the value
-
-                        // Again, for some commands it makes sense to force $output to be an array, even if it contains only one value
-                        return (in_array( $command, $this->_expectArrayOutput ))? array( $output[0][1] ) : $output[0][1];
-                }
-
-                /* The output we recieve will look like one of a few cases:
-                 * 1) A list (possibly of length 1) of objects with certain single-valued properties
-                 * (e.g. a list of songs in a playlist with metadata)
-                 * 2) A list of properties
-                 * (e.g. a list of supported output types)
-                 * 3) An unordered set of objects with (possibly array-valued) properties
-                 * (e.g. a list of playlists indexed by name, output plugins indexed by name with arrays of supported extensions/types)
-                 * 4) Single/Zero value responses
-                 *
-                 * Case 4 is taken care of.
-                 * We handle case 1 by iterating over the key=>value pairs, dropping
-                 * them into a map until we reach a key that we've already seen, in which
-                 * case we append the map so far into the output array, and begin a new
-                 * collection.
-                 * Case 2 can be dealt with by the same algorithm if at the end we collpase
-                 * single-property objects to the value of the single property.
-                 * Case 1/2 is assumed by default. Case 3 outputs are treated as special cases.
-                 *
-                 * There is another possible case: A list of objects with possibly array-valued properties.
-                 * There isn't an example of this, so no worries.
-                 */
-
-		// I'm going to try something different
-                /*$topKey = false;
-                switch( $command ) {
-                        case 'decoders':
-                                $topKey = 'plugin';
-                                break;
-                        case 'listplaylists':
-                                $topKey = 'playlist';
-                                break;
-                        default:
-                                break;
-                }
-                if( $topKey ) {
-
-                        $collection = array();
-                        $currentTopValue = '';
-                        foreach( $output as $line ) {
-
-                                if( $line[0] == $topKey ) {
-
-                                        if( $currentTopValue ) {
-                                                $parsedOutput[$currentTopValue] = $collection;
-                                        }
-
-                                        $currentTopValue = $line[1];
-                                        $collection = array();
-
-                                } else {
-
-                                        if( !isset( $collection[$line[0]] ) ) {
-                                                $collection[$line[0]] = array();
-                                        }
-
-                                        $collection[$line[0]][] = $line[1];
-                                }
-                        }
-                        $parsedOutput[$currentTopValue] = $collection;
-
-			var_dump($parsedOutput);
-
-                        // Output will always be an array
-                        return $parsedOutput;
-                
-		} else {*/
-
-		// Some output needs special handling
-		if (in_array($command, $this->_specialCases)) {
-
-			$parsedOutput = array();
-
-			switch($command) {
-
-				case 'listplaylists' :
-
-					$lastModifiedData = array();
-					$lastKey = 0;
+		// If the response from MPD was an empty array, then just return the empty parsed array
+		if( !count( $response ) ) {
+			return $parsed;
+		}
 	
-					foreach($output as $key => $value) {
+		switch( $command ) {
 
-						if ($value[0] == "playlist") {
+			// This will parse out a list of something like artists or albums into a simple array of values
+			case 'list' :
+			case 'listplaylist' :
+			case 'listplaylists' :
 
-							$parsedOutput[]["name"] = $value[1];
-					
-						} else if ($value[0] == "Last-Modified") {
-						
-							$parsedOutput[$lastKey]["modified"] = $value[1];		
+				foreach( $response as $line ) {
 
-							$lastKey++;
-						}							
+					// Get the key value pairs from the line of output
+					preg_match('/(.*?):\s(.*)/', $line, $matches);
+
+					if( count($matches) != 3 ) {
+			
+						continue;
 					}
 
-					break;
+					// Put the cleaned up matched pieces into the variables we'll be using
+					list( $subject, $key, $value ) = $matches;
 
-				case 'lsinfo' :
-					
-					$targets = array("directory", "playlist");
-					break;
+					// listplaylists requires special treatment
+					if( $command == "listplaylists") {
 
-				case 'decoders' :
+						// We only care about the elements with the key 'playlist'
+						if( $key == "playlist" ) {
 
-					break;
-				
-				default :
+							// We only need an array of playlist names
+							$parsed[] = $value;
+						}
 
-					break;
-			}
-			
-			return array($parsedOutput);
+					} else {
 
-			/*
-			$output = array_filter( $output, function($piece) use ($targets) {
-
-				if ($piece[0] == $target) {
-				
-					return true;
-
-				} else {
-		
-					return false;
+						// For playlists that aren't the current playlist, we only need an array of values
+						$parsed[] = $value;
+					}
 				}
-			});
 
-			echo "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n";
-			var_dump($output);
-			echo "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n";
+				return $parsed;
 
-			$playlists = array();
+				break;
 
-			foreach($output as $key => $array) {
-				$playlists[$key] = $array[1];
-			}
+			// listplaylistinfo
+			// playlistinfo
+			// statistics
+			// stats
+			// idle	
+			default :
 
-			$output = $playlists;
+				$items = array();
+
+				foreach( $response as $line ) {
+
+					// Get the key value pairs from the line of output
+					preg_match('/(.*?):\s(.*)/', $line, $matches);
+
+					// Put the cleaned up matched pieces into the variables we'll be using
+					list( $subject, $key, $value ) = $matches;
 	
-			echo "####################################################\n";
-			var_dump($output);
-			echo "####################################################\n";
-			*/
+					// The response output from certain commands like statistics and stats will never 
+					// meet this condition, so therefore the items array will always be built as an
+					// associative array with key => value pairs.  The response output from commands
+					// like list, or list 
+					if( array_key_exists( $key, $items ) ) {
 
-		} else {
+						// Append the track array onto the array of parsedOutput to be returned
+						$parsed[] = $items;
+						
+						// Initialize a new track to compile
+						$items = array( $key => $value );
+					
+					} else {
 
-                        $collection = array();
+						// Set the key value pair in the track array
+						$items[ $key ] = $value;
+					}
+				}
+			
+				if( in_array( $command, $this->_expectArrayOutput ) ) {
 
-                        foreach( $output as $line ) {
+					// Append the last items array onto the array of parsedOutput to return
+					$parsed[] = $items;
+				
+				} else {
 
-                                if( array_key_exists( $line[0], $collection ) ) {
+					$parsed = $items;
+				} 
+				
+				// If the output contains one or more tracks, then we can filter and report on missing tags if needed
+				if( in_array( $command, $this->_outputContainsTracks )) {
 
-                                        $parsedOutput[] = $collection;
-                                        $collection = array( $line[0] => $line[1] );
+					if( $this->_tagFiltering ) {
 
-                                } else {
+						$parsed = $this->filterOutUnwantedTags( $parsed );
+					}
 
-                                        $collection[$line[0]] = $line[1];
-                                }
-                        }
+					if( $this->_throwMissingTagExceptions ) {
 
-                        $parsedOutput[] = $collection;
+						$this->reportOnMissingTags( $command, $parsed );
+					}
+				}
 
-                        // If we have a single collection, return it as a single object if we don't expect an array
-                        if( count( $parsedOutput ) == 1 ) {
-                                return (in_array( $command, $this->_expectArrayOutput ))? $parsedOutput : $parsedOutput[0];
-                        }
+				return $parsed;
 
-                        // If there's only one property in an object, then collapse it to just that value.
-                        // Otherwise just return what we have
-                        return array_map( function( $collection ) {
-                                return (count( $collection ) == 1)? array_pop( $collection ) : $collection;
-                        }, $parsedOutput );
-                }
+				break;
+		}
+	
+		return false;
         }
 
-	/* RefreshInfo() 
-	 * 
-	 * Updates all class properties with the values from the MPD server.
+	/* refreshInfo updates all class properties with the values from the MPD server.
      	 *
-	 * NOTE: This function is automatically called upon Connect() as of v1.1.
+	 * NOTE: This function is automatically called upon Connect()
 	 */
-	public function RefreshInfo() {
+	public function refreshInfo() {
         	
 		// Get the Server Statistics
 		$this->statistics = $this->stats();
@@ -556,174 +547,8 @@ class LxMPD {
 
 		return true;
 	}
-
-	/* QueueCommand() 
-	 *
-	 * Queues a generic command for later sending to the MPD server. The CommandQueue can hold 
-	 * as many commands as needed, and are sent all at once, in the order they are queued, using
-	 * the SendCommandQueue() method. The syntax for queueing commands is identical to SendCommand(). 
-	 */
-	public function QueueCommand($cmdStr, $arg1 = "", $arg2 = "") {
-
-		if ( $this->_debugging ) echo "mpd->QueueCommand() / cmd: ".$cmdStr.", args: ".$arg1." ".$arg2."\n";
-
-		if ( ! $this->_connected ) {
-
-			echo "mpd->QueueCommand() / Error: Not connected\n";
-			return null;
-
-		} else {
-
-			if ( strlen($this->_commandQueue) == 0 ) {
-
-				$this->_commandQueue = "command_list_begin" . "\n";
-			}
-
-			if (strlen($arg1) > 0) $cmdStr .= " \"$arg1\"";
-			if (strlen($arg2) > 0) $cmdStr .= " \"$arg2\"";
-
-			$this->_commandQueue .= $cmdStr ."\n";
-
-			if ( $this->_debugging ) echo "mpd->QueueCommand() / return\n";
-		}
-		return true;
-	}
-
-	/* SendCommandQueue() 
-	 *
-	 * Sends all commands in the Command Queue to the MPD server. See also QueueCommand().
-	 */
-	public function SendCommandQueue() {
-
-		if ( $this->_debugging ) echo "mpd->SendCommandQueue()\n";
-
-		if ( ! $this->_connected ) {
-
-			echo "mpd->SendCommandQueue() / Error: Not connected\n";
-			return null;
-
-		} else {
-
-			$this->_commandQueue .= "command_list_end" . "\n";
-
-			if ( is_null( $respStr = $this->runCommand( $this->_commandQueue ))) {
-
-				return null;
-
-			} else {
-
-				$this->_commandQueue = null;
-				if ( $this->_debugging ) echo "mpd->SendCommandQueue() / response: '".$respStr."'\n";
-			}
-		}
-
-		return $respStr;
-	}
-
-	/* PLAddBulk() 
-	 * 
-     	 * Adds each track listed in a single-dimensional <trackArray>, which contains filenames 
-	 * of tracks to add, to the end of the playlist. This is used to add many, many tracks to 
-	 * the playlist in one swoop.
-	 */
-	public function PLAddBulk($trackArray) {
-
-		if ( $this->_debugging ) echo "mpd->PLAddBulk()\n";
-
-		$numFiles = count($trackArray);
-
-		for ( $i = 0; $i < $numFiles; $i++ ) {
-			$this->QueueCommand("add", $trackArray[$i]);
-		}
-
-		$resp = $this->SendCommandQueue();
-
-		$this->RefreshInfo();
-
-		if ( $this->_debugging ) echo "mpd->PLAddBulk() / return\n";
-
-		return $resp;
-	}
-
-
-	public function GetFirstTrack( $scope_key = "album", $scope_value = null) {
-
-		$album = $this->find( "album", $scope_value );
-
-		return $album[0]['file'];
-	}
-
-	public function GetPlaylists() {
-
-		if ( is_null( $resp = $this->SendCommand( "lsinfo" ))) return NULL;
-        	
-		$playlistsArray = array();
-        	$playlistLine = strtok($resp,"\n");
-        	$playlistName = "";
-        	$playlistCounter = -1;
-
-        	while ( $playlistLine ) {
-
-            		list ( $element, $value ) = explode(": ",$playlistLine);
-
-            		if ( $element == "playlist" ) {
-            			$playlistCounter++;
-            			$playlistName = $value;
-            			$playlistsArray[$playlistCounter] = $playlistName;
-            		}
-
-            		$playlistLine = strtok("\n");
-        	}
-
-        	return $playlistsArray;
-	}
-
-	/* SendCommand()
-	 * 
-	 * Sends a generic command to the MPD server. Several command constants are pre-defined for 
-	 * use (see MPD_CMD_* constant definitions above). 
-	 */
-	public function SendCommand( $cmdStr, $arg1 = "", $arg2 = "", $arg3 = "" ) {
-		if ( ! $this->_connected ) {
-			echo "mpd->SendCommand() / Error: Not connected\n";
-		} else {
-			// Clear out the error String
-			$this->errStr = "";
-			$respStr = "";
-
-			if (strlen($arg1) > 0) $cmdStr .= " \"$arg1\"";
-			if (strlen($arg2) > 0) $cmdStr .= " \"$arg2\"";
-			if (strlen($arg3) > 0) $cmdStr .= " \"$arg3\"";
-
-			fputs( $this->_connection,"$cmdStr\n" );
-
-			while( !feof( $this->_connection )) {
-
-				$response = fgets( $this->_connection,1024 );
-
-				// An OK signals the end of transmission -- we'll ignore it
-				if ( strncmp( "OK", $response,strlen( "OK" )) == 0 ) {
-					break;
-				}
-
-				// An ERR signals the end of transmission with an error! Let's grab the single-line message.
-				if ( strncmp( "ACK", $response, strlen( "ACK" )) == 0 ) {
-					list ( $junk, $errTmp ) = explode("ACK" . " ",$response );
-					$this->errStr = strtok( $errTmp,"\n" );
-				}
-
-				if ( strlen( $this->errStr ) > 0 ) {
-					return NULL;
-				}
-
-				// Build the response string
-				$respStr .= $response;
-			}
-		}
-		return $respStr;
-	}
-
-        /**
+ 
+	/**
          * Excecuting the 'idle' function requires turning off timeouts, since it could take a long time
          * @param array $subsystems An array of particular subsystems to watch
          * @return string|array
@@ -731,32 +556,141 @@ class LxMPD {
         public function idle( $subsystems = array() ) {
                 
 		return $this->runCommand( 'idle', $subsystems, 1800 );
-
-		//$idle = $this->runCommand( 'idle', $subsystems, 1800 );
-                // When two subsystems are changed, only one is printed before the OK
-                // line. Anyone repeatedly polling a PHP script to simulate continuous
-                // listening will miss events as MPD creates a new 'client' on every
-                // request. This will frequently happen as it isn't uncommon for 'player'
-                // 'mixer', and 'playlist' events to fire at the same time (e.g. when someone
-                // double-clicks on a file to add it to the playlist and play in one go
-                // while playback is stopped)
-
-                // This is annoying. The best workaround I can think of is to use the
-                // 'subsystems' argument to split the idle polling into ones that
-                // are unlikely to collide.
-
-                // If the stream is local (so we can assume an extremely fast connection to it)
-                // then try to avoid missing changes by running new 'idle' requests with a
-                // short timeout. This will allow us to clear the queue of any additional
-                // changed systems without slowing down the script too much.
-                // This works reasonably well, but YMMV.
-                /*$idleArray = array( $idle );
-                if( stream_is_local( $this->_connection ) || $this->_host == 'localhost' ) {
-                        try { while( 1 ) { array_push( $idleArray, $this->runCommand( 'idle', $subsystems, 0.1 ) ); } }
-                        catch( MPDException $e ) { ; }
-                }
-                return (count( $idleArray ) == 1)? $idleArray[0] : $idleArray;*/
         }
+
+	/**
+	 * GetFirstTrack gets the first track of an album
+	 * @param scope_key is to give scope to the find command
+	 * @param scope_value is the value of the scope
+	 * @return firstTrack 
+	 */
+	public function getFirstTrack( $scope_key = "album", $scope_value = null ) {
+
+		$album = $this->find( "album", $scope_value );
+
+		return $album[0]['file'];
+	}
+      
+	/**
+         * Checks whether the socket has connected
+         * @return bool
+         */
+        public function isConnected() {
+
+                return $this->_connected;
+        }
+	
+	/**
+         * Checks whether MPD is connected locally
+         * @return bool
+         */
+        public function isLocal() {
+
+                return $this->_local;
+        }
+
+	/**
+	 * determineIfLocal tries to determine if the connection to MPD is local
+	 * @return bool
+	 */
+	public function determineIfLocal() {
+
+		// Compare the MPD host a few different ways to try and determine if it's local to the Apache server
+		if( 	( stream_is_local( $this->_connection ))    || 
+			( $this->_host == (isset($_SERVER["SERVER_ADDR"]) ? $_SERVER["SERVER_ADDR"] : getHostByName( getHostName() ))) ||
+			( $this->_host == 'localhost' ) 	     || 
+			( $this->_host == '127.0.0.1' )) {
+
+			$this->_local = true;
+		}
+
+		$this->_local = false;
+	}
+
+	/**
+	 * getEssentialTags combines the essential ID3 as well as MPD-specific tags 
+	 * @return array  
+	 */
+	public function getEssentialTags() {
+
+		// Merge together the two types of tags as one array of essentialTags
+		return array_merge( $this->_essentialMPDTags, $this->_essentialID3Tags );
+	}
+
+	/**
+	 * reportOnMissingTags will find any tracks that are missing essentials tags and throws an exception 
+	 * 	that contains enough information to track down the missing tags so the user can fill them in
+	 *	with the id3 editor of their choice
+	 * @param string $command is the command that was run which we want to pass through to the exception message
+	 * @param array $tracks is the array of tracks to loop through
+	 * @throws MPDException
+	 * @return void
+	 */
+	public function reportOnMissingTags( $command, $tracks ) {
+
+		// getEssentialTags combines the essential ID3 as well as MPD-specific tags 
+		$essentialTags = $this->getEssentialTags();
+	
+		// Loop through the tracks array so we can replace each track with a simple array of missing tags
+		$incompleteTracks = array_filter( array_map( function( $track ) use ( $essentialTags ) {
+
+			// Flip the essential tags array so the values are keys.
+			// Take the diff_key of that and $track so we're left with only tags that are in the essentialTags array, but not in $track.
+			// Flip the result of that back around so the keys are values again.
+			$missingTags = array_flip( array_diff_key( array_flip( $essentialTags ), $track ));
+
+			// If there are missing tags, then return the array element using the MPD track Id as the key so we can retrieve more info later.
+			return (count($missingTags) ? (array($track['Id'] => $missingTags)) : array());
+
+		}, $tracks), function( $missing ) {
+
+			// Filter out any empty arrays so we're only left with the arrays of the incomplete tracks
+			return (count($missing));
+		});
+
+		// If we have any tracks that are missing essential tags, then throw an exception to alert the user
+		if( count($incompleteTracks) ) {
+					
+			$detailedMessage = "";
+
+			// Loop through the incomplete tracks so we can retrieve more info about each track and build the exception message	
+			foreach( $incompleteTracks as $incompleteTrack ) {
+	
+				// Get the id from the incompleteTrack array	
+				$id = key($incompleteTrack);
+
+				// Retrieve more information about the track that's missing tags
+				$track = $this->playlistid( $id );
+
+				// Get the name of the artist
+				$artist = $track['Artist'];
+
+				// Get the name of the album
+				$album = $track['Album'];
+
+				// Complile a detailed message about the track
+				$detailedMessage .= "Track #".$id." from the artist '".$artist.",' specifically, the album '".$album."', is missing tag".((count($incompleteTrack) > 1) ? "s: " : ": ").implode( ", ", current($incompleteTrack) ).".  ";
+			}
+
+			// There must be some essential tags missing from one or more tracks in the playlist
+			throw new MPDException( 'The command "'.$command.'" has retrieved some tracks that are missing essential tag elements.  Please clean up any deficient id3 tags and try again.  The essentials tags are as follows: '.implode(", ", $essentialID3Tags).'.  Details: '.$detailedMessage, self::ESSENTIAL_TAGS_MISSING );
+		}
+	}
+
+	public function filterOutUnwantedTags( $tracks ) {
+
+		// getEssentialTags combines the essential ID3 as well as MPD-specific tags 
+		$essentialTags = $this->getEssentialTags();
+
+		// Loop through the tracks array so we can modify each track and filter out all but the essential tags
+		return array_map( function( $track ) use ( $essentialTags ) {
+
+			// Flip the essential tags array so the values are keys
+			// Then intersect that with the track array so we're left with the essential tags
+			return array_intersect_key( $track, array_flip( $essentialTags ) );
+
+		}, $tracks);
+	}
 
 	/**
 	 * PHP magic methods __call(), __get(), __set(), __isset(), __unset()
@@ -764,15 +698,16 @@ class LxMPD {
 	 */
  
         public function __call( $name, $arguments ) {
-                if( in_array( $name, $this->_commands ) ) {
+	
+                if( in_array( $name, $this->_methods ) ) {
                         return $this->runCommand( $name, $arguments );
                 }
         }
 
 	public function __get($name) {
 
-		if ( array_key_exists( $name, $this->_data )) {
-			return $this->_data[$name];
+		if ( array_key_exists( $name, $this->_properties )) {
+			return $this->_properties[$name];
 		}
 
 		$trace = debug_backtrace();
@@ -786,14 +721,14 @@ class LxMPD {
 	}
 
 	public function __set( $name, $value ) {
-		$this->_data[$name] = $value;
+		$this->_properties[$name] = $value;
 	}
 
 	public function __isset( $name ) {
-		return isset( $this->_data[$name] );
+		return isset( $this->_properties[$name] );
 	}
 
 	public function __unset( $name ) {
-		unset( $this->_data[$name] );
+		unset( $this->_properties[$name] );
 	}
 }
