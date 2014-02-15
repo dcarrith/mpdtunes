@@ -817,6 +817,7 @@ return array(
     'Illuminate\\Pagination\\Paginator' => $vendorDir . '/laravel/framework/src/Illuminate/Pagination/Paginator.php',
     'Illuminate\\Pagination\\Presenter' => $vendorDir . '/laravel/framework/src/Illuminate/Pagination/Presenter.php',
     'Illuminate\\Queue\\BeanstalkdQueue' => $vendorDir . '/laravel/framework/src/Illuminate/Queue/BeanstalkdQueue.php',
+    'Illuminate\\Queue\\Capsule\\Manager' => $vendorDir . '/laravel/framework/src/Illuminate/Queue/Capsule/Manager.php',
     'Illuminate\\Queue\\Connectors\\BeanstalkdConnector' => $vendorDir . '/laravel/framework/src/Illuminate/Queue/Connectors/BeanstalkdConnector.php',
     'Illuminate\\Queue\\Connectors\\ConnectorInterface' => $vendorDir . '/laravel/framework/src/Illuminate/Queue/Connectors/ConnectorInterface.php',
     'Illuminate\\Queue\\Connectors\\IronConnector' => $vendorDir . '/laravel/framework/src/Illuminate/Queue/Connectors/IronConnector.php',

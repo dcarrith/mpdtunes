@@ -1267,12 +1267,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/doctrine/dbal.git",
-            "reference": "594e326bd58d1d7af578f0dc3143655b9d119d45"
+            "reference": "da43b765e96ca8a80202fa5e2e67657e0ce61587"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/doctrine/dbal/zipball/594e326bd58d1d7af578f0dc3143655b9d119d45",
-            "reference": "594e326bd58d1d7af578f0dc3143655b9d119d45",
+            "url": "https://api.github.com/repos/doctrine/dbal/zipball/da43b765e96ca8a80202fa5e2e67657e0ce61587",
+            "reference": "da43b765e96ca8a80202fa5e2e67657e0ce61587",
             "shasum": ""
         },
         "require": {
@@ -1286,7 +1286,7 @@
         "suggest": {
             "symfony/console": "Allows use of the command line interface"
         },
-        "time": "2014-02-11 15:40:52",
+        "time": "2014-02-14 21:18:03",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -2525,58 +2525,6 @@
         ]
     },
     {
-        "name": "maximebf/debugbar",
-        "version": "1.9.3",
-        "version_normalized": "1.9.3.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/maximebf/php-debugbar.git",
-            "reference": "d68b8aded0f1b79a77845e926bd993cd470be2e1"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/maximebf/php-debugbar/zipball/d68b8aded0f1b79a77845e926bd993cd470be2e1",
-            "reference": "d68b8aded0f1b79a77845e926bd993cd470be2e1",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.0",
-            "psr/log": "~1.0"
-        },
-        "require-dev": {
-            "php": ">=5.3.0"
-        },
-        "suggest": {
-            "kriswallsmith/assetic": "The best way to manage assets",
-            "monolog/monolog": "Log using Monolog",
-            "predis/predis": "Redis storage"
-        },
-        "time": "2014-02-09 13:36:32",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "psr-0": {
-                "DebugBar": "src/"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "Maxime Bouroumeau-Fuseau",
-                "email": "maxime.bouroumeau@gmail.com",
-                "homepage": "http://maximebf.com"
-            }
-        ],
-        "description": "Debug bar in the browser for php application",
-        "homepage": "https://github.com/maximebf/php-debugbar",
-        "keywords": [
-            "debug"
-        ]
-    },
-    {
         "name": "orchestra/testbench",
         "version": "2.1.x-dev",
         "version_normalized": "2.1.9999999.9999999-dev",
@@ -3319,18 +3267,177 @@
         ]
     },
     {
+        "name": "barryvdh/laravel-debugbar",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/barryvdh/laravel-debugbar.git",
+            "reference": "179c5a78845f497e491c4dce06c615a7ee1cd4bf"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/barryvdh/laravel-debugbar/zipball/179c5a78845f497e491c4dce06c615a7ee1cd4bf",
+            "reference": "179c5a78845f497e491c4dce06c615a7ee1cd4bf",
+            "shasum": ""
+        },
+        "require": {
+            "illuminate/filesystem": "~4.0",
+            "illuminate/support": "~4.0",
+            "maximebf/debugbar": "~1.9",
+            "php": ">=5.3.0",
+            "symfony/finder": "~2.3"
+        },
+        "time": "2014-02-13 16:38:13",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-0": {
+                "Barryvdh\\Debugbar": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Barry vd. Heuvel",
+                "email": "barryvdh@gmail.com"
+            }
+        ],
+        "description": "PHP Debugbar integration for Laravel",
+        "keywords": [
+            "debug",
+            "debugbar",
+            "laravel",
+            "profiler",
+            "webprofiler"
+        ]
+    },
+    {
+        "name": "dcarrith/lxmpd",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/dcarrith/lxmpd.git",
+            "reference": "468e4496acc9c11a2514b2c1251ae445ee138f07"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/dcarrith/lxmpd/zipball/468e4496acc9c11a2514b2c1251ae445ee138f07",
+            "reference": "468e4496acc9c11a2514b2c1251ae445ee138f07",
+            "shasum": ""
+        },
+        "require": {
+            "orchestra/testbench": "2.1.*",
+            "php": ">=5.3.0"
+        },
+        "time": "2014-02-14 02:56:05",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "1.0-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "src/migrations"
+            ],
+            "psr-0": {
+                "Dcarrith\\LxMPD": "src/"
+            }
+        },
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "David Carrithers",
+                "email": "dcarrith@gmail.com",
+                "homepage": "http://github.com/dcarrith"
+            }
+        ],
+        "description": "Laravel xMPD",
+        "homepage": "http://github.com/dcarrith/lxmpd",
+        "keywords": [
+            "Laravel",
+            "LxMPD",
+            "MPD",
+            "lxmpd"
+        ],
+        "support": {
+            "source": "https://github.com/dcarrith/lxmpd/tree/master",
+            "issues": "https://github.com/dcarrith/lxmpd/issues"
+        }
+    },
+    {
+        "name": "maximebf/debugbar",
+        "version": "1.9.4",
+        "version_normalized": "1.9.4.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/maximebf/php-debugbar.git",
+            "reference": "5bbb3bc78b3e9ee0c4cc8c3619171ea16f0fb51f"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/maximebf/php-debugbar/zipball/5bbb3bc78b3e9ee0c4cc8c3619171ea16f0fb51f",
+            "reference": "5bbb3bc78b3e9ee0c4cc8c3619171ea16f0fb51f",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0",
+            "psr/log": "~1.0"
+        },
+        "require-dev": {
+            "php": ">=5.3.0"
+        },
+        "suggest": {
+            "kriswallsmith/assetic": "The best way to manage assets",
+            "monolog/monolog": "Log using Monolog",
+            "predis/predis": "Redis storage"
+        },
+        "time": "2014-02-14 16:30:44",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-0": {
+                "DebugBar": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Maxime Bouroumeau-Fuseau",
+                "email": "maxime.bouroumeau@gmail.com",
+                "homepage": "http://maximebf.com"
+            }
+        ],
+        "description": "Debug bar in the browser for php application",
+        "homepage": "https://github.com/maximebf/php-debugbar",
+        "keywords": [
+            "debug"
+        ]
+    },
+    {
         "name": "laravel/framework",
         "version": "4.1.x-dev",
         "version_normalized": "4.1.9999999.9999999-dev",
         "source": {
             "type": "git",
             "url": "https://github.com/laravel/framework.git",
-            "reference": "5a8ab7847be8fd48bf84c727e2173d47fd8d742e"
+            "reference": "82c9100fb8ea30cffeebfb82eb8c16a48e515161"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/laravel/framework/zipball/5a8ab7847be8fd48bf84c727e2173d47fd8d742e",
-            "reference": "5a8ab7847be8fd48bf84c727e2173d47fd8d742e",
+            "url": "https://api.github.com/repos/laravel/framework/zipball/82c9100fb8ea30cffeebfb82eb8c16a48e515161",
+            "reference": "82c9100fb8ea30cffeebfb82eb8c16a48e515161",
             "shasum": ""
         },
         "require": {
@@ -3398,7 +3505,7 @@
         "suggest": {
             "doctrine/dbal": "Allow renaming columns and dropping SQLite columns."
         },
-        "time": "2014-02-13 00:46:16",
+        "time": "2014-02-14 22:14:28",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -3436,112 +3543,5 @@
             "framework",
             "laravel"
         ]
-    },
-    {
-        "name": "barryvdh/laravel-debugbar",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/barryvdh/laravel-debugbar.git",
-            "reference": "179c5a78845f497e491c4dce06c615a7ee1cd4bf"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/barryvdh/laravel-debugbar/zipball/179c5a78845f497e491c4dce06c615a7ee1cd4bf",
-            "reference": "179c5a78845f497e491c4dce06c615a7ee1cd4bf",
-            "shasum": ""
-        },
-        "require": {
-            "illuminate/filesystem": "~4.0",
-            "illuminate/support": "~4.0",
-            "maximebf/debugbar": "~1.9",
-            "php": ">=5.3.0",
-            "symfony/finder": "~2.3"
-        },
-        "time": "2014-02-13 16:38:13",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "psr-0": {
-                "Barryvdh\\Debugbar": "src/"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "Barry vd. Heuvel",
-                "email": "barryvdh@gmail.com"
-            }
-        ],
-        "description": "PHP Debugbar integration for Laravel",
-        "keywords": [
-            "debug",
-            "debugbar",
-            "laravel",
-            "profiler",
-            "webprofiler"
-        ]
-    },
-    {
-        "name": "dcarrith/lxmpd",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/dcarrith/lxmpd.git",
-            "reference": "8de9c711430d8b17dde6b1320e30786e7c9d8962"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/dcarrith/lxmpd/zipball/8de9c711430d8b17dde6b1320e30786e7c9d8962",
-            "reference": "8de9c711430d8b17dde6b1320e30786e7c9d8962",
-            "shasum": ""
-        },
-        "require": {
-            "orchestra/testbench": "2.1.*",
-            "php": ">=5.3.0"
-        },
-        "time": "2014-02-14 00:31:06",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "1.0-dev"
-            }
-        },
-        "installation-source": "dist",
-        "autoload": {
-            "classmap": [
-                "src/migrations"
-            ],
-            "psr-0": {
-                "Dcarrith\\LxMPD": "src/"
-            }
-        },
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "David Carrithers",
-                "email": "dcarrith@gmail.com",
-                "homepage": "http://github.com/dcarrith"
-            }
-        ],
-        "description": "Laravel xMPD",
-        "homepage": "http://github.com/dcarrith/lxmpd",
-        "keywords": [
-            "Laravel",
-            "LxMPD",
-            "MPD",
-            "lxmpd"
-        ],
-        "support": {
-            "source": "https://github.com/dcarrith/lxmpd/tree/master",
-            "issues": "https://github.com/dcarrith/lxmpd/issues"
-        }
     }
 ]

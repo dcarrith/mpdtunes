@@ -46,6 +46,11 @@ class LxMPD { //extends \Thread {
 	// A general command failed 
 	const MPD_COMMAND_FAILED = -100;
 
+	// Authentication errors
+	const MPD_NO_PASSWORD = -101;
+	const MPD_BAD_PASSWORD = -102;
+	const MPD_NO_READ_ACCESS = -103;
+
 	// Output array chunk sizes
 	const PLAYLISTINFO_CHUNK_SIZE = 8;
 
@@ -65,9 +70,6 @@ class LxMPD { //extends \Thread {
 
 	// Variable to track whether or not we're connected to MPD
 	private $_connected = false;
-
-	// Variable to store a list of commands for sending to MPD in bulk
-	private $_commandQueue = "";
 
 	// Variable for storing properties available via PHP magic methods: __set(), __get(), __isset(), __unset()
 	private $_properties = array();
@@ -94,7 +96,7 @@ class LxMPD { //extends \Thread {
 	private $_methods = array( 'add', 'addid', 'clear', 'clearerror', 'close', 'commands', 'consume', 'count', 'crossfade', 'currentsong', 'decoders', 'delete', 'deleteid', 'disableoutput', 'enableoutput', 'find', 'findadd', 'idle', 'kill', 'list', 'listall', 'listallinfo', 'listplaylist', 'listplaylistinfo', 'listplaylists', 'load', 'lsinfo', 'mixrampdb', 'mixrampdelay', 'move', 'moveid', 'next', 'notcommands', 'outputs', 'password', 'pause', 'ping', 'play', 'playid', 'playlist', 'playlistadd', 'playlistclear', 'playlistdelete', 'playlistfind', 'playlistid', 'playlistinfo', 'playlistmove', 'playlistsearch', 'plchanges', 'plchangesposid', 'previous', 'random', 'rename', 'repeat', 'replay_gain_mode', 'replay_gain_status', 'rescan', 'rm', 'save', 'search', 'seek', 'seekid', 'setvol', 'shuffle', 'single', 'stats', 'status', 'sticker', 'stop', 'swap', 'swapid', 'tagtypes', 'update', 'urlhandlers' );
 
 	// This is an array of MPD commands that should return a bool
-	private $_responseShouldBeBoolean = array( 'delete' );
+	private $_responseShouldBeBoolean = array( 'delete', 'password' );
 
         /**
          * Set connection paramaters.
@@ -159,11 +161,28 @@ class LxMPD { //extends \Thread {
 
                                 // Send the connection password
                                 if( !is_null( $this->_password ) ) {
-                                        $this->password( $this->_password );
-                                }
+
+					// Authenticate to MPD 
+					if( !$this->password( $this->_password )) {
+
+						// We might as well not be connected
+						$this->_connected = false;
+
+						// If the password fails, then we're not going to be able to do much
+        	                        	throw new MPDException( 'MPD did not like the provided password', self::MPD_BAD_PASSWORD );
+					}
+
+				} else {
+					
+					// We might as well not be connected
+					$this->_connected = false;
+
+					// If we don't have a password, then we're not going to be able to do much
+                                	throw new MPDException( 'Must supply a password to authenticate to MPD', self::MPD_NO_PASSWORD );
+				}
 
 				// Refresh all the status and statistics variables
-				$this->RefreshInfo();
+				$this->refreshInfo();
 
 				// Connected successfully
 				return true;
@@ -494,7 +513,16 @@ class LxMPD { //extends \Thread {
         	
 		// Get the Server Statistics
 		$this->statistics = $this->stats();
-        	
+	
+		// Set some of the statistics variables
+		$this->uptime 		= $this->statistics['uptime'];
+		$this->playtime 	= $this->statistics['playtime'];	
+		$this->artists 		= $this->statistics['artists'];
+		$this->albums 		= $this->statistics['albums'];
+		$this->songs 		= $this->statistics['songs'];
+		$this->db_playtime 	= $this->statistics['db_playtime'];
+		$this->db_update 	= $this->statistics['db_update'];
+
 		// Get the Server Status
 		$this->status = $this->status();
         	
@@ -519,10 +547,6 @@ class LxMPD { //extends \Thread {
 			$this->current_track_length = 0;
 		}
 
-		// This stuff doesn't seem to exist anymore
-		$this->uptime 		= $this->statistics['uptime'];
-		$this->playtime 	= $this->statistics['playtime'];
-
 		// These status variables are simple integers
 		$this->repeat 		= $this->status['repeat'];
 		$this->random 		= $this->status['random'];
@@ -530,7 +554,7 @@ class LxMPD { //extends \Thread {
 		$this->consume 		= $this->status['consume'];
 		$this->volume 		= $this->status['volume'];
 
-		// Adding some new fields that are reported on in the RefreshInfo results
+		// Adding some new fields that are reported on in the refreshInfo results
 		$this->playlist_id 	= ( isset($this->status['playlist']) 		? $this->status['playlist'] : 		'' );
 		$this->playlist_length 	= ( isset($this->status['playlist_length']) 	? $this->status['playlist_length'] : 	'' );
 		$this->song 		= ( isset($this->status['song']) 		? $this->status['song'] : 		'' );
