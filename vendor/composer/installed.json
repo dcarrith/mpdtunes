@@ -3432,12 +3432,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/laravel/framework.git",
-            "reference": "82c9100fb8ea30cffeebfb82eb8c16a48e515161"
+            "reference": "3b2f77e3c65c02c0245dd359f9d5ea1fbc6da6a2"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/laravel/framework/zipball/82c9100fb8ea30cffeebfb82eb8c16a48e515161",
-            "reference": "82c9100fb8ea30cffeebfb82eb8c16a48e515161",
+            "url": "https://api.github.com/repos/laravel/framework/zipball/3b2f77e3c65c02c0245dd359f9d5ea1fbc6da6a2",
+            "reference": "3b2f77e3c65c02c0245dd359f9d5ea1fbc6da6a2",
             "shasum": ""
         },
         "require": {
@@ -3497,15 +3497,15 @@
         },
         "require-dev": {
             "aws/aws-sdk-php": "2.5.*",
-            "iron-io/iron_mq": "1.4.*",
-            "mockery/mockery": "0.8.0",
+            "iron-io/iron_mq": "1.5.*",
+            "mockery/mockery": "0.9.*",
             "pda/pheanstalk": "2.1.*",
             "phpunit/phpunit": "3.7.*"
         },
         "suggest": {
             "doctrine/dbal": "Allow renaming columns and dropping SQLite columns."
         },
-        "time": "2014-02-14 22:14:28",
+        "time": "2014-02-15 18:07:56",
         "type": "library",
         "extra": {
             "branch-alias": {
