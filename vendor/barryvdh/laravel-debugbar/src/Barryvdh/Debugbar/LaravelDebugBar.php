@@ -9,8 +9,6 @@ use DebugBar\DataCollector\TimeDataCollector;
 use DebugBar\DataCollector\MemoryCollector;
 use DebugBar\DataCollector\ExceptionsCollector;
 use DebugBar\DataCollector\RequestDataCollector;
-use DebugBar\DataCollector\PDO\PDOCollector;
-use DebugBar\DataCollector\PDO\TraceablePDO;
 use DebugBar\Bridge\SwiftMailer\SwiftLogCollector;
 use DebugBar\Bridge\SwiftMailer\SwiftMailCollector;
 use DebugBar\Bridge\MonologCollector;
@@ -23,6 +21,7 @@ use Barryvdh\Debugbar\DataCollector\FilesCollector;
 use Barryvdh\Debugbar\DataCollector\LogsCollector;
 use Barryvdh\Debugbar\DataCollector\ConfigCollector;
 use Barryvdh\Debugbar\DataCollector\IlluminateAuthCollector;
+use Barryvdh\Debugbar\DataCollector\QueryCollector;
 use Barryvdh\Debugbar\Storage\FilesystemStorage;
 
 use Symfony\Component\HttpFoundation\Response;
@@ -139,10 +138,10 @@ class LaravelDebugbar extends DebugBar
             }
 
             $this->app->after(function() use($debugbar)
-            {
-                $debugbar->stopMeasure('application');
-                $debugbar->startMeasure('after', 'After application');
-            });
+                {
+                    $debugbar->stopMeasure('application');
+                    $debugbar->startMeasure('after', 'After application');
+                });
 
         }
         if($this->shouldCollect('memory', true)){
@@ -162,22 +161,26 @@ class LaravelDebugbar extends DebugBar
             $this->addCollector(new MessagesCollector('events'));
             $dispatcher = $this->app['events'];
             $dispatcher->listen('*', function() use($debugbar, $dispatcher){
-                if(method_exists($dispatcher, 'firing')){
-                    $event = $dispatcher->firing();
-                }else{
-                    $args = func_get_args();
-                    $event = end($args);
-                }
-                $debugbar['events']->info("Received event: ". $event);
-            });
+                    if($debugbar->isEnabled()){
+                        if(method_exists($dispatcher, 'firing')){
+                            $event = $dispatcher->firing();
+                        }else{
+                            $args = func_get_args();
+                            $event = end($args);
+                        }
+                        $debugbar['events']->info("Received event: ". $event);
+                    }
+                });
         }
 
         if($this->shouldCollect('views', true) and isset($this->app['events'])){
             $collectData = $this->app['config']->get('laravel-debugbar::config.options.views.data', true);
             $this->addCollector(new ViewCollector($collectData));
             $this->app['events']->listen('composing:*', function($view) use($debugbar){
-                $debugbar['views']->addView($view);
-            });
+                    if($debugbar->isEnabled()){
+                        $debugbar['views']->addView($view);
+                    }
+                });
         }
 
         if($this->shouldCollect('route')){
@@ -192,54 +195,43 @@ class LaravelDebugbar extends DebugBar
             if($this->hasCollector('messages') ){
                 $logger = new MessagesCollector('log');
                 $this['messages']->aggregate($logger);
-                $this->app['log']->listen(function($level, $message, $context) use($logger)
-                {
-                    if(is_array($message) or is_object($message)){
-                        $message = json_encode($message);
-                    }
-                    $log = '['.date('H:i:s').'] '. "LOG.$level: " . $message . (!empty($context) ? ' '.json_encode($context) : '');
-                    $logger->addMessage($log, $level);
-                });
+                $this->app['log']->listen(function($level, $message, $context) use($debugbar, $logger)
+                    {
+                        if($debugbar->isEnabled()){
+                            if(is_array($message) or is_object($message)){
+                                $message = json_encode($message);
+                            }
+                            $log = '['.date('H:i:s').'] '. "LOG.$level: " . $message . (!empty($context) ? ' '.json_encode($context) : '');
+                            $logger->addMessage($log, $level);
+                        }
+                    });
             }else{
                 $this->addCollector(new MonologCollector( $this->app['log']->getMonolog() ));
             }
         }
 
         if($this->shouldCollect('db', true) and isset($this->app['db'])){
-            try{
-                $pdo = new TraceablePDO( $this->app['db']->getPdo() );
-                $pdoCollector = new PDOCollector( $pdo );
-                if($this->app['config']->get('laravel-debugbar::config.options.pdo.with_params')){
-                    $pdoCollector->setRenderSqlWithParams(true, $this->app['config']->get('laravel-debugbar::config.options.pdo.quotation_char'));
-                }
+            $db = $this->app['db'];
+            if( $debugbar->hasCollector('time') && $this->app['config']->get('laravel-debugbar::config.options.db.timeline', true)){
+                $timeCollector = $debugbar->getCollector('time');
+            }else{
+                $timeCollector = null;
+            }
+            $queryCollector = new QueryCollector($db, $timeCollector);
 
-                foreach($this->app['config']->get('laravel-debugbar::config.options.pdo.extra_connections', array()) as $name){
-                    try{
-                        $pdo = new TraceablePDO($this->app['db']->connection($name)->getPdo());
-                        $pdoCollector->addConnection($pdo, $name);
-                    }catch(\Exception $e){
-                        if($this->hasCollector('exceptions')){
-                            $this['exceptions']->addException($e);
-                        }elseif($this->hasCollector('messages')){
-                            $this['messages']->error($e->getMessage());
-                        }
+            if($this->app['config']->get('laravel-debugbar::config.options.db.with_params')){
+                $queryCollector->setRenderSqlWithParams(true);
+            }
+
+            $this->addCollector($queryCollector);
+
+            $db->listen(function($query, $bindings, $time, $connectionName) use ($debugbar, $queryCollector)
+                {
+                    if($debugbar->isEnabled()){
+                        $queryCollector->addQuery($query, $bindings, $time, $connectionName);
                     }
-                }
-                $this->addCollector($pdoCollector);
-            }catch(\PDOException $e){
-                //Not connection set..
-            }
+                });
         }
-
-        if($this->shouldCollect('twig') and isset($this->app['twig'])){
-            $time = isset($this['time']) ? $this['time'] : null;
-            $this->app['twig'] = new TraceableTwigEnvironment($this->app['twig'], $time);
-            //If we already collect Views, skip the collector (but do add timing)
-            if(!$this->hasCollector('views')){
-                $this->addCollector(new TwigCollector($this->app['twig']));
-            }
-        }
-
 
         if($this->shouldCollect('mail', true)){
             $mailer = $this->app['mailer']->getSwiftMailer();
@@ -339,7 +331,7 @@ class LaravelDebugbar extends DebugBar
             try{
                 $collector->stopMeasure($name);
             }catch(\Exception $e){
-              //  $this->addException($e);
+                //  $this->addException($e);
             }
 
         }
@@ -443,14 +435,14 @@ class LaravelDebugbar extends DebugBar
 
         $response->setContent($content);
     }
-    
+
     /**
      * Collect data in a CLI request
      *
      * @return array
      */
     public function collectConsole(){
-        if(!$this->isEnabled() || !$this->app['config']->get('laravel-debugbar::config.capture_console')){
+        if(!$this->isEnabled()){
             return;
         }
 

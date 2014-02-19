@@ -58,9 +58,12 @@ class ListenCommand extends Command {
 				new \Ratchet\WebSocket\WsServer(
 					new \Ratchet\Wamp\WampServer(
 						$this->latchet
-				)	)
+					)
+				)
 			), $webSock
 		);
+
+
 
 		if(\Config::get('latchet::allowFlash'))
 		{
