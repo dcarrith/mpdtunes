@@ -161,15 +161,13 @@ class LaravelDebugbar extends DebugBar
             $this->addCollector(new MessagesCollector('events'));
             $dispatcher = $this->app['events'];
             $dispatcher->listen('*', function() use($debugbar, $dispatcher){
-                    if($debugbar->isEnabled()){
-                        if(method_exists($dispatcher, 'firing')){
-                            $event = $dispatcher->firing();
-                        }else{
-                            $args = func_get_args();
-                            $event = end($args);
-                        }
-                        $debugbar['events']->info("Received event: ". $event);
+                    if(method_exists($dispatcher, 'firing')){
+                        $event = $dispatcher->firing();
+                    }else{
+                        $args = func_get_args();
+                        $event = end($args);
                     }
+                    $debugbar['events']->info("Received event: ". $event);
                 });
         }
 
@@ -177,9 +175,7 @@ class LaravelDebugbar extends DebugBar
             $collectData = $this->app['config']->get('laravel-debugbar::config.options.views.data', true);
             $this->addCollector(new ViewCollector($collectData));
             $this->app['events']->listen('composing:*', function($view) use($debugbar){
-                    if($debugbar->isEnabled()){
-                        $debugbar['views']->addView($view);
-                    }
+                    $debugbar['views']->addView($view);
                 });
         }
 
@@ -195,15 +191,13 @@ class LaravelDebugbar extends DebugBar
             if($this->hasCollector('messages') ){
                 $logger = new MessagesCollector('log');
                 $this['messages']->aggregate($logger);
-                $this->app['log']->listen(function($level, $message, $context) use($debugbar, $logger)
+                $this->app['log']->listen(function($level, $message, $context) use($logger)
                     {
-                        if($debugbar->isEnabled()){
-                            if(is_array($message) or is_object($message)){
-                                $message = json_encode($message);
-                            }
-                            $log = '['.date('H:i:s').'] '. "LOG.$level: " . $message . (!empty($context) ? ' '.json_encode($context) : '');
-                            $logger->addMessage($log, $level);
+                        if(is_array($message) or is_object($message)){
+                            $message = json_encode($message);
                         }
+                        $log = '['.date('H:i:s').'] '. "LOG.$level: " . $message . (!empty($context) ? ' '.json_encode($context) : '');
+                        $logger->addMessage($log, $level);
                     });
             }else{
                 $this->addCollector(new MonologCollector( $this->app['log']->getMonolog() ));
@@ -225,11 +219,9 @@ class LaravelDebugbar extends DebugBar
 
             $this->addCollector($queryCollector);
 
-            $db->listen(function($query, $bindings, $time, $connectionName) use ($debugbar, $queryCollector)
+            $db->listen(function($query, $bindings, $time, $connectionName) use ($queryCollector)
                 {
-                    if($debugbar->isEnabled()){
-                        $queryCollector->addQuery($query, $bindings, $time, $connectionName);
-                    }
+                    $queryCollector->addQuery($query, $bindings, $time, $connectionName);
                 });
         }
 

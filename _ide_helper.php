@@ -8117,7 +8117,7 @@ class Queue extends Illuminate\Support\Facades\Queue{
 	 * @static 
 	 */
 	 public static function push($job, $data = '', $queue = null){
-		return Illuminate\Queue\SyncQueue::push($job, $data, $queue);
+		return Illuminate\Queue\BeanstalkdQueue::push($job, $data, $queue);
 	 }
 
 	/**
@@ -8130,7 +8130,7 @@ class Queue extends Illuminate\Support\Facades\Queue{
 	 * @static 
 	 */
 	 public static function pushRaw($payload, $queue = null, $options = array()){
-		return Illuminate\Queue\SyncQueue::pushRaw($payload, $queue, $options);
+		return Illuminate\Queue\BeanstalkdQueue::pushRaw($payload, $queue, $options);
 	 }
 
 	/**
@@ -8144,7 +8144,7 @@ class Queue extends Illuminate\Support\Facades\Queue{
 	 * @static 
 	 */
 	 public static function later($delay, $job, $data = '', $queue = null){
-		return Illuminate\Queue\SyncQueue::later($delay, $job, $data, $queue);
+		return Illuminate\Queue\BeanstalkdQueue::later($delay, $job, $data, $queue);
 	 }
 
 	/**
@@ -8155,7 +8155,28 @@ class Queue extends Illuminate\Support\Facades\Queue{
 	 * @static 
 	 */
 	 public static function pop($queue = null){
-		return Illuminate\Queue\SyncQueue::pop($queue);
+		return Illuminate\Queue\BeanstalkdQueue::pop($queue);
+	 }
+
+	/**
+	 * Get the queue or return the default.
+	 *
+	 * @param string|null  $queue
+	 * @return string
+	 * @static 
+	 */
+	 public static function getQueue($queue){
+		return Illuminate\Queue\BeanstalkdQueue::getQueue($queue);
+	 }
+
+	/**
+	 * Get the underlying Pheanstalk instance.
+	 *
+	 * @return Pheanstalk
+	 * @static 
+	 */
+	 public static function getPheanstalk(){
+		return Illuminate\Queue\BeanstalkdQueue::getPheanstalk();
 	 }
 
 	/**
@@ -8166,7 +8187,7 @@ class Queue extends Illuminate\Support\Facades\Queue{
 	 */
 	 public static function marshal(){
 		//Method inherited from Illuminate\Queue\Queue
-		 Illuminate\Queue\SyncQueue::marshal();
+		 Illuminate\Queue\BeanstalkdQueue::marshal();
 	 }
 
 	/**
@@ -8180,7 +8201,7 @@ class Queue extends Illuminate\Support\Facades\Queue{
 	 */
 	 public static function bulk($jobs, $data = '', $queue = null){
 		//Method inherited from Illuminate\Queue\Queue
-		return Illuminate\Queue\SyncQueue::bulk($jobs, $data, $queue);
+		return Illuminate\Queue\BeanstalkdQueue::bulk($jobs, $data, $queue);
 	 }
 
 	/**
@@ -8191,7 +8212,7 @@ class Queue extends Illuminate\Support\Facades\Queue{
 	 */
 	 public static function getTime(){
 		//Method inherited from Illuminate\Queue\Queue
-		return Illuminate\Queue\SyncQueue::getTime();
+		return Illuminate\Queue\BeanstalkdQueue::getTime();
 	 }
 
 	/**
@@ -8203,7 +8224,7 @@ class Queue extends Illuminate\Support\Facades\Queue{
 	 */
 	 public static function setContainer($container){
 		//Method inherited from Illuminate\Queue\Queue
-		 Illuminate\Queue\SyncQueue::setContainer($container);
+		 Illuminate\Queue\BeanstalkdQueue::setContainer($container);
 	 }
 
 }

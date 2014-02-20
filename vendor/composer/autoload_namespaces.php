@@ -33,6 +33,7 @@ return array(
     'Ratchet' => array($vendorDir . '/cboden/ratchet/src'),
     'Psr\\Log\\' => array($vendorDir . '/psr/log'),
     'Predis' => array($vendorDir . '/predis/predis/lib'),
+    'Pheanstalk' => array($vendorDir . '/pda/pheanstalk/classes'),
     'Patchwork' => array($vendorDir . '/patchwork/utf8/class'),
     'PHPParser' => array($vendorDir . '/nikic/php-parser/lib'),
     'Orchestra\\Testbench' => array($vendorDir . '/orchestra/testbench/src'),
