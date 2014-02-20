@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class CreateLanguagesTable extends Migration {
@@ -20,7 +21,7 @@ class CreateLanguagesTable extends Migration {
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
 		*/
 
-                Schema::create('languages', function($table) {
+                Schema::create('languages', function(Blueprint $table) {
 
                         $table->increments('id');
                         $table->string('code', 32)->nullable()->default(null);
@@ -130,7 +131,7 @@ class CreateLanguagesTable extends Migration {
 	 */
 	public function down()
 	{
-		//
+		Schema::drop('languages');
 	}
 
 }

@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class CreateUsersPreferencesTable extends Migration {
@@ -27,7 +28,7 @@ class CreateUsersPreferencesTable extends Migration {
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
                 */
 
-                Schema::create('users_preferences', function($table) {
+                Schema::create('users_preferences', function(Blueprint $table) {
 
                         $table->integer('user_id')->foreign()->references('id')->on('users');
 			$table->integer('theme_id')->default(1)->foreign()->references('id')->on('themes');
@@ -60,7 +61,7 @@ class CreateUsersPreferencesTable extends Migration {
 	 */
 	public function down()
 	{
-		//
+		Schema::drop('users_preferences');
 	}
 
 }

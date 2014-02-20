@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class CreateThemesColorsTable extends Migration {
@@ -20,7 +21,7 @@ class CreateThemesColorsTable extends Migration {
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
 		*/                
 
-		Schema::create('themes_colors', function($table) {
+		Schema::create('themes_colors', function(Blueprint $table) {
 
                         $table->string('letter_code', 3)->primary();
                         $table->string('name', 32)->nullable()->default(null);
@@ -182,7 +183,7 @@ class CreateThemesColorsTable extends Migration {
 	 */
 	public function down()
 	{
-		//
+		Schema::drop('themes_colors');
 	}
 
 }

@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class CreateStationsTable extends Migration {
@@ -32,7 +33,7 @@ class CreateStationsTable extends Migration {
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
                 */
 
-                Schema::create('stations', function($table) {
+                Schema::create('stations', function(Blueprint $table) {
 
                         $table->increments('id');
                         $table->string('name', 64)->index();
@@ -102,7 +103,7 @@ class CreateStationsTable extends Migration {
 	 */
 	public function down()
 	{
-		//
+		Schema::drop('stations');
 	}
 
 }

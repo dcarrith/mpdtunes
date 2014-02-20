@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class CreateStationsIconsTable extends Migration {
@@ -24,7 +25,7 @@ class CreateStationsIconsTable extends Migration {
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
 		*/
 
-                Schema::create('stations_icons', function($table) {
+                Schema::create('stations_icons', function(Blueprint $table) {
 
                         $table->increments('id');
                         $table->string('filename', 64);
@@ -80,7 +81,7 @@ class CreateStationsIconsTable extends Migration {
 	 */
 	public function down()
 	{
-		//
+		Schema::drop('stations_icons');
 	}
 
 }

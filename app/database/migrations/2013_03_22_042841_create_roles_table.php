@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class CreateRolesTable extends Migration {
@@ -21,7 +22,7 @@ class CreateRolesTable extends Migration {
  	 			KEY ind_mpdtunes_roles_level (level)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
 		*/
-                Schema::create('roles', function($table) {
+                Schema::create('roles', function(Blueprint $table) {
 
                         $table->increments('id');
                         $table->string('name', 24)->nullable()->default(null);
@@ -85,7 +86,7 @@ class CreateRolesTable extends Migration {
 	 */
 	public function down()
 	{
-		//
+		Schema::drop('roles');
 	}
 
 }

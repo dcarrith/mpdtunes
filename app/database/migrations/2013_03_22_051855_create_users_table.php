@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class CreateUsersTable extends Migration {
@@ -30,7 +31,7 @@ class CreateUsersTable extends Migration {
   				KEY ind_mpdtunes_users_active (active)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
 		*/
-		Schema::create('users', function($table) {
+		Schema::create('users', function(Blueprint $table) {
     		
 			$table->increments('id');
     			$table->string('first_name', 64)->nullable()->default(null);
@@ -67,7 +68,7 @@ class CreateUsersTable extends Migration {
 	 */
 	public function down()
 	{
-		//
+		Schema::drop('users');
 	}
 
 }

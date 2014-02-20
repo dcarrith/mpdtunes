@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class CreateUsersConfigsTable extends Migration {
@@ -20,7 +21,7 @@ class CreateUsersConfigsTable extends Migration {
                 	) ENGINE=InnoDB DEFAULT CHARSET=utf8;
         	*/
 
-                Schema::create('users_configs', function($table) {
+                Schema::create('users_configs', function(Blueprint $table) {
 
                         $table->integer('user_id');
                         $table->binary('config');
@@ -52,7 +53,7 @@ class CreateUsersConfigsTable extends Migration {
 	 */
 	public function down()
 	{
-		//
+		Schema::drop('users_configs');
 	}
 
 }

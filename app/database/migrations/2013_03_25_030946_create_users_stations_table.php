@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class CreateUsersStationsTable extends Migration {
@@ -21,7 +22,7 @@ class CreateUsersStationsTable extends Migration {
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
                 */
 
-                Schema::create('users_stations', function($table) {
+                Schema::create('users_stations', function(Blueprint $table) {
 
                         $table->integer('user_id')->default(1)->foreign()->references('id')->on('users');
                         $table->integer('station_id')->default(1)->foreign()->references('id')->on('stations');
@@ -57,7 +58,7 @@ class CreateUsersStationsTable extends Migration {
 	 */
 	public function down()
 	{
-		//
+		Schema::drop('users_stations');
 	}
 
 }

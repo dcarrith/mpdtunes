@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class CreateThemesTable extends Migration {
@@ -30,7 +31,7 @@ class CreateThemesTable extends Migration {
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
 		*/		
 
-                Schema::create('themes', function($table) {
+                Schema::create('themes', function(Blueprint $table) {
 
                         $table->increments('id');
                         $table->string('icon', 1)->default('b');
@@ -248,7 +249,7 @@ class CreateThemesTable extends Migration {
 	 */
 	public function down()
 	{
-		//
+		Schema::drop('themes');
 	}
 
 }
