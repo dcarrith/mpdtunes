@@ -72,7 +72,7 @@ class Image
     /**
      * Attributes of the original created image
      *
-     * @var Array
+     * @var resource
      */
     protected $original;
 
@@ -528,6 +528,8 @@ class Image
             case 'left-top':
                 $src_x = 0;
                 $src_y = 0;
+                $dst_x = 0;
+                $dst_y = 0;
                 break;
 
             case 'top':
@@ -537,12 +539,16 @@ class Image
             case 'middle-top':
                 $src_x = ($width < $this->width) ? intval(($this->width - $width) / 2) : 0;
                 $src_y = 0;
+                $dst_x = ($width <= $this->width) ? 0 : intval(($width - $this->width) / 2);
+                $dst_y = 0;
                 break;
 
             case 'top-right':
             case 'right-top':
                 $src_x = ($width < $this->width) ? intval($this->width - $width) : 0;
                 $src_y = 0;
+                $dst_x = ($width <= $this->width) ? 0 : intval(($width - $this->width));
+                $dst_y = 0;
                 break;
 
             case 'left':
@@ -552,6 +558,8 @@ class Image
             case 'middle-left':
                 $src_x = 0;
                 $src_y = ($height < $this->height) ? intval(($this->height - $height) / 2) : 0;
+                $dst_x = 0;
+                $dst_y = ($height <= $this->height) ? 0 : intval(($height - $this->height) / 2);
                 break;
 
             case 'right':
@@ -561,12 +569,16 @@ class Image
             case 'middle-right':
                 $src_x = ($width < $this->width) ? intval($this->width - $width) : 0;
                 $src_y = ($height < $this->height) ? intval(($this->height - $height) / 2) : 0;
+                $dst_x = ($width <= $this->width) ? 0 : intval(($width - $this->width));
+                $dst_y = ($height <= $this->height) ? 0 : intval(($height - $this->height) / 2);
                 break;
 
             case 'bottom-left':
             case 'left-bottom':
                 $src_x = 0;
                 $src_y = ($height < $this->height) ? intval($this->height - $height) : 0;
+                $dst_x = 0;
+                $dst_y = ($height <= $this->height) ? 0 : intval(($height - $this->height));
                 break;
 
             case 'bottom':
@@ -576,12 +588,16 @@ class Image
             case 'middle-bottom':
                 $src_x = ($width < $this->width) ? intval(($this->width - $width) / 2) : 0;
                 $src_y = ($height < $this->height) ? intval($this->height - $height) : 0;
+                $dst_x = ($width <= $this->width) ? 0 : intval(($width - $this->width) / 2);
+                $dst_y = ($height <= $this->height) ? 0 : intval(($height - $this->height));
                 break;
 
             case 'bottom-right':
             case 'right-bottom':
                 $src_x = ($width < $this->width) ? intval($this->width - $width) : 0;
                 $src_y = ($height < $this->height) ? intval($this->height - $height) : 0;
+                $dst_x = ($width <= $this->width) ? 0 : intval(($width - $this->width));
+                $dst_y = ($height <= $this->height) ? 0 : intval(($height - $this->height));
                 break;
 
             default:
@@ -591,12 +607,10 @@ class Image
             case 'middle-middle':
                 $src_x = ($width < $this->width) ? intval(($this->width - $width) / 2) : 0;
                 $src_y = ($height < $this->height) ? intval(($this->height - $height) / 2) : 0;
+                $dst_x = ($width <= $this->width) ? 0 : intval(($width - $this->width) / 2);
+                $dst_y = ($height <= $this->height) ? 0 : intval(($height - $this->height) / 2);
                 break;
         }
-
-        // define dest. pos
-        $dst_x = ($width <= $this->width) ? 0 : intval(($width - $this->width) / 2);
-        $dst_y = ($height <= $this->height) ? 0 : intval(($height - $this->height) / 2);
 
         // copy content from resource
         imagecopy($image, $this->resource, $dst_x, $dst_y, $src_x, $src_y, $src_w, $src_h);
@@ -1040,7 +1054,7 @@ class Image
      * @param  integer $pos_y
      * @return Image
      */
-    public function fill($source, $pos_x = 0, $pos_y = 0)
+    public function fill($source, $pos_x = null, $pos_y = null)
     {
         if (is_a($source, 'Intervention\Image\Image')) {
 
@@ -1072,8 +1086,14 @@ class Image
             // fill with color
             $source = $this->parseColor($source);
         }
-
-        imagefill($this->resource, $pos_x, $pos_y, $source);
+        
+        if (is_int($pos_x) && is_int($pos_y)) {
+            // floodfill if exact position is defined
+            imagefill($this->resource, $pos_x, $pos_y, $source);
+        } else {
+            // fill whole image otherwise
+            imagefilledrectangle($this->resource, 0, 0, $this->width - 1, $this->height - 1, $source);
+        }
 
         return $this;
     }
@@ -1404,6 +1424,7 @@ class Image
     public function reset()
     {
         if ($this->isImageResource($this->original)) {
+            is_resource($this->resource) ? imagedestroy($this->resource) : null;
             $this->initFromResource($this->original);
         }
 
@@ -1758,9 +1779,10 @@ class Image
      */
     private function cloneResource($resource)
     {
-        ob_start();
-        imagegd2($resource);
-        return imagecreatefromstring(ob_get_clean());
+        $clone = imagecreatetruecolor($this->width, $this->height);
+        imagecopy($clone, $resource, 0, 0, 0, 0, $this->width, $this->height);
+
+        return $clone;
     }
 
     /**
@@ -1887,6 +1909,17 @@ class Image
         header('Content-Type: ' . $this->mime);
 
         return $this->encoded;
+    }
+
+    /**
+     * Destroys image resource and frees memory
+     *
+     * @return void
+     */
+    public function destroy()
+    {
+        is_resource($this->resource) ? imagedestroy($this->resource) : null;
+        is_resource($this->original) ? imagedestroy($this->original) : null;
     }
 
     /**

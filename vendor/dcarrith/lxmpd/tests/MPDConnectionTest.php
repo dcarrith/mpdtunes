@@ -1,6 +1,7 @@
 <?php namespace Orchestra\Testbench\Tests;
 
 use Dcarrith\LxMPD\LxMPD; 
+use Dcarrith\LxMPD\Connection\MPDConnection;
 use Illuminate\Support\Facades\Config;
 
 class MPDConnectionTest extends \Orchestra\Testbench\TestCase
@@ -17,7 +18,7 @@ class MPDConnectionTest extends \Orchestra\Testbench\TestCase
 	$this->port = Config::get('lxmpd::port');
 	$this->password = Config::get('lxmpd::password');
 
-	$this->LxMPD = new LxMPD( $this->host, $this->port, $this->password );
+	$this->connection = new MPDConnection( $this->host, $this->port, $this->password );
 
         // uncomment to enable route filters if your package defines routes with filters
         // $this->app['router']->enableFilters();
@@ -110,7 +111,7 @@ class MPDConnectionTest extends \Orchestra\Testbench\TestCase
     {
 
 	// Try to connect to MPD with the credentials retrieved from config during setup
-	$result = $this->LxMPD->connect();
+	$result = $this->connection->establish();
 
 	// Check if the result is true
         $this->assertEquals(true, $result);	

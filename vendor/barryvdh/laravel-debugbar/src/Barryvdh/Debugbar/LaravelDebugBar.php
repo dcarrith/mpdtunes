@@ -148,7 +148,11 @@ class LaravelDebugbar extends DebugBar
             $this->addCollector(new MemoryCollector());
         }
         if($this->shouldCollect('exceptions', true)){
-            $this->addCollector(new ExceptionsCollector());
+            $exceptionCollector = new ExceptionsCollector();
+            $this->addCollector($exceptionCollector);
+            $this->app->error(function(Exception $exception) use($exceptionCollector){
+                $exceptionCollector->addException($exception);
+            });
         }
         if($this->shouldCollect('laravel', false)){
             $this->addCollector(new LaravelCollector());
@@ -206,12 +210,12 @@ class LaravelDebugbar extends DebugBar
 
         if($this->shouldCollect('db', true) and isset($this->app['db'])){
             $db = $this->app['db'];
-            if( $debugbar->hasCollector('time') && $this->app['config']->get('laravel-debugbar::config.options.db.timeline', true)){
+            if( $debugbar->hasCollector('time') && $this->app['config']->get('laravel-debugbar::config.options.db.timeline', false)){
                 $timeCollector = $debugbar->getCollector('time');
             }else{
                 $timeCollector = null;
             }
-            $queryCollector = new QueryCollector($db, $timeCollector);
+            $queryCollector = new QueryCollector($timeCollector);
 
             if($this->app['config']->get('laravel-debugbar::config.options.db.with_params')){
                 $queryCollector->setRenderSqlWithParams(true);
@@ -219,9 +223,12 @@ class LaravelDebugbar extends DebugBar
 
             $this->addCollector($queryCollector);
 
-            $db->listen(function($query, $bindings, $time, $connectionName) use ($queryCollector)
+            $db->listen(function($query, $bindings, $time, $connectionName) use ($db, $queryCollector)
                 {
-                    $queryCollector->addQuery($query, $bindings, $time, $connectionName);
+                    $connection = $db->connection($connectionName);
+                    if( !method_exists($connection, 'logging') || $connection->logging() ){
+                        $queryCollector->addQuery($query, $bindings, $time, $connection);
+                    }
                 });
         }
 

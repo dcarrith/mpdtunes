@@ -1,13 +1,8 @@
 <?php namespace Way\Generators\Commands;
 
-use Way\Generators\Generators\ResourceGenerator;
-use Way\Generators\Cache;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
-use Illuminate\Support\Pluralizer;
-
-class MissingFieldsException extends \Exception {}
 
 class ResourceGeneratorCommand extends Command {
 
@@ -23,242 +18,148 @@ class ResourceGeneratorCommand extends Command {
      *
      * @var string
      */
-    protected $description = 'Generate a resource.';
+    protected $description = 'Generate a new resource';
 
     /**
-     * Model generator instance.
+     * Generate a resource
      *
-     * @var Way\Generators\Generators\ResourceGenerator
+     * @return mixed
      */
-    protected $generator;
-
-    /**
-     * File cache.
-     *
-     * @var Cache
-     */
-    protected $cache;
-
-    /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
-    public function __construct(ResourceGenerator $generator, Cache $cache)
+    protected function fire()
     {
-        parent::__construct();
+        $resource = $this->argument('resource');
 
-        $this->generator = $generator;
-        $this->cache = $cache;
+        $this->callModel($resource);
+        $this->callController($resource);
+        $this->callMigration($resource);
+        $this->callSeeder($resource);
+        $this->callMigrate();
+
+        // All done!
+        $this->info(sprintf(
+            "All done! Don't forget to add '%s` to %s." . PHP_EOL,
+            "Route::resource('{$this->getTableName($resource)}', '{$this->getControllerName($resource)}');",
+            "app/routes.php"
+        ));
+
     }
 
     /**
-     * Execute the console command.
+     * Get the name for the model
      *
-     * @return void
-     */
-    public function fire()
-    {
-        // Scaffolding should always begin with the singular
-        // form of the now.
-        $this->model = Pluralizer::singular($this->argument('name'));
-
-        $this->fields = $this->option('fields');
-
-        if (is_null($this->fields))
-        {
-            throw new MissingFieldsException('You must specify the fields option.');
-        }
-
-        // We're going to need access to these values
-        // within future commands. I'll save them
-        // to temporary files to allow for that.
-        $this->cache->fields($this->fields);
-        $this->cache->modelName($this->model);
-
-        $this->generateModel();
-        $this->generateController();
-        $this->generateViews();
-        $this->generateMigration();
-        $this->generateSeed();
-
-        if (get_called_class() === 'Way\\Generators\\Commands\\ScaffoldGeneratorCommand')
-        {
-            $this->generateTest();
-        }
-
-        $this->generator->updateRoutesFile($this->model);
-        $this->info('Updated ' . app_path() . '/routes.php');
-
-        // We're all finished, so we
-        // can delete the cache.
-        $this->cache->destroyAll();
-    }
-
-    /**
-     * Get the path to the template for a model.
-     *
+     * @param $resource
      * @return string
      */
-    protected function getModelTemplatePath()
+    protected function getModelName($resource)
     {
-        return __DIR__.'/../Generators/templates/model.txt';
+        return ucwords(str_singular($resource));
     }
 
     /**
-     * Get the path to the template for a controller.
+     * Get the name for the controller
      *
+     * @param $resource
      * @return string
      */
-    protected function getControllerTemplatePath()
+    protected function getControllerName($resource)
     {
-        return __DIR__.'/../Generators/templates/controller.txt';
+        return ucwords(str_plural($resource)) . 'Controller';
     }
 
     /**
-     * Get the path to the template for a view.
+     * Get the DB table name
      *
+     * @param $resource
      * @return string
      */
-    protected function getViewTemplatePath($view = 'view')
+    protected function getTableName($resource)
     {
-        return __DIR__."/../Generators/templates/view.txt";
+        return str_plural($resource);
     }
 
     /**
-     * Call generate:model
+     * Get the name for the migration
      *
-     * @return void
+     * @param $resource
+     * @return string
      */
-    protected function generateModel()
+    protected function getMigrationName($resource)
     {
-        // For now, this is just the regular model template
-        $this->call(
-            'generate:model',
-            array(
-                'name' => $this->model,
-                '--template' => $this->getModelTemplatePath()
-            )
-        );
+        return "create_{$this->getTableName($resource)}_table";
     }
 
     /**
-     * Call generate:controller
+     * Call model generator if user confirms
      *
-     * @return void
+     * @param $resource
      */
-   protected function generateController()
+    protected function callModel($resource)
     {
-        $name = Pluralizer::plural($this->model);
+        $modelName = $this->getModelName($resource);
 
-        $this->call(
-            'generate:controller',
-            array(
-                'name' => "{$name}Controller",
-                '--template' => $this->getControllerTemplatePath()
-            )
-        );
-    }
-
-    /**
-     * Call generate:test
-     *
-     * @return void
-     */
-    protected function generateTest()
-    {
-        if ( ! file_exists(app_path() . '/tests/controllers'))
+        if ($this->confirm("Do you want me to create a $modelName model? [yes|no]"))
         {
-            mkdir(app_path() . '/tests/controllers');
-        }
-
-        $this->call(
-            'generate:test',
-            array(
-                'name' => Pluralizer::plural(strtolower($this->model)) . 'Test',
-                '--template' => $this->getTestTemplatePath(),
-                '--path' => app_path() . '/tests/controllers'
-            )
-        );
-    }
-
-    /**
-     * Call generate:views
-     *
-     * @return void
-     */
-    protected function generateViews()
-    {
-        $viewsDir = app_path().'/views';
-        $container = $viewsDir . '/' . Pluralizer::plural($this->model);
-        $layouts = $viewsDir . '/layouts';
-        $views = array('index', 'show', 'create', 'edit');
-
-        $this->generator->folders(
-            array($container)
-        );
-
-        // If generating a scaffold, we also need views/layouts/scaffold
-        if (get_called_class() === 'Way\\Generators\\Commands\\ScaffoldGeneratorCommand')
-        {
-            $views[] = 'scaffold';
-            $this->generator->folders($layouts);
-        }
-
-        // Let's filter through all of our needed views
-        // and create each one.
-        foreach($views as $view)
-        {
-            $path = $view === 'scaffold' ? $layouts : $container;
-            $this->generateView($view, $path);
+            $this->call('generate:model', compact('modelName'));
         }
     }
 
     /**
-     * Generate a view
+     * Call controller generator if user confirms
      *
-     * @param  string $view
-     * @param  string $path
-     * @return void
+     * @param $resource
      */
-    protected function generateView($view, $path)
+    protected function callController($resource)
     {
-        $this->call(
-            'generate:view',
-            array(
-                'name'       => $view,
-                '--path'     => $path,
-                '--template' => $this->getViewTemplatePath($view)
-            )
-        );
+        $controllerName = $this->getControllerName($resource);
+
+        if ($this->confirm("Do you want me to create a $controllerName controller? [yes|no]"))
+        {
+            $this->call('generate:controller', compact('controllerName'));
+        }
     }
 
     /**
-     * Call generate:migration
+     * Call migration generator if user confirms
      *
-     * @return void
+     * @param $resource
      */
-    protected function generateMigration()
+    protected function callMigration($resource)
     {
-        $name = 'create_' . Pluralizer::plural($this->model) . '_table';
+        $migrationName = $this->getMigrationName($resource);
 
-        $this->call(
-            'generate:migration',
-            array(
-                'name'      => $name,
-                '--fields'  => $this->option('fields')
-            )
-        );
+        if ($this->confirm("Do you want me to create a '$migrationName' migration and schema for this resource? [yes|no]"))
+        {
+            $this->call('generate:migration', [
+                'migrationName' => $migrationName,
+                '--fields' => $this->option('fields')
+            ]);
+        }
     }
 
-    protected function generateSeed()
+    /**
+     * Call seeder generator if user confirms
+     *
+     * @param $resource
+     */
+    protected function callSeeder($resource)
     {
-        $this->call(
-            'generate:seed',
-            array(
-                'name' => Pluralizer::plural(strtolower($this->model))
-            )
-        );
+        $tableName = $this->getTableName($resource);
+
+        if ($this->confirm("Would you like a '$tableName' table seeder?"))
+        {
+            $this->call('generate:seed', compact('tableName'));
+        }
+    }
+
+    /**
+     * Migrate database if user confirms
+     */
+    protected function callMigrate()
+    {
+        if ($this->confirm('Do you want to go ahead and migrate the database? [yes|no]')) {
+            $this->call('migrate');
+            $this->info('Done!');
+        }
     }
 
     /**
@@ -269,7 +170,7 @@ class ResourceGeneratorCommand extends Command {
     protected function getArguments()
     {
         return array(
-            array('name', InputArgument::REQUIRED, 'Name of the desired resource.'),
+            array('resource', InputArgument::REQUIRED, 'Singular resource name')
         );
     }
 
@@ -281,8 +182,7 @@ class ResourceGeneratorCommand extends Command {
     protected function getOptions()
     {
         return array(
-            array('path', null, InputOption::VALUE_OPTIONAL, 'The path to the migrations folder', app_path() . '/database/migrations'),
-            array('fields', null, InputOption::VALUE_OPTIONAL, 'Table fields', null)
+            array('fields', null, InputOption::VALUE_OPTIONAL, 'Fields for the migration')
         );
     }
 

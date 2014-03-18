@@ -1,12 +1,14 @@
 <?php namespace Way\Generators\Commands;
 
-use Way\Generators\Generators\MigrationGenerator;
-use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
+use Way\Generators\Parsers\MigrationNameParser;
+use Way\Generators\Parsers\MigrationFieldsParser;
+use Way\Generators\Generator;
+use Way\Generators\SchemaCreator;
 
-class MigrationGeneratorCommand extends BaseGeneratorCommand
-{
+class MigrationGeneratorCommand extends GeneratorCommand {
+
     /**
      * The console command name.
      *
@@ -19,55 +21,101 @@ class MigrationGeneratorCommand extends BaseGeneratorCommand
      *
      * @var string
      */
-    protected $description = 'Generate a new migration.';
+    protected $description = 'Generate a new migration';
 
     /**
-     * Model generator instance.
-     *
-     * @var Way\Generators\Generators\MigrationGenerator
+     * @var \Way\Generators\ModelGenerator
      */
     protected $generator;
 
     /**
-     * Create a new command instance.
-     *
-     * @return void
+     * @var MigrationNameParser
      */
-    public function __construct(MigrationGenerator $generator)
-    {
-        parent::__construct();
+    private $migrationNameParser;
 
+    /**
+     * @var SchemaWriter
+     */
+    private $schemaCreator;
+
+    /**
+     * @param Generator $generator
+     * @param MigrationNameParser $migrationNameParser
+     * @param MigrationFieldsParser $migrationFieldsParser
+     * @param SchemaCreator $schemaCreator
+     */
+    public function __construct(
+        Generator $generator,
+        MigrationNameParser $migrationNameParser,
+        MigrationFieldsParser $migrationFieldsParser,
+        SchemaCreator $schemaCreator
+    )
+    {
         $this->generator = $generator;
+        $this->migrationNameParser = $migrationNameParser;
+        $this->migrationFieldsParser = $migrationFieldsParser;
+        $this->schemaCreator = $schemaCreator;
+
+        parent::__construct($generator);
     }
 
     /**
-     * Execute the console command.
-     *
-     * @return void
+     * Execute the console command
      */
     public function fire()
     {
-        $name = $this->argument('name');
-        $path = $this->getPath();
-        $fields = $this->option('fields');
+        parent::fire();
 
-        $created = $this->generator
-                        ->parse($name, $fields)
-                        ->make($path, null);
-
-        $this->call('dump-autoload');
-
-        $this->printResult($created, $path);
+        // Now that the file has been generated,
+        // let's run dump-autoload to refresh everything
+        if ( ! $this->option('testing'))
+        {
+            $this->call('dump-autoload');
+        }
     }
 
     /**
-     * Get the path to the file that should be generated.
+     * The path where the file will be created
+     *
+     * @return mixed
+     */
+    protected function getFileGenerationPath()
+    {
+        $fileName = $this->getDatePrefix() . '_' . $this->argument('migrationName') . '.php';
+
+        return $this->option('path') . "/$fileName";
+    }
+
+    /**
+     * Get the date prefix for the migration.
      *
      * @return string
      */
-    protected function getPath()
+    protected function getDatePrefix()
     {
-       return $this->option('path') . '/' . ucwords($this->argument('name')) . '.php';
+        return date('Y_m_d_His');
+    }
+
+    /**
+     * Fetch the template data
+     *
+     * @return array
+     */
+    protected function getTemplateData()
+    {
+        $migrationName = $this->argument('migrationName');
+
+        // This will tell us the table name and action that we'll be performing
+        $migrationData = $this->migrationNameParser->parse($migrationName);
+
+        // We also need to parse the migration fields, if provided
+        $fields = $this->migrationFieldsParser->parse($this->option('fields'));
+
+        return [
+            'CLASS' => ucwords(camel_case($migrationName)),
+            'UP'    => $this->schemaCreator->up($migrationData, $fields),
+            'DOWN'  => $this->schemaCreator->down($migrationData, $fields)
+        ];
     }
 
     /**
@@ -78,7 +126,7 @@ class MigrationGeneratorCommand extends BaseGeneratorCommand
     protected function getArguments()
     {
         return array(
-            array('name', InputArgument::REQUIRED, 'Name of the migration to generate.'),
+            array('migrationName', InputArgument::REQUIRED, 'The migration name')
         );
     }
 
@@ -90,8 +138,10 @@ class MigrationGeneratorCommand extends BaseGeneratorCommand
     protected function getOptions()
     {
         return array(
-            array('path', null, InputOption::VALUE_OPTIONAL, 'The path to the migrations folder', app_path() . '/database/migrations'),
-            array('fields', null, InputOption::VALUE_OPTIONAL, 'Table fields', null)
+            array('fields', null, InputOption::VALUE_OPTIONAL, 'Fields for the migration'),
+            array('path', null, InputOption::VALUE_OPTIONAL, 'Where should the file be created?', app_path('database/migrations')),
+            array('templatePath', null, InputOption::VALUE_OPTIONAL, 'What is the path to the template for this generator?', __DIR__.'/../templates/migration.txt'),
+            array('testing', null, InputOption::VALUE_OPTIONAL, 'For internal use only.')
         );
     }
 

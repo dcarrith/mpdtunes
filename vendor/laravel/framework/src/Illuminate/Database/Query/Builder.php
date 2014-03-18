@@ -1308,9 +1308,7 @@ class Builder {
 	 */
 	protected function getCacheCallback($columns)
 	{
-		$me = $this;
-
-		return function() use ($me, $columns) { return $me->getFresh($columns); };
+		return function() use ($columns) { return $this->getFresh($columns); };
 	}
 
 	/**
@@ -1428,7 +1426,7 @@ class Builder {
 	/**
 	 * Create a paginator for a grouped pagination statement.
 	 *
-	 * @param  \Illuminate\Pagination\Environment  $paginator
+	 * @param  \Illuminate\Pagination\Factory  $paginator
 	 * @param  int    $perPage
 	 * @param  array  $columns
 	 * @return \Illuminate\Pagination\Paginator
@@ -1443,7 +1441,7 @@ class Builder {
 	/**
 	 * Build a paginator instance from a raw result array.
 	 *
-	 * @param  \Illuminate\Pagination\Environment  $paginator
+	 * @param  \Illuminate\Pagination\Factory  $paginator
 	 * @param  array  $results
 	 * @param  int    $perPage
 	 * @return \Illuminate\Pagination\Paginator
@@ -1463,7 +1461,7 @@ class Builder {
 	/**
 	 * Create a paginator for an un-grouped pagination statement.
 	 *
-	 * @param  \Illuminate\Pagination\Environment  $paginator
+	 * @param  \Illuminate\Pagination\Factory  $paginator
 	 * @param  int    $perPage
 	 * @param  array  $columns
 	 * @return \Illuminate\Pagination\Paginator

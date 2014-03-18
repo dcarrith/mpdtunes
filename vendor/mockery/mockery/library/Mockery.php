@@ -204,7 +204,7 @@ class Mockery
     }
 
     /**
-     * Reset the container to NULL
+     * Reset the container to null
      */
     public static function resetContainer()
     {
@@ -395,6 +395,10 @@ class Mockery
      */
     public static function formatObjects(array $args = null)
     {
+        static $formatting;
+        if($formatting)
+            return '[Recursion]';
+        $formatting = true;
         $hasObjects = false;
         $parts = array();
         $return = 'Objects: (';
@@ -409,6 +413,7 @@ class Mockery
         $return .= var_export($parts, true);
         $return .= ')';
         $return = $hasObjects ? $return : '';
+        $formatting = false;
         return $return;
     }
 

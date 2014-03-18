@@ -1,11 +1,10 @@
 <?php namespace Way\Generators\Commands;
 
-use Way\Generators\Generators\ControllerGenerator;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 
-class ControllerGeneratorCommand extends BaseGeneratorCommand {
+class ControllerGeneratorCommand extends Command {
 
     /**
      * The console command name.
@@ -19,35 +18,20 @@ class ControllerGeneratorCommand extends BaseGeneratorCommand {
      *
      * @var string
      */
-    protected $description = 'Generate a new controller.';
+    protected $description = 'Generate a resourceful controller';
 
     /**
-     * Model generator instance.
-     *
-     * @var Way\Generators\Generators\ControllerGenerator
+     * Generate the controller
      */
-    protected $generator;
-
-    /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
-    public function __construct(ControllerGenerator $generator)
+    public function fire()
     {
-        parent::__construct();
-
-        $this->generator = $generator;
-    }
-
-    /**
-     * Get the path to the file that should be generated.
-     *
-     * @return string
-     */
-    protected function getPath()
-    {
-       return $this->option('path') . '/' . ucwords($this->argument('name')) . '.php';
+        // This command is nothing more than a helper,
+        // that points directly to Laravel's
+        // controller:make command
+        $this->call('controller:make', [
+            'name' => $this->argument('controllerName'),
+            '--path' => $this->option('path')
+        ]);
     }
 
     /**
@@ -58,7 +42,7 @@ class ControllerGeneratorCommand extends BaseGeneratorCommand {
     protected function getArguments()
     {
         return array(
-            array('name', InputArgument::REQUIRED, 'Name of the controller to generate.'),
+            array('controllerName', InputArgument::REQUIRED, 'The name of the desired controller')
         );
     }
 
@@ -70,8 +54,7 @@ class ControllerGeneratorCommand extends BaseGeneratorCommand {
     protected function getOptions()
     {
         return array(
-           array('path', null, InputOption::VALUE_OPTIONAL, 'Path to controllers directory.', app_path() . '/controllers'),
-           array('template', null, InputOption::VALUE_OPTIONAL, 'Path to template.', __DIR__.'/../Generators/templates/controller.txt'),
+            array('path', null, InputOption::VALUE_OPTIONAL, 'Where should the file be created?'),
         );
     }
 

@@ -253,8 +253,6 @@ class Process
         $this->processPipes->unblock();
 
         if ($this->tty) {
-            $this->status = self::STATUS_TERMINATED;
-
             return;
         }
 
@@ -481,7 +479,7 @@ class Process
     public function getExitCode()
     {
         if ($this->isSigchildEnabled() && !$this->enhanceSigchildCompatibility) {
-            throw new RuntimeException('This PHP has been compiled with --enable-sigchild. You must use setEnhanceSigchildCompatibility() to use this method');
+            throw new RuntimeException('This PHP has been compiled with --enable-sigchild. You must use setEnhanceSigchildCompatibility() to use this method.');
         }
 
         $this->updateStatus(false);
@@ -533,7 +531,7 @@ class Process
     public function hasBeenSignaled()
     {
         if ($this->isSigchildEnabled()) {
-            throw new RuntimeException('This PHP has been compiled with --enable-sigchild. Term signal can not be retrieved');
+            throw new RuntimeException('This PHP has been compiled with --enable-sigchild. Term signal can not be retrieved.');
         }
 
         $this->updateStatus(false);
@@ -555,7 +553,7 @@ class Process
     public function getTermSignal()
     {
         if ($this->isSigchildEnabled()) {
-            throw new RuntimeException('This PHP has been compiled with --enable-sigchild. Term signal can not be retrieved');
+            throw new RuntimeException('This PHP has been compiled with --enable-sigchild. Term signal can not be retrieved.');
         }
 
         $this->updateStatus(false);
@@ -865,7 +863,9 @@ class Process
     public function setEnv(array $env)
     {
         // Process can not handle env values that are arrays
-        $env = array_filter($env, function ($value) { if (!is_array($value)) { return true; } });
+        $env = array_filter($env, function ($value) {
+            return !is_array($value);
+        });
 
         $this->env = array();
         foreach ($env as $key => $value) {
@@ -1117,6 +1117,7 @@ class Process
      * Reads pipes, executes callback.
      *
      * @param Boolean $blocking Whether to use blocking calls or not.
+     * @param Boolean $close    Whether to close file handles or not.
      */
     private function readPipes($blocking, $close)
     {

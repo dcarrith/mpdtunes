@@ -133,6 +133,7 @@ Handlers
 - _ZendMonitorHandler_: Logs records to the Zend Monitor present in Zend Server.
 - _NewRelicHandler_: Logs records to a [NewRelic](http://newrelic.com/) application.
 - _LogglyHandler_: Logs records to a [Loggly](http://www.loggly.com/) account.
+- _RollbarHandler_: Logs records to a [Rollbar](https://rollbar.com/) account.
 - _SyslogUdpHandler_: Logs records to a remote [Syslogd](http://www.rsyslog.com/) server.
 
 ### Logging in development
@@ -141,6 +142,8 @@ Handlers
   inline `console` messages within [FireBug](http://getfirebug.com/).
 - _ChromePHPHandler_: Handler for [ChromePHP](http://www.chromephp.com/), providing
   inline `console` messages within Chrome.
+- _BrowserConsoleHandler_: Handler to send logs to browser's Javascript `console` with
+  no browser extension required. Most browsers supporting `console` API are supported.
 
 ### Log to databases
 

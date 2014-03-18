@@ -11,7 +11,6 @@
  * @copyright Feel free to copy, steal, take credit for, or whatever you feel like doing with this code. ;)
  */
 
-
 if (!class_exists('IronCore')) {
     if (!class_exists('Composer\Autoload\ClassLoader')) {
         echo "Please include IronCore class first\n";

@@ -1,6 +1,7 @@
 <?php namespace Orchestra\Testbench\Tests;
 
 use Dcarrith\LxMPD\LxMPD; 
+use Dcarrith\LxMPD\Connection\MPDConnection;
 use Illuminate\Support\Facades\Config;
 
 class MPDIsLocalTest extends \Orchestra\Testbench\TestCase
@@ -104,12 +105,15 @@ class MPDIsLocalTest extends \Orchestra\Testbench\TestCase
 	// Initialize the connection variables we'll need
 	$this->port = Config::get('lxmpd::port');
 	$this->password = Config::get('lxmpd::password');
-
+	
 	// Test that determine is local returns true for 127.0.0.1
-	$this->LxMPD = new LxMPD( "127.0.0.1", $this->port, $this->password );
+	$connection = new MPDConnection( "127.0.0.1", $this->port, $this->password );
 
-	// Check whether the connection is local
-	$result = $this->LxMPD->determineIfLocal();
+	// Determine if the connection is local
+	$connection->determineIfLocal();
+
+	// Check if the connection was marked as local
+	$result = $connection->local;
 
 	// Check if the result is true
         $this->assertEquals(true, $result);	
@@ -126,11 +130,14 @@ class MPDIsLocalTest extends \Orchestra\Testbench\TestCase
 	$this->port = Config::get('lxmpd::port');
 	$this->password = Config::get('lxmpd::password');
 
-	// Test that determine is local returns true for 127.0.0.1
-	$this->LxMPD = new LxMPD( "localhost", $this->port, $this->password );
+	// Test that determine is local returns true for localhost
+	$connection = new MPDConnection( "localhost", $this->port, $this->password );
+	
+	// Determine if the connection is local
+	$connection->determineIfLocal();
 
-	// Check whether the connection is local
-	$result = $this->LxMPD->determineIfLocal();
+	// Check if the connection was marked as local
+	$result = $connection->local;
 
 	// Check if the result is true
         $this->assertEquals(true, $result);	
@@ -150,11 +157,16 @@ class MPDIsLocalTest extends \Orchestra\Testbench\TestCase
 	$hostname = getHostName();
 	$ip = getHostByName( $hostname );
 
-	// Test that determine is local returns true for 127.0.0.1
-	$this->LxMPD = new LxMPD( $ip, $this->port, $this->password );
+	// Test that determine is local returns true for the ip of the server
+	$connection = new MPDConnection( $ip, $this->port, $this->password );
 
-	// Check whether the connection is local
-	$result = $this->LxMPD->determineIfLocal();
+	$connection->establish();
+
+	// Determine if the connection is local
+	$connection->determineIfLocal();
+
+	// Check if the connection was marked as local
+	$result = $connection->local;
 
 	// Check if the result is true
         $this->assertEquals(true, $result);	

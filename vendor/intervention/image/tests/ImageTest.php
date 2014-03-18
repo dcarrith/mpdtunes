@@ -522,6 +522,18 @@ class ImageTest extends PHPUnit_Framework_Testcase
         $this->assertEquals($img->height, 400);
         $this->assertEquals('#fffefc', $img->pickColor(0, 0, 'hex'));
         $this->assertEquals('#ffa600', $img->pickColor(599, 399, 'hex'));
+
+        // resize to larger size with anchor and only height set
+        $img = $this->getTestImage();
+        $img->resizeCanvas(null, 650, 'bottom-left', false, '#00000');
+        $this->assertInstanceOf('Intervention\Image\Image', $img);
+        $this->assertInternalType('int', $img->width);
+        $this->assertInternalType('int', $img->height);
+        $this->assertEquals($img->width, 800);
+        $this->assertEquals($img->height, 650);
+        $this->assertEquals('#000000', $img->pickColor(0, 0, 'hex'));
+        $this->assertEquals('#ffffff', $img->pickColor(3, 50, 'hex'));
+        $this->assertEquals('#ffa600', $img->pickColor(799, 649, 'hex'));
     }
 
     public function testCropImage()
@@ -1231,6 +1243,20 @@ class ImageTest extends PHPUnit_Framework_Testcase
 
     public function testFillImageWithPath()
     {
+        $img = Image::canvas(100, 100, '#ffa600')->fill('public/circle.png');
+        $this->assertInstanceOf('Intervention\Image\Image', $img);
+        $this->assertInternalType('int', $img->width);
+        $this->assertInternalType('int', $img->height);
+        $this->assertEquals($img->width, 100);
+        $this->assertEquals($img->height, 100);
+        $this->assertEquals('#ffa600', $img->pickColor(0, 0, 'hex'));
+        $this->assertEquals('#322000', $img->pickColor(12, 12, 'hex'));
+        $this->assertEquals('#ffa600', $img->pickColor(99, 99, 'hex'));
+        $this->assertEquals('#322000', $img->pickColor(80, 80, 'hex'));
+    }
+
+    public function testFillImageWithTransparentImage()
+    {
         $img = Image::canvas(32, 32)->fill('public/tile.png');
         $this->assertInstanceOf('Intervention\Image\Image', $img);
         $this->assertInternalType('int', $img->width);
@@ -1239,6 +1265,22 @@ class ImageTest extends PHPUnit_Framework_Testcase
         $this->assertEquals($img->height, 32);
         $this->assertEquals('#b4e000', $img->pickColor(0, 0, 'hex'));
         $this->assertEquals('#445160', $img->pickColor(31, 31, 'hex'));
+    }
+
+    public function testFillWithPosition()
+    {
+        $img = Image::make('public/tile.png')->fill('#ff00ff', 0, 0);
+        $this->assertInstanceOf('Intervention\Image\Image', $img);
+        $this->assertEquals('#ff00ff', $img->pickColor(0, 0, 'hex'));
+        $this->assertEquals('#445160', $img->pickColor(15, 15, 'hex'));
+    }
+
+    public function testFillWithoutPosition()
+    {
+        $img = Image::make('public/tile.png')->fill('#ff00ff');
+        $this->assertInstanceOf('Intervention\Image\Image', $img);
+        $this->assertEquals('#ff00ff', $img->pickColor(0, 0, 'hex'));
+        $this->assertEquals('#ff00ff', $img->pickColor(15, 15, 'hex'));
     }
 
     public function testPixelImage()
@@ -1354,11 +1396,24 @@ class ImageTest extends PHPUnit_Framework_Testcase
         $img = new Image(null, 800, 600, '#0000ff');
         $img->fill('#00ff00');
         $img->backup();
+        $img->resize(200, 200);
         $img->reset();
         $this->assertInternalType('int', $img->width);
         $this->assertInternalType('int', $img->height);
         $this->assertEquals($img->width, 800);
         $this->assertEquals($img->height, 600);
+        $this->assertEquals('#00ff00', $img->pickColor(0, 0, 'hex'));
+
+        $img = new Image('public/tile.png');
+        $img->resize(10, 10);
+        $img->fill('#00ff00');
+        $img->backup();
+        $img->resize(5, 5);
+        $img->reset();
+        $this->assertInternalType('int', $img->width);
+        $this->assertInternalType('int', $img->height);
+        $this->assertEquals($img->width, 10);
+        $this->assertEquals($img->height, 10);
         $this->assertEquals('#00ff00', $img->pickColor(0, 0, 'hex'));
     }
 
@@ -1770,5 +1825,12 @@ class ImageTest extends PHPUnit_Framework_Testcase
         $img = Image::make('public/test.jpg');
         $img->encode();
         $this->assertEquals($img->encoded, $img->encode());
+    }
+
+    public function testDestroy()
+    {
+        $img = $this->getTestImage();
+        $img->destroy();
+        $this->assertEquals(get_resource_type($img->resource), 'Unknown');
     }
 }

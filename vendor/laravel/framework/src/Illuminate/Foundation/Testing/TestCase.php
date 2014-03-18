@@ -308,7 +308,7 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase {
 	{
 		$this->assertSessionHas('errors');
 
-		$bindings = (array)$bindings;
+		$bindings = (array) $bindings;
 
 		$errors = $this->app['session.store']->get('errors');
 
@@ -333,6 +333,47 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase {
 	public function assertHasOldInput()
 	{
 		$this->assertSessionHas('_old_input');
+	}
+
+	/**
+	 * Set the session to the given array.
+	 *
+	 * @param  array  $data
+	 * @return void
+	 */
+	public function session(array $data)
+	{
+		$this->startSession();
+
+		foreach ($data as $key => $value)
+		{
+			$this->app['session']->put($key, $value);
+		}
+	}
+
+	/**
+	 * Flush all of the current session data.
+	 *
+	 * @return void
+	 */
+	public function flushSession()
+	{
+		$this->startSession();
+
+		$this->app['session']->flush();
+	}
+
+	/**
+	 * Start the session for the application.
+	 *
+	 * @return void
+	 */
+	protected function startSession()
+	{
+		if ( ! $this->app['session']->isStarted())
+		{
+			$this->app['session']->start();
+		}
 	}
 
 	/**

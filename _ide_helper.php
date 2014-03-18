@@ -110,8 +110,8 @@ class App extends Illuminate\Support\Facades\App{
 	 * @return \Illuminate\Support\ServiceProvider
 	 * @static 
 	 */
-	 public static function forgeRegister($provider, $options = array()){
-		return Illuminate\Foundation\Application::forgeRegister($provider, $options);
+	 public static function forceRegister($provider, $options = array()){
+		return Illuminate\Foundation\Application::forceRegister($provider, $options);
 	 }
 
 	/**
@@ -128,7 +128,7 @@ class App extends Illuminate\Support\Facades\App{
 	 }
 
 	/**
-	 * Get the registered service provider instnace if it exists.
+	 * Get the registered service provider instance if it exists.
 	 *
 	 * @param \Illuminate\Support\ServiceProvider|string  $provider
 	 * @return \Illuminate\Support\ServiceProvider|null
@@ -528,6 +528,17 @@ class App extends Illuminate\Support\Facades\App{
 	 */
 	 public static function setDeferredServices($services){
 		 Illuminate\Foundation\Application::setDeferredServices($services);
+	 }
+
+	/**
+	 * Determine if the given service is a deferred service.
+	 *
+	 * @param string  $service
+	 * @return bool
+	 * @static 
+	 */
+	 public static function isDeferredService($service){
+		return Illuminate\Foundation\Application::isDeferredService($service);
 	 }
 
 	/**
@@ -1837,17 +1848,6 @@ class Blade extends Illuminate\Support\Facades\Blade{
 	 }
 
 	/**
-	 * Register a custom Blade compiler.
-	 *
-	 * @param Closure  $compiler
-	 * @return void
-	 * @static 
-	 */
-	 public static function extend($compiler){
-		 Illuminate\View\Compilers\BladeCompiler::extend($compiler);
-	 }
-
-	/**
 	 * Compile the default values for the echo statement.
 	 *
 	 * @param string  $value
@@ -1856,6 +1856,17 @@ class Blade extends Illuminate\Support\Facades\Blade{
 	 */
 	 public static function compileEchoDefaults($value){
 		return Illuminate\View\Compilers\BladeCompiler::compileEchoDefaults($value);
+	 }
+
+	/**
+	 * Register a custom Blade compiler.
+	 *
+	 * @param Closure  $compiler
+	 * @return void
+	 * @static 
+	 */
+	 public static function extend($compiler){
+		 Illuminate\View\Compilers\BladeCompiler::extend($compiler);
 	 }
 
 	/**
@@ -1914,6 +1925,26 @@ class Blade extends Illuminate\Support\Facades\Blade{
 	 */
 	 public static function setEscapedContentTags($openTag, $closeTag){
 		 Illuminate\View\Compilers\BladeCompiler::setEscapedContentTags($openTag, $closeTag);
+	 }
+
+	/**
+	 * Gets the content tags used for the compiler.
+	 *
+	 * @return string
+	 * @static 
+	 */
+	 public static function getContentTags(){
+		return Illuminate\View\Compilers\BladeCompiler::getContentTags();
+	 }
+
+	/**
+	 * Gets the escaped content tags used for the compiler.
+	 *
+	 * @return string
+	 * @static 
+	 */
+	 public static function getEscapedContentTags(){
+		return Illuminate\View\Compilers\BladeCompiler::getEscapedContentTags();
 	 }
 
 	/**
@@ -2085,9 +2116,9 @@ class Cache extends Illuminate\Support\Facades\Cache{
 	/**
 	 * Store an item in the cache.
 	 *
-	 * @param string              $key
-	 * @param mixed               $value
-	 * @param Carbon|Datetime|int $minutes
+	 * @param string  $key
+	 * @param mixed   $value
+	 * @param \DateTime|int  $minutes
 	 * @return void
 	 * @static 
 	 */
@@ -2098,9 +2129,9 @@ class Cache extends Illuminate\Support\Facades\Cache{
 	/**
 	 * Store an item in the cache if the key does not exist.
 	 *
-	 * @param string              $key
-	 * @param mixed               $value
-	 * @param Carbon|Datetime|int $minutes
+	 * @param string  $key
+	 * @param mixed   $value
+	 * @param \DateTime|int  $minutes
 	 * @return bool
 	 * @static 
 	 */
@@ -2111,9 +2142,9 @@ class Cache extends Illuminate\Support\Facades\Cache{
 	/**
 	 * Get an item from the cache, or store the default value.
 	 *
-	 * @param string              $key
-	 * @param Carbon|Datetime|int $minutes
-	 * @param Closure             $callback
+	 * @param string  $key
+	 * @param \DateTime|int  $minutes
+	 * @param Closure  $callback
 	 * @return mixed
 	 * @static 
 	 */
@@ -2222,15 +2253,52 @@ class Cache extends Illuminate\Support\Facades\Cache{
 	 }
 
 	/**
-	 * Register a macro with the Cache class.
+	 * Register a custom macro.
 	 *
-	 * @param string $name
-	 * @param callable $callback
+	 * @param string    $name
+	 * @param callable  $macro
 	 * @return void
 	 * @static 
 	 */
-	 public static function macro($name, $callback){
-		 Illuminate\Cache\Repository::macro($name, $callback);
+	 public static function macro($name, $macro){
+		 Illuminate\Cache\Repository::macro($name, $macro);
+	 }
+
+	/**
+	 * Checks if macro is registered
+	 *
+	 * @param string    $name
+	 * @return boolean
+	 * @static 
+	 */
+	 public static function hasMacro($name){
+		return Illuminate\Cache\Repository::hasMacro($name);
+	 }
+
+	/**
+	 * Dynamically handle calls to the class.
+	 *
+	 * @param string  $method
+	 * @param array   $parameters
+	 * @return mixed
+	 * @throws \BadMethodCallException
+	 * @static 
+	 */
+	 public static function __callStatic($method, $parameters){
+		return Illuminate\Cache\Repository::__callStatic($method, $parameters);
+	 }
+
+	/**
+	 * Dynamically handle calls to the form builder.
+	 *
+	 * @param string  $method
+	 * @param array   $parameters
+	 * @return mixed
+	 * @throws \BadMethodCallException
+	 * @static 
+	 */
+	 public static function macroCall($method, $parameters){
+		return Illuminate\Cache\Repository::macroCall($method, $parameters);
 	 }
 
 }
@@ -2509,11 +2577,13 @@ class Cookie extends Illuminate\Support\Facades\Cookie{
 	 * Expire the given cookie.
 	 *
 	 * @param string  $name
+	 * @param string  $path
+	 * @param string  $domain
 	 * @return \Symfony\Component\HttpFoundation\Cookie
 	 * @static 
 	 */
-	 public static function forget($name){
-		return Illuminate\Cookie\CookieJar::forget($name);
+	 public static function forget($name, $path = null, $domain = null){
+		return Illuminate\Cookie\CookieJar::forget($name, $path, $domain);
 	 }
 
 	/**
@@ -3230,7 +3300,7 @@ class DB extends Illuminate\Support\Facades\DB{
 	/**
 	 * Get the paginator environment instance.
 	 *
-	 * @return \Illuminate\Pagination\Environment
+	 * @return \Illuminate\Pagination\Factory
 	 * @static 
 	 */
 	 public static function getPaginator(){
@@ -3241,7 +3311,7 @@ class DB extends Illuminate\Support\Facades\DB{
 	/**
 	 * Set the pagination environment instance.
 	 *
-	 * @param \Illuminate\Pagination\Environment|\Closure  $paginator
+	 * @param \Illuminate\Pagination\Factory|\Closure  $paginator
 	 * @return void
 	 * @static 
 	 */
@@ -3349,6 +3419,17 @@ class DB extends Illuminate\Support\Facades\DB{
 	 public static function disableQueryLog(){
 		//Method inherited from Illuminate\Database\Connection
 		 Illuminate\Database\MySqlConnection::disableQueryLog();
+	 }
+
+	/**
+	 * Determine whether we're logging queries.
+	 *
+	 * @return bool
+	 * @static 
+	 */
+	 public static function logging(){
+		//Method inherited from Illuminate\Database\Connection
+		return Illuminate\Database\MySqlConnection::logging();
 	 }
 
 	/**
@@ -3532,6 +3613,27 @@ class Eloquent extends Illuminate\Database\Eloquent\Model{
 	 }
 
 	/**
+	 * Run the default delete function on the builder.
+	 *
+	 * @return mixed
+	 * @static 
+	 */
+	 public static function forceDelete(){
+		return Illuminate\Database\Eloquent\Builder::forceDelete();
+	 }
+
+	/**
+	 * Register a replacement for the default delete function.
+	 *
+	 * @param \Closure  $callback
+	 * @return void
+	 * @static 
+	 */
+	 public static function onDelete($callback){
+		 Illuminate\Database\Eloquent\Builder::onDelete($callback);
+	 }
+
+	/**
 	 * Get the hydrated models without eager loading.
 	 *
 	 * @param array  $columns
@@ -3697,6 +3799,29 @@ class Eloquent extends Illuminate\Database\Eloquent\Model{
 	 */
 	 public static function setModel($model){
 		return Illuminate\Database\Eloquent\Builder::setModel($model);
+	 }
+
+	/**
+	 * Extend the builder with a given callback.
+	 *
+	 * @param string  $name
+	 * @param \Closure  $callback
+	 * @return void
+	 * @static 
+	 */
+	 public static function macro($name, $callback){
+		 Illuminate\Database\Eloquent\Builder::macro($name, $callback);
+	 }
+
+	/**
+	 * Get the given macro by name.
+	 *
+	 * @param string  $name
+	 * @return \Closure
+	 * @static 
+	 */
+	 public static function getMacro($name){
+		return Illuminate\Database\Eloquent\Builder::getMacro($name);
 	 }
 
 	/**
@@ -4289,7 +4414,7 @@ class Eloquent extends Illuminate\Database\Eloquent\Model{
 	/**
 	 * Indicate that the query results should be cached.
 	 *
-	 * @param \Carbon\Carbon|\Datetime|int  $minutes
+	 * @param \DateTime|int  $minutes
 	 * @param string  $key
 	 * @return \Illuminate\Database\Query\Builder|static
 	 * @static 
@@ -4388,7 +4513,7 @@ class Eloquent extends Illuminate\Database\Eloquent\Model{
 	/**
 	 * Build a paginator instance from a raw result array.
 	 *
-	 * @param \Illuminate\Pagination\Environment  $paginator
+	 * @param \Illuminate\Pagination\Factory  $paginator
 	 * @param array  $results
 	 * @param int    $perPage
 	 * @return \Illuminate\Pagination\Paginator
@@ -5007,7 +5132,7 @@ class File extends Illuminate\Support\Facades\File{
 	 * @return bool
 	 * @static 
 	 */
-	 public static function makeDirectory($path, $mode = 511, $recursive = false, $force = false){
+	 public static function makeDirectory($path, $mode = 493, $recursive = false, $force = false){
 		return Illuminate\Filesystem\Filesystem::makeDirectory($path, $mode, $recursive, $force);
 	 }
 
@@ -5383,18 +5508,6 @@ class Form extends Illuminate\Support\Facades\Form{
 	 }
 
 	/**
-	 * Register a custom form macro.
-	 *
-	 * @param string    $name
-	 * @param callable  $macro
-	 * @return void
-	 * @static 
-	 */
-	 public static function macro($name, $macro){
-		 Illuminate\Html\FormBuilder::macro($name, $macro);
-	 }
-
-	/**
 	 * Get the ID attribute for a field name.
 	 *
 	 * @param string  $name
@@ -5458,6 +5571,42 @@ class Form extends Illuminate\Support\Facades\Form{
 	 */
 	 public static function setSessionStore($session){
 		return Illuminate\Html\FormBuilder::setSessionStore($session);
+	 }
+
+	/**
+	 * Register a custom macro.
+	 *
+	 * @param string    $name
+	 * @param callable  $macro
+	 * @return void
+	 * @static 
+	 */
+	 public static function macro($name, $macro){
+		 Illuminate\Html\FormBuilder::macro($name, $macro);
+	 }
+
+	/**
+	 * Checks if macro is registered
+	 *
+	 * @param string    $name
+	 * @return boolean
+	 * @static 
+	 */
+	 public static function hasMacro($name){
+		return Illuminate\Html\FormBuilder::hasMacro($name);
+	 }
+
+	/**
+	 * Dynamically handle calls to the class.
+	 *
+	 * @param string  $method
+	 * @param array   $parameters
+	 * @return mixed
+	 * @throws \BadMethodCallException
+	 * @static 
+	 */
+	 public static function __callStatic($method, $parameters){
+		return Illuminate\Html\FormBuilder::__callStatic($method, $parameters);
 	 }
 
 	/**
@@ -5526,18 +5675,6 @@ class HTML extends Illuminate\Support\Facades\HTML{
 	 */
 	 public static function __construct($url = null){
 		 Illuminate\Html\HtmlBuilder::__construct($url);
-	 }
-
-	/**
-	 * Register a custom HTML macro.
-	 *
-	 * @param string    $name
-	 * @param callable  $macro
-	 * @return void
-	 * @static 
-	 */
-	 public static function macro($name, $macro){
-		 Illuminate\Html\HtmlBuilder::macro($name, $macro);
 	 }
 
 	/**
@@ -5752,7 +5889,43 @@ class HTML extends Illuminate\Support\Facades\HTML{
 	 }
 
 	/**
-	 * Dynamically handle calls to the html class.
+	 * Register a custom macro.
+	 *
+	 * @param string    $name
+	 * @param callable  $macro
+	 * @return void
+	 * @static 
+	 */
+	 public static function macro($name, $macro){
+		 Illuminate\Html\HtmlBuilder::macro($name, $macro);
+	 }
+
+	/**
+	 * Checks if macro is registered
+	 *
+	 * @param string    $name
+	 * @return boolean
+	 * @static 
+	 */
+	 public static function hasMacro($name){
+		return Illuminate\Html\HtmlBuilder::hasMacro($name);
+	 }
+
+	/**
+	 * Dynamically handle calls to the class.
+	 *
+	 * @param string  $method
+	 * @param array   $parameters
+	 * @return mixed
+	 * @throws \BadMethodCallException
+	 * @static 
+	 */
+	 public static function __callStatic($method, $parameters){
+		return Illuminate\Html\HtmlBuilder::__callStatic($method, $parameters);
+	 }
+
+	/**
+	 * Dynamically handle calls to the form builder.
 	 *
 	 * @param string  $method
 	 * @param array   $parameters
@@ -5775,6 +5948,16 @@ class Input extends Illuminate\Support\Facades\Input{
 	 */
 	 public static function instance(){
 		return Illuminate\Http\Request::instance();
+	 }
+
+	/**
+	 * Get the request method.
+	 *
+	 * @return string
+	 * @static 
+	 */
+	 public static function method(){
+		return Illuminate\Http\Request::method();
 	 }
 
 	/**
@@ -7513,7 +7696,7 @@ class Mail extends Illuminate\Support\Facades\Mail{
 	/**
 	 * Create a new Mailer instance.
 	 *
-	 * @param \Illuminate\View\Environment  $views
+	 * @param \Illuminate\View\Factory  $views
 	 * @param \Swift_Mailer  $swift
 	 * @return void
 	 * @static 
@@ -7642,13 +7825,13 @@ class Mail extends Illuminate\Support\Facades\Mail{
 	 }
 
 	/**
-	 * Get the view environment instance.
+	 * Get the view factory instance.
 	 *
-	 * @return \Illuminate\View\Environment
+	 * @return \Illuminate\View\Factory
 	 * @static 
 	 */
-	 public static function getViewEnvironment(){
-		return Illuminate\Mail\Mailer::getViewEnvironment();
+	 public static function getViewFactory(){
+		return Illuminate\Mail\Mailer::getViewFactory();
 	 }
 
 	/**
@@ -7719,17 +7902,17 @@ class Mail extends Illuminate\Support\Facades\Mail{
 
 class Paginator extends Illuminate\Support\Facades\Paginator{
 	/**
-	 * Create a new pagination environment.
+	 * Create a new pagination factory.
 	 *
 	 * @param \Symfony\Component\HttpFoundation\Request  $request
-	 * @param \Illuminate\View\Environment  $view
+	 * @param \Illuminate\View\Factory  $view
 	 * @param \Symfony\Component\Translation\TranslatorInterface  $trans
 	 * @param string  $pageName
 	 * @return void
 	 * @static 
 	 */
 	 public static function __construct($request, $view, $trans, $pageName = 'page'){
-		 Illuminate\Pagination\Environment::__construct($request, $view, $trans, $pageName);
+		 Illuminate\Pagination\Factory::__construct($request, $view, $trans, $pageName);
 	 }
 
 	/**
@@ -7742,7 +7925,7 @@ class Paginator extends Illuminate\Support\Facades\Paginator{
 	 * @static 
 	 */
 	 public static function make($items, $total, $perPage){
-		return Illuminate\Pagination\Environment::make($items, $total, $perPage);
+		return Illuminate\Pagination\Factory::make($items, $total, $perPage);
 	 }
 
 	/**
@@ -7754,7 +7937,7 @@ class Paginator extends Illuminate\Support\Facades\Paginator{
 	 * @static 
 	 */
 	 public static function getPaginationView($paginator, $view = null){
-		return Illuminate\Pagination\Environment::getPaginationView($paginator, $view);
+		return Illuminate\Pagination\Factory::getPaginationView($paginator, $view);
 	 }
 
 	/**
@@ -7764,7 +7947,7 @@ class Paginator extends Illuminate\Support\Facades\Paginator{
 	 * @static 
 	 */
 	 public static function getCurrentPage(){
-		return Illuminate\Pagination\Environment::getCurrentPage();
+		return Illuminate\Pagination\Factory::getCurrentPage();
 	 }
 
 	/**
@@ -7775,7 +7958,7 @@ class Paginator extends Illuminate\Support\Facades\Paginator{
 	 * @static 
 	 */
 	 public static function setCurrentPage($number){
-		 Illuminate\Pagination\Environment::setCurrentPage($number);
+		 Illuminate\Pagination\Factory::setCurrentPage($number);
 	 }
 
 	/**
@@ -7785,7 +7968,7 @@ class Paginator extends Illuminate\Support\Facades\Paginator{
 	 * @static 
 	 */
 	 public static function getCurrentUrl(){
-		return Illuminate\Pagination\Environment::getCurrentUrl();
+		return Illuminate\Pagination\Factory::getCurrentUrl();
 	 }
 
 	/**
@@ -7796,7 +7979,7 @@ class Paginator extends Illuminate\Support\Facades\Paginator{
 	 * @static 
 	 */
 	 public static function setBaseUrl($baseUrl){
-		 Illuminate\Pagination\Environment::setBaseUrl($baseUrl);
+		 Illuminate\Pagination\Factory::setBaseUrl($baseUrl);
 	 }
 
 	/**
@@ -7807,7 +7990,7 @@ class Paginator extends Illuminate\Support\Facades\Paginator{
 	 * @static 
 	 */
 	 public static function setPageName($pageName){
-		 Illuminate\Pagination\Environment::setPageName($pageName);
+		 Illuminate\Pagination\Factory::setPageName($pageName);
 	 }
 
 	/**
@@ -7817,7 +8000,7 @@ class Paginator extends Illuminate\Support\Facades\Paginator{
 	 * @static 
 	 */
 	 public static function getPageName(){
-		return Illuminate\Pagination\Environment::getPageName();
+		return Illuminate\Pagination\Factory::getPageName();
 	 }
 
 	/**
@@ -7828,7 +8011,7 @@ class Paginator extends Illuminate\Support\Facades\Paginator{
 	 * @static 
 	 */
 	 public static function getViewName($view = null){
-		return Illuminate\Pagination\Environment::getViewName($view);
+		return Illuminate\Pagination\Factory::getViewName($view);
 	 }
 
 	/**
@@ -7839,7 +8022,7 @@ class Paginator extends Illuminate\Support\Facades\Paginator{
 	 * @static 
 	 */
 	 public static function setViewName($viewName){
-		 Illuminate\Pagination\Environment::setViewName($viewName);
+		 Illuminate\Pagination\Factory::setViewName($viewName);
 	 }
 
 	/**
@@ -7849,7 +8032,7 @@ class Paginator extends Illuminate\Support\Facades\Paginator{
 	 * @static 
 	 */
 	 public static function getLocale(){
-		return Illuminate\Pagination\Environment::getLocale();
+		return Illuminate\Pagination\Factory::getLocale();
 	 }
 
 	/**
@@ -7860,7 +8043,7 @@ class Paginator extends Illuminate\Support\Facades\Paginator{
 	 * @static 
 	 */
 	 public static function setLocale($locale){
-		 Illuminate\Pagination\Environment::setLocale($locale);
+		 Illuminate\Pagination\Factory::setLocale($locale);
 	 }
 
 	/**
@@ -7870,7 +8053,7 @@ class Paginator extends Illuminate\Support\Facades\Paginator{
 	 * @static 
 	 */
 	 public static function getRequest(){
-		return Illuminate\Pagination\Environment::getRequest();
+		return Illuminate\Pagination\Factory::getRequest();
 	 }
 
 	/**
@@ -7881,28 +8064,28 @@ class Paginator extends Illuminate\Support\Facades\Paginator{
 	 * @static 
 	 */
 	 public static function setRequest($request){
-		 Illuminate\Pagination\Environment::setRequest($request);
+		 Illuminate\Pagination\Factory::setRequest($request);
 	 }
 
 	/**
-	 * Get the current view driver.
+	 * Get the current view factory.
 	 *
-	 * @return \Illuminate\View\Environment
+	 * @return \Illuminate\View\Factory
 	 * @static 
 	 */
-	 public static function getViewDriver(){
-		return Illuminate\Pagination\Environment::getViewDriver();
+	 public static function getViewFactory(){
+		return Illuminate\Pagination\Factory::getViewFactory();
 	 }
 
 	/**
-	 * Set the current view driver.
+	 * Set the current view factory.
 	 *
-	 * @param \Illuminate\View\Environment  $view
+	 * @param \Illuminate\View\Factory  $view
 	 * @return void
 	 * @static 
 	 */
-	 public static function setViewDriver($view){
-		 Illuminate\Pagination\Environment::setViewDriver($view);
+	 public static function setViewFactory($view){
+		 Illuminate\Pagination\Factory::setViewFactory($view);
 	 }
 
 	/**
@@ -7912,7 +8095,7 @@ class Paginator extends Illuminate\Support\Facades\Paginator{
 	 * @static 
 	 */
 	 public static function getTranslator(){
-		return Illuminate\Pagination\Environment::getTranslator();
+		return Illuminate\Pagination\Factory::getTranslator();
 	 }
 
 }
@@ -8117,7 +8300,7 @@ class Queue extends Illuminate\Support\Facades\Queue{
 	 * @static 
 	 */
 	 public static function push($job, $data = '', $queue = null){
-		return Illuminate\Queue\BeanstalkdQueue::push($job, $data, $queue);
+		return Illuminate\Queue\SqsQueue::push($job, $data, $queue);
 	 }
 
 	/**
@@ -8130,7 +8313,7 @@ class Queue extends Illuminate\Support\Facades\Queue{
 	 * @static 
 	 */
 	 public static function pushRaw($payload, $queue = null, $options = array()){
-		return Illuminate\Queue\BeanstalkdQueue::pushRaw($payload, $queue, $options);
+		return Illuminate\Queue\SqsQueue::pushRaw($payload, $queue, $options);
 	 }
 
 	/**
@@ -8138,13 +8321,13 @@ class Queue extends Illuminate\Support\Facades\Queue{
 	 *
 	 * @param \DateTime|int  $delay
 	 * @param string  $job
-	 * @param mixed  $data
+	 * @param mixed   $data
 	 * @param string  $queue
 	 * @return mixed
 	 * @static 
 	 */
 	 public static function later($delay, $job, $data = '', $queue = null){
-		return Illuminate\Queue\BeanstalkdQueue::later($delay, $job, $data, $queue);
+		return Illuminate\Queue\SqsQueue::later($delay, $job, $data, $queue);
 	 }
 
 	/**
@@ -8155,53 +8338,135 @@ class Queue extends Illuminate\Support\Facades\Queue{
 	 * @static 
 	 */
 	 public static function pop($queue = null){
-		return Illuminate\Queue\BeanstalkdQueue::pop($queue);
-	 }
-
-	/**
-	 * Get the queue or return the default.
-	 *
-	 * @param string|null  $queue
-	 * @return string
-	 * @static 
-	 */
-	 public static function getQueue($queue){
-		return Illuminate\Queue\BeanstalkdQueue::getQueue($queue);
-	 }
-
-	/**
-	 * Get the underlying Pheanstalk instance.
-	 *
-	 * @return Pheanstalk
-	 * @static 
-	 */
-	 public static function getPheanstalk(){
-		return Illuminate\Queue\BeanstalkdQueue::getPheanstalk();
+		return Illuminate\Queue\SqsQueue::pop($queue);
 	 }
 
 	/**
 	 * Marshal a push queue request and fire the job.
 	 *
-	 * @throws \RuntimeException
+	 * @return \Illuminate\Http\Response
 	 * @static 
 	 */
 	 public static function marshal(){
-		//Method inherited from Illuminate\Queue\Queue
-		 Illuminate\Queue\BeanstalkdQueue::marshal();
+		return Illuminate\Queue\SqsQueue::marshal();
+	 }
+
+	/**
+	 * Get the queue name
+	 *
+	 * @return string
+	 * @static 
+	 */
+	 public static function getQueue(){
+		return Illuminate\Queue\SqsQueue::getQueue();
+	 }
+
+	/**
+	 * Get the full queue url based on the one passed in or the default.
+	 *
+	 * @param string|null  $queue
+	 * @return string
+	 * @static 
+	 */
+	 public static function getQueueUrl($queue = null){
+		return Illuminate\Queue\SqsQueue::getQueueUrl($queue);
+	 }
+
+	/**
+	 * Get the underlying SQS instance.
+	 *
+	 * @return \Aws\Sqs\SqsClient
+	 * @static 
+	 */
+	 public static function getSqs(){
+		return Illuminate\Queue\SqsQueue::getSqs();
+	 }
+
+	/**
+	 * Get the underlying SNS instance.
+	 *
+	 * @return \Aws\Sns\SnsClient
+	 * @static 
+	 */
+	 public static function getSns(){
+		return Illuminate\Queue\SqsQueue::getSns();
+	 }
+
+	/**
+	 * Subscribe a queue to the endpoint url
+	 *
+	 * @param string  $queue
+	 * @param string  $endpoint
+	 * @param array   $options
+	 * @param array   $advanced
+	 * @return array
+	 * @static 
+	 */
+	 public static function subscribe($queue, $endpoint, $options = array(), $advanced = array()){
+		return Illuminate\Queue\SqsQueue::subscribe($queue, $endpoint, $options, $advanced);
+	 }
+
+	/**
+	 * Unsubscribe a queue from an endpoint url
+	 *
+	 * @param string  $queue
+	 * @param string  $endpoint
+	 * @return array
+	 * @static 
+	 */
+	 public static function unsubscribe($queue, $endpoint){
+		return Illuminate\Queue\SqsQueue::unsubscribe($queue, $endpoint);
+	 }
+
+	/**
+	 * Update queue settings
+	 *
+	 * @param string  $queue
+	 * @param string  $endpoint
+	 * @param array   $options
+	 * @param array   $advanced
+	 * @return array
+	 * @static 
+	 */
+	 public static function update($queue, $endpoint, $options = array(), $advanced = array()){
+		return Illuminate\Queue\SqsQueue::update($queue, $endpoint, $options, $advanced);
+	 }
+
+	/**
+	 * Get the request instance.
+	 *
+	 * @return \Symfony\Component\HttpFoundation\Request
+	 * @static 
+	 */
+	 public static function getRequest(){
+		//Method inherited from Illuminate\Queue\PushQueue
+		return Illuminate\Queue\SqsQueue::getRequest();
+	 }
+
+	/**
+	 * Set the current request instance.
+	 *
+	 * @param \Symfony\Component\HttpFoundation\Request  $request
+	 * @return void
+	 * @static 
+	 */
+	 public static function setRequest($request){
+		//Method inherited from Illuminate\Queue\PushQueue
+		 Illuminate\Queue\SqsQueue::setRequest($request);
 	 }
 
 	/**
 	 * Push a new an array of jobs onto the queue.
 	 *
-	 * @param array  $jobs
-	 * @param mixed  $data
+	 * @param array   $jobs
+	 * @param mixed   $data
 	 * @param string  $queue
 	 * @return mixed
 	 * @static 
 	 */
 	 public static function bulk($jobs, $data = '', $queue = null){
 		//Method inherited from Illuminate\Queue\Queue
-		return Illuminate\Queue\BeanstalkdQueue::bulk($jobs, $data, $queue);
+		return Illuminate\Queue\SqsQueue::bulk($jobs, $data, $queue);
 	 }
 
 	/**
@@ -8212,7 +8477,7 @@ class Queue extends Illuminate\Support\Facades\Queue{
 	 */
 	 public static function getTime(){
 		//Method inherited from Illuminate\Queue\Queue
-		return Illuminate\Queue\BeanstalkdQueue::getTime();
+		return Illuminate\Queue\SqsQueue::getTime();
 	 }
 
 	/**
@@ -8224,7 +8489,7 @@ class Queue extends Illuminate\Support\Facades\Queue{
 	 */
 	 public static function setContainer($container){
 		//Method inherited from Illuminate\Queue\Queue
-		 Illuminate\Queue\BeanstalkdQueue::setContainer($container);
+		 Illuminate\Queue\SqsQueue::setContainer($container);
 	 }
 
 }
@@ -8453,6 +8718,16 @@ class Request extends Illuminate\Support\Facades\Request{
 	 */
 	 public static function instance(){
 		return Illuminate\Http\Request::instance();
+	 }
+
+	/**
+	 * Get the request method.
+	 *
+	 * @return string
+	 * @static 
+	 */
+	 public static function method(){
+		return Illuminate\Http\Request::method();
 	 }
 
 	/**
@@ -11348,7 +11623,7 @@ class Validator extends Illuminate\Support\Facades\Validator{
 
 class View extends Illuminate\Support\Facades\View{
 	/**
-	 * Create a new view environment instance.
+	 * Create a new view factory instance.
 	 *
 	 * @param \Illuminate\View\Engines\EngineResolver  $engines
 	 * @param \Illuminate\View\ViewFinderInterface  $finder
@@ -11357,7 +11632,7 @@ class View extends Illuminate\Support\Facades\View{
 	 * @static 
 	 */
 	 public static function __construct($engines, $finder, $events){
-		 Illuminate\View\Environment::__construct($engines, $finder, $events);
+		 Illuminate\View\Factory::__construct($engines, $finder, $events);
 	 }
 
 	/**
@@ -11370,7 +11645,7 @@ class View extends Illuminate\Support\Facades\View{
 	 * @static 
 	 */
 	 public static function make($view, $data = array(), $mergeData = array()){
-		return Illuminate\View\Environment::make($view, $data, $mergeData);
+		return Illuminate\View\Factory::make($view, $data, $mergeData);
 	 }
 
 	/**
@@ -11382,7 +11657,7 @@ class View extends Illuminate\Support\Facades\View{
 	 * @static 
 	 */
 	 public static function of($view, $data = array()){
-		return Illuminate\View\Environment::of($view, $data);
+		return Illuminate\View\Factory::of($view, $data);
 	 }
 
 	/**
@@ -11394,7 +11669,7 @@ class View extends Illuminate\Support\Facades\View{
 	 * @static 
 	 */
 	 public static function name($view, $name){
-		 Illuminate\View\Environment::name($view, $name);
+		 Illuminate\View\Factory::name($view, $name);
 	 }
 
 	/**
@@ -11405,7 +11680,7 @@ class View extends Illuminate\Support\Facades\View{
 	 * @static 
 	 */
 	 public static function exists($view){
-		return Illuminate\View\Environment::exists($view);
+		return Illuminate\View\Factory::exists($view);
 	 }
 
 	/**
@@ -11419,7 +11694,7 @@ class View extends Illuminate\Support\Facades\View{
 	 * @static 
 	 */
 	 public static function renderEach($view, $data, $iterator, $empty = 'raw|'){
-		return Illuminate\View\Environment::renderEach($view, $data, $iterator, $empty);
+		return Illuminate\View\Factory::renderEach($view, $data, $iterator, $empty);
 	 }
 
 	/**
@@ -11431,7 +11706,7 @@ class View extends Illuminate\Support\Facades\View{
 	 * @static 
 	 */
 	 public static function share($key, $value = null){
-		 Illuminate\View\Environment::share($key, $value);
+		 Illuminate\View\Factory::share($key, $value);
 	 }
 
 	/**
@@ -11443,7 +11718,7 @@ class View extends Illuminate\Support\Facades\View{
 	 * @static 
 	 */
 	 public static function creator($views, $callback){
-		return Illuminate\View\Environment::creator($views, $callback);
+		return Illuminate\View\Factory::creator($views, $callback);
 	 }
 
 	/**
@@ -11454,7 +11729,7 @@ class View extends Illuminate\Support\Facades\View{
 	 * @static 
 	 */
 	 public static function composers($composers){
-		return Illuminate\View\Environment::composers($composers);
+		return Illuminate\View\Factory::composers($composers);
 	 }
 
 	/**
@@ -11466,7 +11741,7 @@ class View extends Illuminate\Support\Facades\View{
 	 * @static 
 	 */
 	 public static function composer($views, $callback, $priority = null){
-		return Illuminate\View\Environment::composer($views, $callback, $priority);
+		return Illuminate\View\Factory::composer($views, $callback, $priority);
 	 }
 
 	/**
@@ -11477,7 +11752,7 @@ class View extends Illuminate\Support\Facades\View{
 	 * @static 
 	 */
 	 public static function callComposer($view){
-		 Illuminate\View\Environment::callComposer($view);
+		 Illuminate\View\Factory::callComposer($view);
 	 }
 
 	/**
@@ -11488,7 +11763,7 @@ class View extends Illuminate\Support\Facades\View{
 	 * @static 
 	 */
 	 public static function callCreator($view){
-		 Illuminate\View\Environment::callCreator($view);
+		 Illuminate\View\Factory::callCreator($view);
 	 }
 
 	/**
@@ -11500,7 +11775,7 @@ class View extends Illuminate\Support\Facades\View{
 	 * @static 
 	 */
 	 public static function startSection($section, $content = ''){
-		 Illuminate\View\Environment::startSection($section, $content);
+		 Illuminate\View\Factory::startSection($section, $content);
 	 }
 
 	/**
@@ -11512,7 +11787,7 @@ class View extends Illuminate\Support\Facades\View{
 	 * @static 
 	 */
 	 public static function inject($section, $content){
-		 Illuminate\View\Environment::inject($section, $content);
+		 Illuminate\View\Factory::inject($section, $content);
 	 }
 
 	/**
@@ -11522,7 +11797,7 @@ class View extends Illuminate\Support\Facades\View{
 	 * @static 
 	 */
 	 public static function yieldSection(){
-		return Illuminate\View\Environment::yieldSection();
+		return Illuminate\View\Factory::yieldSection();
 	 }
 
 	/**
@@ -11533,7 +11808,7 @@ class View extends Illuminate\Support\Facades\View{
 	 * @static 
 	 */
 	 public static function stopSection($overwrite = false){
-		return Illuminate\View\Environment::stopSection($overwrite);
+		return Illuminate\View\Factory::stopSection($overwrite);
 	 }
 
 	/**
@@ -11543,7 +11818,7 @@ class View extends Illuminate\Support\Facades\View{
 	 * @static 
 	 */
 	 public static function appendSection(){
-		return Illuminate\View\Environment::appendSection();
+		return Illuminate\View\Factory::appendSection();
 	 }
 
 	/**
@@ -11555,7 +11830,7 @@ class View extends Illuminate\Support\Facades\View{
 	 * @static 
 	 */
 	 public static function yieldContent($section, $default = ''){
-		return Illuminate\View\Environment::yieldContent($section, $default);
+		return Illuminate\View\Factory::yieldContent($section, $default);
 	 }
 
 	/**
@@ -11565,7 +11840,7 @@ class View extends Illuminate\Support\Facades\View{
 	 * @static 
 	 */
 	 public static function flushSections(){
-		 Illuminate\View\Environment::flushSections();
+		 Illuminate\View\Factory::flushSections();
 	 }
 
 	/**
@@ -11575,7 +11850,7 @@ class View extends Illuminate\Support\Facades\View{
 	 * @static 
 	 */
 	 public static function flushSectionsIfDoneRendering(){
-		 Illuminate\View\Environment::flushSectionsIfDoneRendering();
+		 Illuminate\View\Factory::flushSectionsIfDoneRendering();
 	 }
 
 	/**
@@ -11585,7 +11860,7 @@ class View extends Illuminate\Support\Facades\View{
 	 * @static 
 	 */
 	 public static function incrementRender(){
-		 Illuminate\View\Environment::incrementRender();
+		 Illuminate\View\Factory::incrementRender();
 	 }
 
 	/**
@@ -11595,7 +11870,7 @@ class View extends Illuminate\Support\Facades\View{
 	 * @static 
 	 */
 	 public static function decrementRender(){
-		 Illuminate\View\Environment::decrementRender();
+		 Illuminate\View\Factory::decrementRender();
 	 }
 
 	/**
@@ -11605,7 +11880,7 @@ class View extends Illuminate\Support\Facades\View{
 	 * @static 
 	 */
 	 public static function doneRendering(){
-		return Illuminate\View\Environment::doneRendering();
+		return Illuminate\View\Factory::doneRendering();
 	 }
 
 	/**
@@ -11616,7 +11891,7 @@ class View extends Illuminate\Support\Facades\View{
 	 * @static 
 	 */
 	 public static function addLocation($location){
-		 Illuminate\View\Environment::addLocation($location);
+		 Illuminate\View\Factory::addLocation($location);
 	 }
 
 	/**
@@ -11628,7 +11903,7 @@ class View extends Illuminate\Support\Facades\View{
 	 * @static 
 	 */
 	 public static function addNamespace($namespace, $hints){
-		 Illuminate\View\Environment::addNamespace($namespace, $hints);
+		 Illuminate\View\Factory::addNamespace($namespace, $hints);
 	 }
 
 	/**
@@ -11640,7 +11915,7 @@ class View extends Illuminate\Support\Facades\View{
 	 * @static 
 	 */
 	 public static function prependNamespace($namespace, $hints){
-		 Illuminate\View\Environment::prependNamespace($namespace, $hints);
+		 Illuminate\View\Factory::prependNamespace($namespace, $hints);
 	 }
 
 	/**
@@ -11653,7 +11928,7 @@ class View extends Illuminate\Support\Facades\View{
 	 * @static 
 	 */
 	 public static function addExtension($extension, $engine, $resolver = null){
-		 Illuminate\View\Environment::addExtension($extension, $engine, $resolver);
+		 Illuminate\View\Factory::addExtension($extension, $engine, $resolver);
 	 }
 
 	/**
@@ -11663,7 +11938,7 @@ class View extends Illuminate\Support\Facades\View{
 	 * @static 
 	 */
 	 public static function getExtensions(){
-		return Illuminate\View\Environment::getExtensions();
+		return Illuminate\View\Factory::getExtensions();
 	 }
 
 	/**
@@ -11673,7 +11948,7 @@ class View extends Illuminate\Support\Facades\View{
 	 * @static 
 	 */
 	 public static function getEngineResolver(){
-		return Illuminate\View\Environment::getEngineResolver();
+		return Illuminate\View\Factory::getEngineResolver();
 	 }
 
 	/**
@@ -11683,7 +11958,7 @@ class View extends Illuminate\Support\Facades\View{
 	 * @static 
 	 */
 	 public static function getFinder(){
-		return Illuminate\View\Environment::getFinder();
+		return Illuminate\View\Factory::getFinder();
 	 }
 
 	/**
@@ -11693,7 +11968,7 @@ class View extends Illuminate\Support\Facades\View{
 	 * @static 
 	 */
 	 public static function setFinder($finder){
-		 Illuminate\View\Environment::setFinder($finder);
+		 Illuminate\View\Factory::setFinder($finder);
 	 }
 
 	/**
@@ -11703,7 +11978,7 @@ class View extends Illuminate\Support\Facades\View{
 	 * @static 
 	 */
 	 public static function getDispatcher(){
-		return Illuminate\View\Environment::getDispatcher();
+		return Illuminate\View\Factory::getDispatcher();
 	 }
 
 	/**
@@ -11714,7 +11989,7 @@ class View extends Illuminate\Support\Facades\View{
 	 * @static 
 	 */
 	 public static function setDispatcher($events){
-		 Illuminate\View\Environment::setDispatcher($events);
+		 Illuminate\View\Factory::setDispatcher($events);
 	 }
 
 	/**
@@ -11724,7 +11999,7 @@ class View extends Illuminate\Support\Facades\View{
 	 * @static 
 	 */
 	 public static function getContainer(){
-		return Illuminate\View\Environment::getContainer();
+		return Illuminate\View\Factory::getContainer();
 	 }
 
 	/**
@@ -11735,7 +12010,7 @@ class View extends Illuminate\Support\Facades\View{
 	 * @static 
 	 */
 	 public static function setContainer($container){
-		 Illuminate\View\Environment::setContainer($container);
+		 Illuminate\View\Factory::setContainer($container);
 	 }
 
 	/**
@@ -11747,7 +12022,7 @@ class View extends Illuminate\Support\Facades\View{
 	 * @static 
 	 */
 	 public static function shared($key, $default = null){
-		return Illuminate\View\Environment::shared($key, $default);
+		return Illuminate\View\Factory::shared($key, $default);
 	 }
 
 	/**
@@ -11757,7 +12032,7 @@ class View extends Illuminate\Support\Facades\View{
 	 * @static 
 	 */
 	 public static function getShared(){
-		return Illuminate\View\Environment::getShared();
+		return Illuminate\View\Factory::getShared();
 	 }
 
 	/**
@@ -11767,7 +12042,7 @@ class View extends Illuminate\Support\Facades\View{
 	 * @static 
 	 */
 	 public static function getSections(){
-		return Illuminate\View\Environment::getSections();
+		return Illuminate\View\Factory::getSections();
 	 }
 
 	/**
@@ -11777,7 +12052,7 @@ class View extends Illuminate\Support\Facades\View{
 	 * @static 
 	 */
 	 public static function getNames(){
-		return Illuminate\View\Environment::getNames();
+		return Illuminate\View\Factory::getNames();
 	 }
 
 }
@@ -12668,7 +12943,7 @@ class Image extends Intervention\Image\Facades\Image{
 	 * @return Image
 	 * @static 
 	 */
-	 public static function fill($source, $pos_x = 0, $pos_y = 0){
+	 public static function fill($source, $pos_x = null, $pos_y = null){
 		return Intervention\Image\Image::fill($source, $pos_x, $pos_y);
 	 }
 
@@ -12978,6 +13253,16 @@ class Image extends Intervention\Image\Facades\Image{
 	 */
 	 public static function response($type = null, $quality = 90){
 		return Intervention\Image\Image::response($type, $quality);
+	 }
+
+	/**
+	 * Destroys image resource and frees memory
+	 *
+	 * @return void
+	 * @static 
+	 */
+	 public static function destroy(){
+		 Intervention\Image\Image::destroy();
 	 }
 
 	/**

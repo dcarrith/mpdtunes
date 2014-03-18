@@ -581,7 +581,7 @@ class Validator implements MessageProviderInterface {
 
 		foreach ($attributes as $key)
 		{
-			if (isset($this->data[$key]) || isset($this->files[$key]))
+			if (array_get($this->data, $key) || array_get($this->files, $key))
 			{
 				$count++;
 			}
@@ -1083,7 +1083,7 @@ class Validator implements MessageProviderInterface {
 	 */
 	protected function validateAlpha($attribute, $value)
 	{
-		return preg_match('/^\pL+$/u', $value);
+		return preg_match('/^[\pL\pM]+$/u', $value);
 	}
 
 	/**
@@ -1095,7 +1095,7 @@ class Validator implements MessageProviderInterface {
 	 */
 	protected function validateAlphaNum($attribute, $value)
 	{
-		return preg_match('/^[\pL\pN]+$/u', $value);
+		return preg_match('/^[\pL\pM\pN]+$/u', $value);
 	}
 
 	/**
@@ -1107,7 +1107,7 @@ class Validator implements MessageProviderInterface {
 	 */
 	protected function validateAlphaDash($attribute, $value)
 	{
-		return preg_match('/^[\pL\pN_-]+$/u', $value);
+		return preg_match('/^[\pL\pM\pN_-]+$/u', $value);
 	}
 
 	/**
@@ -1166,6 +1166,11 @@ class Validator implements MessageProviderInterface {
 	 */
 	protected function validateBefore($attribute, $value, $parameters)
 	{
+		if ($format = $this->getDateFormat($attribute))
+		{
+			return $this->validateBeforeWithFormat($format, $value, $parameters);
+		}
+
 		if ( ! ($date = strtotime($parameters[0])))
 		{
 			return strtotime($value) < strtotime($this->getValue($parameters[0]));
@@ -1174,6 +1179,20 @@ class Validator implements MessageProviderInterface {
 		{
 			return strtotime($value) < $date;
 		}
+	}
+
+	/**
+	 * Validate the date is before a given date with a given format.
+	 *
+	 * @param  string  $format
+	 * @param  mixed   $value
+	 * @param  array   $parameters
+	 * @return bool
+	 */
+	protected function validateBeforeWithFormat($format, $value, $parameters)
+	{
+		return DateTime::createFromFormat($format, $value) <
+               DateTime::createFromFormat($format, $parameters[0]);
 	}
 
 	/**
@@ -1186,6 +1205,11 @@ class Validator implements MessageProviderInterface {
 	 */
 	protected function validateAfter($attribute, $value, $parameters)
 	{
+		if ($format = $this->getDateFormat($attribute))
+		{
+			return $this->validateAfterWithFormat($format, $value, $parameters);
+		}
+
 		if ( ! ($date = strtotime($parameters[0])))
 		{
 			return strtotime($value) > strtotime($this->getValue($parameters[0]));
@@ -1193,6 +1217,34 @@ class Validator implements MessageProviderInterface {
 		else
 		{
 			return strtotime($value) > $date;
+		}
+	}
+
+	/**
+	 * Validate the date is after a given date with a given format.
+	 *
+	 * @param  string  $format
+	 * @param  mixed   $value
+	 * @param  array   $parameters
+	 * @return bool
+	 */
+	protected function validateAfterWithFormat($format, $value, $parameters)
+	{
+		return DateTime::createFromFormat($format, $value) >
+               DateTime::createFromFormat($format, $parameters[0]);
+	}
+
+	/**
+	 * Get the date format for an attribute if it has one.
+	 *
+	 * @param  string $attribute
+	 * @return string|null
+	 */
+	protected function getDateFormat($attribute)
+	{
+		if ($result = $this->getRule($attribute, 'DateFormat'))
+		{
+			return $result[1][0];
 		}
 	}
 
@@ -1647,7 +1699,14 @@ class Validator implements MessageProviderInterface {
 	 */
 	protected function replaceBefore($message, $attribute, $rule, $parameters)
 	{
-		return str_replace(':date', $parameters[0], $message);
+		if ( ! ($date = strtotime($parameters[0])))
+		{
+			return str_replace(':date', $this->getAttribute($parameters[0]), $message);
+		}
+		else
+		{
+			return str_replace(':date', $parameters[0], $message);
+		}
 	}
 
 	/**
@@ -1661,31 +1720,45 @@ class Validator implements MessageProviderInterface {
 	 */
 	protected function replaceAfter($message, $attribute, $rule, $parameters)
 	{
-		return str_replace(':date', $parameters[0], $message);
+		if ( ! ($date = strtotime($parameters[0])))
+		{
+			return str_replace(':date', $this->getAttribute($parameters[0]), $message);
+		}
+		else
+		{
+			return str_replace(':date', $parameters[0], $message);
+		}
 	}
 
 	/**
 	 * Determine if the given attribute has a rule in the given set.
 	 *
 	 * @param  string  $attribute
-	 * @param  array   $rules
+	 * @param  string|array  $rules
 	 * @return bool
 	 */
 	protected function hasRule($attribute, $rules)
 	{
+		return ! is_null($this->getRule($attribute, $rules));
+	}
+
+	/**
+	 * Get a rule and its parameters for a given attribute.
+	 *
+	 * @param  string  $attribute
+	 * @param  string|array  $rules
+	 * @return array|null
+	 */
+	protected function getRule($attribute, $rules)
+	{
 		$rules = (array) $rules;
 
-		// To determine if the attribute has a rule in the ruleset, we will spin
-		// through each of the rules assigned to the attribute and parse them
-		// all, then check to see if the parsed rules exists in the arrays.
 		foreach ($this->rules[$attribute] as $rule)
 		{
 			list($rule, $parameters) = $this->parseRule($rule);
 
-			if (in_array($rule, $rules)) return true;
+			if (in_array($rule, $rules)) return [$rule, $parameters];
 		}
-
-		return false;
 	}
 
 	/**

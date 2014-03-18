@@ -1,6 +1,7 @@
 <?php namespace Orchestra\Testbench\Tests;
 
 use Dcarrith\LxMPD\LxMPD; 
+use Dcarrith\LxMPD\Connection\MPDConnection;
 use Illuminate\Support\Facades\Config;
 
 class SetMPDPropertiesTest extends \Orchestra\Testbench\TestCase
@@ -18,10 +19,18 @@ class SetMPDPropertiesTest extends \Orchestra\Testbench\TestCase
 	$this->password = Config::get('lxmpd::password');
 
 	// Instantiate a new LxMPD object using the host, port and password parameters
-	$this->LxMPD = new LxMPD( $this->host, $this->port, $this->password );
+	$connection = new MPDConnection( $this->host, $this->port, $this->password );
+
+	// Determine if the connection to MPD is local to the Web Server
+	$connection->determineIfLocal();
+
+	// Establish the connection
+	$connection->establish();
+
+	$this->LxMPD = new LxMPD( $connection );
 
 	// Connect to MPD with the credentials retrieved from config during setup
-	$this->LxMPD->connect();
+	$this->LxMPD->authenticate();
     }
 
     /**
