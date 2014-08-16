@@ -1,13 +1,8 @@
 
-function onUpdate(topicUri, event) {
-   console.log(topicUri);
-   console.log(event);
-}
-
 $( document ).ready( function() {
 
    // connect to WAMP server
-   ab.connect("ws://demo.mpdtunes.com:16610",
+   ab.connect("ws://demo.mpdtunes.com",
  
       // WAMP session was established
       function (session) {
@@ -38,6 +33,24 @@ $( document ).ready( function() {
     					
 					},
 					progress : function(event) {
+	
+						//consoleLog(sec);
+						//consoleLog((sec/trackEnd)*100);	
+			
+						//processTimeUpdate( sec, trackEnd, ((sec/trackEnd)*100) );
+	
+						/*ticker = ticker + 1;
+		
+						if (ticker == 3) {
+
+							ticker = 0;
+							trackPlay = trackPlay + 1;
+							consoleLog("trackPlay: "+trackPlay);
+						}*/
+
+
+						//consoleLog( "Date.now()", Date.now() );
+						//consoleLog( "Inside progress event handler", event );	
  
 						seekPercent = event.jPlayer.status.seekPercent;
 
@@ -49,8 +62,8 @@ $( document ).ready( function() {
 
 						if (( seekPercent < 100 ) || ( !load_progress_complete )) {  
 
-							consoleLog( "Inside progress event handler", event );			
-							consoleLog( "Updating load progress display to ", seekPercent );			
+							//consoleLog( "Inside progress event handler", event );			
+							//consoleLog( "Updating load progress display to ", seekPercent );			
 							
 							// Update the load progress indicator	
 							updateLoadProgressDisplay( seekPercent );
@@ -67,11 +80,38 @@ $( document ).ready( function() {
 					stalled : function( event ) {
 
 						if ( playing ) {
+
+							if ( started ) {
+
+								//consoleLog("current_track_position: "+current_track_position+" elapsed: "+elapsed);
+
+								// Update the current_track_position based on what has elapsed since initial loading
+								current_track_position = elapsed;
+
+								waiting = true;
+
+								pauseProgress();
+							}
 						
 							$.mobile.loading( "show", theme.bars, "Stalled" );	
 						}
 					},
 					waiting : function( event ) {
+
+						if ( playing ) {
+
+							if ( started ) {
+								
+								//consoleLog("current_track_position: "+current_track_position+" elapsed: "+elapsed);
+			
+								// Update the current_track_position based on what has elapsed since initial loading
+								current_track_position = elapsed;
+
+								waiting = true;
+
+								pauseProgress();
+							}
+						}
 
 						consoleLog( "Inside waiting event handler", event );
 
@@ -100,7 +140,7 @@ $( document ).ready( function() {
 								consoleLog( "current track position", current_track_position );
 
 								if (	(( current_track_position > 0 ) && 
-									(( event.jPlayer.status.src == playlist.tracks[ track_position ].oggurl ) || ( event.jPlayer.status.src == playlist.tracks[ track_position ].url ))) && 
+									(( event.jPlayer.status.src == playlist.tracks[ track_position ].file ) || ( event.jPlayer.status.src == playlist.tracks[ track_position ].file ))) && 
 									( !shuffle_queue )	) {
 					
 									$.mobile.loading( "show", theme.bars, "Resuming" );
@@ -108,6 +148,13 @@ $( document ).ready( function() {
 								} else {
 					
 									$.mobile.loading( "show", theme.bars, "Loading" );
+								}
+
+								if ( started ) {
+			
+									waiting = true;
+
+									pauseProgress();
 								}
 							}
 						}
@@ -120,23 +167,43 @@ $( document ).ready( function() {
 					},
 					durationchange : function( event ) {
 
-						consoleLog( "Inside durationchange event handler for player", event );
+						//consoleLog( "Inside durationchange event handler for player", event );
+					},
+					play : function ( event ) {
+
+						consoleLog( "Inside play event handler", event );
 					},
 					playing : function( event ) {
 
+						trackTime = playlist.tracks[ track_position ].Time;
+
+						/*if (current_track_position > elapsed) {
+
+							elapsed = current_track_position;
+						}*/
+
+						consoleLog("Inside the jPlayer playing event handler");
+
+						waiting = false;						
+
+						startProgress( elapsed, trackTime, ((elapsed / trackTime) * 100));
+
 						consoleLog( "Inside playing event handler", event );
 
-						$.mobile.loading( "show", theme.bars, "Playing" );
+						//$.mobile.loading( "show", theme.bars, "Playing" );
+
+						$.mobile.loading( "hide" );
 					},
 					timeupdate : function( event ) {
 							
 						//consoleLog( "Inside timeupdate event handler", event );
 
 						// These two variables are used throughout the timeupdate handler
-						currentTime = event.jPlayer.status.currentTime;
+						/*currentTime = event.jPlayer.status.currentTime;
+						
 						totalDuration = event.jPlayer.status.duration;
 
-						if ( playlist.tracks[ track_position ].url.indexOf( "http://" ) === 0) {
+						if ( playlist.tracks[ track_position ].file.indexOf( "http://" ) === 0) {
 	
 							totalDuration = "Infinity:NaN";
 						}
@@ -150,17 +217,18 @@ $( document ).ready( function() {
 						}	
 
 						processTimeUpdate( currentTime, totalDuration, playProgress );
+						*/
 					},
 					ended : function( event ) {
 
-						if ( repeat_track ) {
+						/*if ( repeat_track ) {
 
 							skipto( "same" );
 
 						} else {
 							
 							skipto( "next" );
-						}
+						}*/
 					},
 					volumechange : function( event ) {
 
@@ -173,22 +241,25 @@ $( document ).ready( function() {
 		
 		if( typeof playlist.tracks !== 'undefined' ) {	
 
-			$( '#artistDiv' ).html( playlist.tracks[ track_position ].artist );
+			if( typeof playlist.tracks[ track_position ] !== 'undefined' ) {
 
-			var fullAlbum = playlist.tracks[ track_position ].album;
-			var truncatedAlbum = (( fullAlbum.length > max_album_name_string_length ) ? ( fullAlbum.substring( 0, max_album_name_string_length ) + '...' ) : fullAlbum );
-			$( '#albumDiv' ).html( truncatedAlbum ).trigger( 'updatelayout' );
+				$( '#artistDiv' ).html( playlist.tracks[ track_position ].artist );
+
+				var fullAlbum = playlist.tracks[ track_position ].Album;
+				var truncatedAlbum = (( fullAlbum.length > max_album_name_string_length ) ? ( fullAlbum.substring( 0, max_album_name_string_length ) + '...' ) : fullAlbum );
+				$( '#albumDiv' ).html( truncatedAlbum ).trigger( 'updatelayout' );
 	
-			if ( playlist.tracks[ track_position ].url.indexOf( "http://" ) === 0) {
+				if ( playlist.tracks[ track_position ].file.indexOf( "http://" ) === 0) {
 			
-				$( '#trackDiv' ).html( playlist.tracks[ track_position ].url ).trigger( 'updatelayout' );
+					$( '#trackDiv' ).html( playlist.tracks[ track_position ].file ).trigger( 'updatelayout' );
 			
-			} else {
+				} else {
 					
-				var fullTitle = playlist.tracks[ track_position ].title;
-				var truncatedTitle = (( fullTitle.length > max_track_title_string_length ) ? ( fullTitle.substring( 0, max_track_title_string_length ) + '...' ) : fullTitle );
-						
-				$( '#trackDiv' ).html( truncatedTitle ).trigger( 'updatelayout' );
+					var fullTitle = playlist.tracks[ track_position ].Title;
+					var truncatedTitle = (( fullTitle.length > max_track_title_string_length ) ? ( fullTitle.substring( 0, max_track_title_string_length ) + '...' ) : fullTitle );
+							
+					$( '#trackDiv' ).html( truncatedTitle ).trigger( 'updatelayout' );
+				}
 			}
 		}
 	}

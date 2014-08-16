@@ -82,7 +82,21 @@ class LoginController extends BaseController {
 			$this->firephp->log($output, "output from trying to start mpd");
 			$this->firephp->log($resultCode, "resultCode from trying to start mpd");
 
-			//exit();
+			// Let's push a thank you email onto the queue 
+			Queue::push('MailHandler@send', array('first_name' => Auth::user()->first_name), 'emails');
+			//Queue::push('MailHandler@send', array('first_name' => Auth::user()->first_name), 'https://sqs.us-east-1.amazonaws.com/204060697438/emails');
+			/*Mail::queue('emails.login', array('first_name' => Auth::user()->first_name), function($message) {
+
+				$message->from('admin@mpdtunes.com', 'MPDTunes');
+
+				$message->to('dcarrith@gmail.com');
+
+				$message->cc('davecarrithers@gmail.com');
+
+			}, 'emails');*/
+
+			// Fire off an event that will update the last_login field for the user 
+			Event::fire('user.login', array(Auth::user()));
 
 			return Redirect::to('home');
 			

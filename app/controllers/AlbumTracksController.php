@@ -40,7 +40,7 @@ class AlbumTracksController extends MPDTunesController {
 
 			$this->data['heading_name'] 		= $album_name;
 
-			$first_song = $this->xMPD->GetFirstTrack("album", $album_name);
+			$first_song = $this->xMPD->getFirstTrack("album", $album_name);
 
 			$this->data['album_art_file'] = Request::root()."/".$this->getAlbumArt(	$first_song, 
 												$artist_name, 
@@ -63,15 +63,10 @@ class AlbumTracksController extends MPDTunesController {
 			$this->data['popupMenuId'] 		= "albumTrackPopupMenu";
 			$this->data['dataNameAttribute'] 	= 'data-album-name="'.$album_name.'"';
 
-			// We need to get all the playlists so we can list them in the add to playlist popup
-			$playlists = $this->xMPD->GetPlaylists();
+			$playlists = $this->xMPD->listplaylists();
+			$this->firephp->log($playlists, "playlists");
 
-			foreach($playlists as $playlist) {
-
-				$this->data['playlists'][] = array('playlist'=>$playlist);
-
-				$this->firephp->log($playlist, "playlist");
-			}
+			$this->data['playlists'] = $playlists;
 		}
 
 		$this->firephp->log($this->data, "data");

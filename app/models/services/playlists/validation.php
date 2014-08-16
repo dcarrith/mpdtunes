@@ -11,7 +11,6 @@ use Auth;
 use Config;
 use Configurator;
 use Langurator;
-use MPD;
 use Request;
 use Validator;
 
@@ -34,17 +33,10 @@ class Validation extends ValidationService {
 
                 Validator::extend('isunique', function($attribute, $value, $parameters) {
 
-	                require_once('includes/php/classes/mpd.class.php');
-        	        require_once('includes/php/library/mpd.inc.php');
-
 			$defaults = Configurator::getUsersDefaults();
 
-                	// Instantiate the MPD object to be used by the derived controllers             
-                	$MPD = new mpd(   $defaults['mpd_host'],
-                        	          $defaults['mpd_port'], 
-                                	  $defaults['mpd_password']        );
-
-			return !$MPD->PlaylistExists( trim($value) );
+			// Resolve an LxMPD object from the IoC Container so we can use it to see if a playlist by that name already exists
+			return !in_array( trim($value), App::make('lxmpd')->listplaylists() );
                 });
 
                 $this->rules = array(	'playlist_name' => 'required|max:64|isunique' );

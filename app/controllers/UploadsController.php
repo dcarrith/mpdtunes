@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 class UploadsController extends MPDTunesController {
 
@@ -17,89 +17,68 @@ class UploadsController extends MPDTunesController {
 
 		$this->data['data_url'] = "";
 
-		return View::make('uploader', $this->data);		
+		return View::make('uploader', $this->data);
 	}
 
 	public function uploadMusic() {
 
-		$uploads_directory = $this->data['default_base_uploads_dir'];
+		// Retrieve the uploaded file
+		$file = Input::file('file');
 
-		// Create target uploads dir if it doesn't exist
-		if (!file_exists($uploads_directory)) {
-
-			@mkdir($uploads_directory);
-		}
-
-		// 5 minutes execution time
-		@set_time_limit(5 * 60);
-
-		// Retrieve the uploaded file 
-		$file = Input::file('file'); 
+		// The music directory into which all music is stored
+		$music_dir = $this->data['music_dir'];
 
 		// Get some of the properties of the uploaded file
+		$source = $file->getRealPath();
 		$name = $file->getClientOriginalName();
-		$path = $file->getRealPath();
 		$ext = $file->getClientOriginalExtension();
-	
-		// How to write a chunked file upload
-		//file_put_contents($filename, file_get_contents("php://input"), FILE_APPEND);
-			
-		$letId3 = new LetId3();
 
-		// Analyze the id3 tags of the uploaded file	
-		$id3 = $letId3->analyze( $path );
+		// Get the default uploads directory for the site
+		$uploadsDirectory = $this->data['default_base_uploads_dir'];
 
-		// Parse out only the id3 data we care about into the magic variables
-		$letId3->parseEssentialTagData(	$id3, array( "TIT2", "TPE1", "TALB", "TRCK", "artist", "album", "title", "track" ));
+		// Create target uploads dir if it doesn't exist
+		if (!file_exists($uploadsDirectory)) {
 
-		// Copy the magic variables into local variables so it'll be faster to reference them below
-		$artist = $letId3->artist;
-		$album = $letId3->album;
-		$title = $letId3->title;
-		$track = $letId3->track;
-		
-		// If the key fields aren't set, then we don't need to continue past this points
-		if (	( isset( $artist ) 	&& ( $artist != "" )) && 
-			( isset( $album )	&& ( $album != "" ))  && 
-			( isset( $title ) 	&& ( $title != "" ))  && 
-			( isset( $track ) 	&& ( $track != "" ))  && 
-			( isset( $ext ) 	&& ( $ext != ""	))) {
-
-			$music_dir = $this->data['music_dir'];
-
-			$artist_dir = $music_dir . $artist;
-
-			// Create artist directory if it doesn't already exist
-			if ( !file_exists( $artist_dir )) {
-				@mkdir( $artist_dir );
-			}
-
-			// Create album directory if it doesn't already exist
-			if ( !file_exists( $artist_dir . "/" . $album )) {
-				@mkdir( $artist_dir . "/" . $album );
-			}
-
-			// Move the file into place as long as it doesn't already exist
-			if ( !file_exists( '"' . $artist_dir . "/" . $album . "/" . $track . ' ' . $title . '.' . $ext . '"' )) {
-
-				$uploadSuccess = Input::file( 'file' )->move( $music_dir . $artist . "/" . $album . "/", $name );
-		
-				if( $uploadSuccess ) {
-
-					return Response::json('success', 200); 
-
-				} else {
-
-					return Response::json('error', 400);
-				}
-
-			} else {
-		
-				return Response::json('file exists', 304);
-			}
+			@mkdir($uploadsDirectory);
 		}
 
-		return Response::json('incomplete tags', 400);
+		// Compact the variables we need into the data array
+		$data = compact( 'music_dir', 'source', 'name', 'ext' );
+
+		// Create a hash of the temporary file path as the unique filename
+		$tmpName = hash('sha1', $source) . "." . $ext;
+		$tmpPath = $uploadsDirectory . $tmpName;
+
+		// Move the file out of the /tmp directory and into the uploads directory
+		$file->move( $uploadsDirectory, $tmpName );
+
+		// Merge the new source path into the data array to be passed in to the queue push
+		$data = array_merge( $data, array( 'source' => $tmpPath ));
+
+		// If queuing is enabled, then let's use it
+		if( Config::get( 'queue.enabled' )) {
+
+			// Pass the uploaded file to the queue that handles file uploads
+			//$result = Queue::bulk(array('FileUploadsHandler@organize', 'MailHandler@send'), $data);
+			$result = Queue::push( 'FileUploadsHandler@organize', $data, 'uploads' );
+			//$result = Queue::push( 'FileUploadsHandler@organize', $data, 'https://sqs.us-east-1.amazonaws.com/204060697438/uploads');
+
+			// Return a success 200 since we successfully passed the file to the queue to be parsed out and moved appropriately
+			return Response::json( 'File has been queued up for analysis', 200 );
+
+		} else {
+
+			$caller = 'UploadsController';
+
+			// Organize the uploaded music file into it's place
+			$result = Functionator::organize( $data, $caller );
+
+			// Extract the status and code from the result
+			extract( $result );
+
+			// Return status and code in a JSON response
+			return Response::json( $status, $code );
+		}
 	}
 
 	public function uploadStationsIcon() {
@@ -129,14 +108,14 @@ class UploadsController extends MPDTunesController {
 		$stationsIcon->baseurl = $this->data['mpd_dir'];
 		$stationsIcon->creator_id = $user->id;
 		$stationsIcon->save();
-                
+
 		if ( !$stationsIcon->id ){
-                        
+
                         // set to default icon
-                        $stationsIcon = StationsIcon::find( 1 ); 
+                        $stationsIcon = StationsIcon::find( 1 );
                 }
 
 		// Respond with the stationsIcon as JSON
 		echo $stationsIcon->toJson();
-        }		
+        }
 }

@@ -8,8 +8,6 @@
 		
 		{{ Form::open(array('id'=>'register', 'url'=>'/register', 'method'=>'POST', 'data-ajax'=>'true', 'data-transition'=>'none', 'data-history'=>'false')) }}
 
-                {{ Form::input('hidden', 'csrf_token', csrf_token()) }}
-
 			<input type="hidden" id="keywords" name="keywords" value="Stream your music collection to your device or remotely control your MPDTunes music server.  You can listen to your music anytime, anywhere, and on any device." />
 			<input type="hidden" id="more_keywords" name="more_keywords" value="{{ $site_title }}" />
 

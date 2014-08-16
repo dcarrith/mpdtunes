@@ -10,7 +10,7 @@
 		}
 	],
 	"require": {
-                "laravel/framework": "4.1.*",
+                "laravel/framework": "4.2.*",
 		"nesbot/Carbon": "*",
 		"Dcarrith/CIFirePHP": "dev-master",
                 "Dcarrith/CIZip": "dev-master",
@@ -22,9 +22,13 @@
 		"mockery/mockery": "dev-master",	
 		"sidney/latchet": "dev-master",
 		"react/zmq": "dev-master",
-		"intervention/image": "dev-master",
+		"intervention/image": "2.*",	
 		"intervention/imagecache": "dev-master",
-		"phansys/getid3": "2.1.*@dev"
+		"phansys/getid3": "2.1.*@dev",
+		"iron-io/iron_mq": "1.5.*",
+		"pda/pheanstalk": "2.*@dev",
+		"aws/aws-sdk-php": "dev-master",
+		"videlalvaro/php-amqplib": "2.2.*"	
 	},
         "repositories": [
                 {
@@ -43,9 +47,13 @@
 			"type": "vcs",
 			"url": "https://github.com/dcarrith/letid3"
 		},
+    		{
+        		"type": "vcs",
+        		"url": "https://github.com/sidneywidmer/latchet"
+    		},
 		{
 			"type": "vcs",
-			"url": "https://github.com/dcarrith/Latchet"
+			"url": "https://github.com/dcarrith/Laravel-4-Generators"
 		}
         ],
 	"autoload": {

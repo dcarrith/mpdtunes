@@ -47,12 +47,12 @@ abstract class Validation {
      */
     public $messages = array();
 
-	/**
-	* CIFirePHP object for debugging
-	*
-	* @var object
-	*/
-	public $firephp;
+    /**
+     * CIFirePHP object for debugging
+     *
+     * @var object
+     */
+    public $firephp;
 
     /**
      * Create a new validation service instance.
@@ -67,7 +67,7 @@ abstract class Validation {
         // Initialize the CodeIgniter FirePHP interface to the Monolog package
 	$this->firephp = new CIFirePHP();
 	$this->firephp->setName("CIFirePHP");
-	$this->firephp->setEnvironment(Config::get("server.environment"));
+	$this->firephp->setEnvironment(	Config::get("server.environment") );
 	$this->firephp->createLogger();
     }
 

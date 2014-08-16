@@ -28,26 +28,23 @@ class PlaylistsController extends MPDTunesController {
 			$playlists = $this->xMPD->listplaylists();
 			$this->firephp->log($playlists, "playlists");
 
-			//$playlists = $this->xMPD->GetPlaylists();
-			//$this->firephp->log($playlists, "playlists");
-
 			$this->firephp->log($show_playlist_track_count_bubbles, "show_playlist_track_count_bubbles");
 
 			// only perform the extra overhead processing of getting the track counts if configured to show count bubbles
 			if ($show_playlist_track_count_bubbles) {
 
-				foreach($playlists[0] as $playlist) {
+				foreach($playlists as $playlist) {
 
-					$tracks = $this->xMPD->listplaylist($playlist['name']);
+					$tracks = $this->xMPD->listplaylist($playlist);
 
 					$tracks_count = count($tracks);
 
-					$this->data['playlists'][] = array_merge($playlist, array('tracks_count'=>$tracks_count));
+					$this->data['playlists'][] = array_merge(array( "name" => $playlist ), array('tracks_count'=>$tracks_count));
 				}
 
 			} else {
 
-				foreach($playlists[0] as $playlist) {
+				foreach($playlists as $playlist) {
 
 					$this->data['playlists'][] = $playlist;
 				}

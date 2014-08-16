@@ -40,7 +40,7 @@ class RadioStationController extends BaseTopic {
 					if($existingListener->connected) {
 
 	                                        $msg = array(
-        	                                        'action' => 'newListener',
+        	                                        'action' => 'existingListener',
                 	                                'listener' => $existingListener->toJson()
                         	                );
 

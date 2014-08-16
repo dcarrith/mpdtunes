@@ -102,7 +102,7 @@ $( 'body' ).on( 'pageinit', '#queue', function( evt, ui ) {
 	//window.scrollTo(0, 1);
 
 	// Use an automatic threshold that's a function of the height of the viewport
-	threshold = $( window ).height();
+	threshold = ( $( window ).height() * 2.5 );
 
 	// Set up the variable options to pass to the lazyloader reinitialize function
 	var options = {	"threshold"		: threshold,
@@ -264,7 +264,7 @@ $('body').on('pageinit', '#playlists', function(evt, ui) {
 $('body').on('pageinit', '#playlistTracksPage', function(evt, ui) {
 
 	// Use an automatic threshold that's a function of the height of the viewport
-	threshold = $( window ).height();
+	threshold = ( $( window ).height() * 2.5 );
 
 	// Set up the variable options to pass to the lazyloader reinitialize function
 	var options = {	"threshold"	: threshold,
@@ -350,7 +350,7 @@ $('body').on('pageinit', '#music_uploader', function(evt, ui) {
 	        // General settings
 	        runtimes : 'html5',
 	        url : '/upload/music',
-	        max_file_size : '128mb',
+	        max_file_size : '192mb',
 	        // chunk_size : '2mb',
 	        unique_names : true,
 	        multiple_queues : true,
@@ -499,7 +499,8 @@ $('body').on('pageshow', '#index', function(evt, ui) {
 
 	$('#playerCurrentlyPlayingDiv').css('max-width', ($(window).width() * .9)).trigger( 'updatelayout' );
 
-	if (typeof ui.prevPage[0] != 'undefined') {
+	// We no longer need this if we are going to keep the local "playlist" current through the websocket handler
+	/*if (typeof ui.prevPage[0] != 'undefined') {
 		
 		if (ui.prevPage[0].id == 'settings') {
 
@@ -526,17 +527,6 @@ $('body').on('pageshow', '#index', function(evt, ui) {
 			if ( current_playlist != "" ){
 
 				playlist = $.parseJSON( current_playlist );
-
-				/*count = 0;
-				message = "";
-				for (i=0; i<playlist.tracks.length; i++){
-					
-					track = playlist.tracks[i];
-					message = message + "track "+i+" - mpd_index "+track.mpd_index+" - "+track.artist+" - "+track.album+" - "+track.title+"\n";
-					count++;
-				}
-				message = "streaming.php -> pageshow: "+count+" tracks loaded\n"+message;
-				alert(message);*/
 			
 			} else {
 				
@@ -546,7 +536,7 @@ $('body').on('pageshow', '#index', function(evt, ui) {
 			//}, 2000);
 			
 		}
-	}
+	}*/
 
 	//window.scrollTo(0, 1);
 
@@ -1090,7 +1080,7 @@ $('body').on('change', '#volume_control', function() {
 	 	// user a second to get the value they want...then send the control command.
 	 	// The swipe_left and swipe_right variables are a hack to prevent those events from firing
 	 	// when the user is adjusting the slider.
-		setTimeout(function(){ new_volume = $('#volume_control').val(); post = { "parameters" : [ { "volume" : new_volume } ] }; control_mpd('set_volume', post.parameters[0]); waiting_to_adjust_volume = false; just_swiped_left = false; just_swiped_right = false;}, 1000);
+		setTimeout(function(){ new_volume = $('#volume_control').val(); post = { "parameters" : [ { "volume" : new_volume } ] }; control_mpd('setvol', post.parameters[0]); waiting_to_adjust_volume = false; just_swiped_left = false; just_swiped_right = false;}, 1000);
 	}
 });
 
@@ -1111,10 +1101,52 @@ $('body').on('change', '#xfade_control', function() {
 	 	// user a second to get the value they want...then send the control command.
 	 	// The swipe_left and swipe_right variables are a hack to prevent those events from firing
 	 	// when the user is adjusting the slider.
-		setTimeout(function(){ new_xfade_value = $('#xfade_control').val(); post = { "parameters" : [ { "crossfade" : new_xfade_value } ] }; control_mpd('set_crossfade', post.parameters[0]); waiting_to_adjust_xfade = false; just_swiped_left = false; just_swiped_right = false;}, 500);
+		setTimeout(function(){ new_xfade_value = $('#xfade_control').val(); post = { "parameters" : [ { "crossfade" : new_xfade_value } ] }; control_mpd('crossfade', post.parameters[0]); waiting_to_adjust_xfade = false; just_swiped_left = false; just_swiped_right = false;}, 500);
 	}
 });
 
+
+$('body').on('change', '#mixrampdb_control', function() {
+	
+	// there seems to be a bug in jQuery mobile where the swipeleft and swiperight events are being 
+	// fired even when the user is actively controlling a slider.  So, I'll attempt to prevent it.		
+	just_swiped_left = true;
+	just_swiped_right = true;
+
+ 	// This prevents the firing off 10 or possible more MPD commands. Let's give the 
+ 	// user a few seconds to get the value they want...then send the control command
+ 	if (!waiting_to_adjust_mixrampdb) {
+	
+	 	waiting_to_adjust_mixrampdb = true;
+
+	 	// This prevents the firing off 10 or possible more MPD commands. Let's give the 
+	 	// user a second to get the value they want...then send the control command.
+	 	// The swipe_left and swipe_right variables are a hack to prevent those events from firing
+	 	// when the user is adjusting the slider.
+		setTimeout(function(){ new_mixrampdb_value = $('#mixrampdb_control').val(); post = { "parameters" : [ { "mixrampdb" : new_mixrampdb_value } ] }; control_mpd('mixrampdb', post.parameters[0]); waiting_to_adjust_mixrampdb = false; just_swiped_left = false; just_swiped_right = false;}, 500);
+	}
+});
+
+$('body').on('change', '#mixrampdelay_control', function() {
+	
+	// there seems to be a bug in jQuery mobile where the swipeleft and swiperight events are being 
+	// fired even when the user is actively controlling a slider.  So, I'll attempt to prevent it.		
+	just_swiped_left = true;
+	just_swiped_right = true;
+
+ 	// This prevents the firing off 10 or possible more MPD commands. Let's give the 
+ 	// user a few seconds to get the value they want...then send the control command
+ 	if (!waiting_to_adjust_mixrampdelay) {
+	
+	 	waiting_to_adjust_mixrampdelay = true;
+
+	 	// This prevents the firing off 10 or possible more MPD commands. Let's give the 
+	 	// user a second to get the value they want...then send the control command.
+	 	// The swipe_left and swipe_right variables are a hack to prevent those events from firing
+	 	// when the user is adjusting the slider.
+		setTimeout(function(){ new_mixrampdelay_value = $('#mixrampdelay_control').val(); post = { "parameters" : [ { "mixrampdelay" : new_mixrampdelay_value } ] }; control_mpd('mixrampdelay', post.parameters[0]); waiting_to_adjust_mixrampdelay = false; just_swiped_left = false; just_swiped_right = false;}, 500);
+	}
+});
 
 $('body').on('change', '#volume_fade_control', function() {
 	
@@ -1199,33 +1231,80 @@ $( 'body' ).on( 'click', '#playpause', function( evt ) {
 		// Pause the active player instance
 		$( "#player" ).jPlayer( "pause" );
 
+		current_track_position = elapsed;
+
 		// send the command to the MPD server to pause the currently playing track
 		control_mpd( 'pause' );
 
 		playing = false;
 		paused = true;
 
+		pauseProgress();
+
 	} else { // it must have just loaded, or played and then paused
 
-		skipto( "same" );
+		skipto( "same", current_track_position );	
 	}
 });
 
 $( 'body' ).on( 'click', '#next', function( evt ) {
 	
 	evt.preventDefault();
-
+	
 	skipto( "next" );
 });
 
 $( 'body' ).on( 'click', '#prev', function( evt ) {
 
 	evt.preventDefault();	
-
+	
 	skipto( "previous" );
 });
 
-$( 'body' ).on( 'click', '#repeat', function( evt ) {
+$( 'body' ).on( 'click', '#repeatOptionsPopup ul li a[data-id="repeatOff"]', function( evt, ui ) {
+
+	post = { "parameters" : [ { "repeat" : "0" } ] };
+	
+	control_mpd( "repeat", post.parameters[ 0 ] );	
+
+	$( '#repeat' ).removeClass( 'ui-btn-'+theme.actions )
+			.attr( 'data-theme', theme.buttons )
+			.attr( 'data-icon', "repeat" )
+			.addClass( 'ui-btn-'+theme.buttons );
+
+	$( '#repeatOptionsPopup' ).popup( 'close' );
+});
+
+$( 'body' ).on( 'click', '#repeatOptionsPopup ul li a[data-id="repeatTrack"]', function( evt, ui ) {
+
+	post = { "parameters" : [ { "repeat" : "1",
+				    "option" : "track" } ] };
+
+	control_mpd( "repeat", post.parameters[ 0 ] );	
+
+	$( '#repeat' ).removeClass( 'ui-btn-'+theme.buttons )
+			.attr( 'data-theme', theme.actions )
+			.attr( 'data-icon', "repeat" )
+			.addClass( 'ui-btn-'+theme.actions );
+
+	$( '#repeatOptionsPopup' ).popup( 'close' );
+});
+
+$( 'body' ).on( 'click', '#repeatOptionsPopup ul li a[data-id="repeatPlaylist"]', function( evt, ui ) {
+
+	post = { "parameters" : [ { "repeat" : "1",
+				    "option" : "playlist" } ] };
+	control_mpd( "repeat", post.parameters[ 0 ] );	
+
+	$( '#repeat' ).removeClass( 'ui-btn-'+theme.buttons )
+			.attr( 'data-theme', theme.actions )
+			.attr( 'data-icon', "repeat" )
+			.addClass( 'ui-btn-'+theme.actions );
+	
+	$( '#repeatOptionsPopup' ).popup( 'close' );
+});
+
+/*$( 'body' ).on( 'click', '#repeat', function( evt ) {
 	
 	if ( !repeat_track ) {
 		
@@ -1267,7 +1346,7 @@ $( 'body' ).on( 'click', '#repeat', function( evt ) {
 	}
 
 	//$( "#player" ).jPlayer( "loop", repeat_track );
-});
+});*/
 
 $( 'body' ).on( 'click', '#shuffle', function( evt ) {
 	
@@ -1284,13 +1363,13 @@ $( 'body' ).on( 'click', '#shuffle', function( evt ) {
 				shuffle_queue = true;
 
 				$( '#shuffle' ).removeClass( 'ui-btn-'+theme.buttons )
-								.removeClass( 'ui-btn-up-'+theme.buttons )
-								.removeClass( 'ui-btn-hover-'+theme.buttons )
-								.attr( 'data-theme', theme.action )
+								.attr( 'data-theme', theme.actions )
 								.attr( 'data-icon', "shuffle" )
-								.addClass( 'ui-btn-'+theme.action )
-								.addClass( 'ui-btn-up-'+theme.action );
-				
+								.addClass( 'ui-btn-'+theme.actions );
+			
+				post = { "parameters" : [ { "random" : "1" } ] };
+				control_mpd( "random", post.parameters[ 0 ] );	
+	
 				//playlist = $.parseJSON( shuffle_playlist( JSON.stringify( playlist ) ) );
 
 				//setTimeout(function() { $.mobile.loading( "hide" ); }, 2000);
@@ -1301,13 +1380,13 @@ $( 'body' ).on( 'click', '#shuffle', function( evt ) {
 				
 				shuffle_queue = false;
 				
-				$( '#shuffle' ).removeClass( 'ui-btn-'+theme.action )
-								.removeClass( 'ui-btn-up-'+theme.action )
-								.removeClass( 'ui-btn-hover-'+theme.action )
+				$( '#shuffle' ).removeClass( 'ui-btn-'+theme.actions )
 								.attr( 'data-theme', theme.buttons )
 								.attr( 'data-icon', "shuffle" )
-								.addClass( 'ui-btn-'+theme.buttons )
-								.addClass( 'ui-btn-up-'+theme.buttons );
+								.addClass( 'ui-btn-'+theme.buttons );
+
+				post = { "parameters" : [ { "random" : "0" } ] };
+				control_mpd( "random", post.parameters[ 0 ] );	
 
 				// set the current_audio_element.pos to the mpd_index of the currently playing track, so that the user can proceed from there
 				//current_audio_element.pos = playlist.tracks[ current_audio_element.pos ].mpd_index;
@@ -1913,9 +1992,11 @@ $( 'body' ).on( 'click', '#volume_crossfade_form_save', function( evt, ui ) {
 	
 	var new_volume 		= $('#volume_control').val();
 	var new_crossfade 	= $('#xfade_control').val();
+	var new_mixrampdb 	= $('#mixrampdb_control').val();
+	var new_mixrampdelay 	= $('#mixrampdelay_control').val();
 	var new_volume_fade 	= $('#volume_fade_control').val();
 
-	if (((typeof new_volume == "undefined") || (new_volume == '')) && is_admin_user) {
+	if (((typeof new_volume == "undefined") || (new_volume == '') || (new_volume < 0)) && is_admin_user) {
 		
 		new_volume = 5;
 	} 
@@ -1924,7 +2005,16 @@ $( 'body' ).on( 'click', '#volume_crossfade_form_save', function( evt, ui ) {
 		
 		new_crossfade = 5;
 	}
-
+	
+	if (((typeof new_mixrampdb == "undefined") || (new_mixrampdb == ''))) {
+		
+		new_mixrampdb = -17;
+	}
+	
+	if (((typeof new_mixrampdelay == "undefined") || (new_mixrampdelay == ''))) {
+		
+		new_mixrampdelay = 5;
+	}
 	if (((typeof new_volume_fade == "undefined") || (new_volume_fade == ''))) {
 		
 		new_volume_fade = 5;
@@ -1937,7 +2027,7 @@ $( 'body' ).on( 'click', '#volume_crossfade_form_save', function( evt, ui ) {
 		type: "POST",
 		url: "/settings/save/volume",
 		async: true,
-		data: "volume="+new_volume+"&crossfade="+new_crossfade+"&volume_fade="+new_volume_fade,
+		data: "volume="+new_volume+"&crossfade="+new_crossfade+"&volume_fade="+new_volume_fade+"&mixrampdb="+new_mixrampdb+"&mixrampdelay="+new_mixrampdelay,
 		success: function(msg){
 
 			saved = $.parseJSON(msg);
@@ -2088,6 +2178,8 @@ $( 'body' ).on( 'click', '#settingsPopupMenu ul div[data-role="collapsible-set"]
 					$('div[data-role="page"]').each(function(index){
 						$(this).attr('data-theme',theme.buttons);
 						$(this).attr('data-divider-theme',theme.bars);
+						$(this).removeClass('ui-page-theme-'+current_theme.body)
+							.addClass('ui-page-theme-'+theme.body);
 					});
 
 					// Update the data-theme and data-divider-theme attributes for the divs with data-role=header
@@ -2390,7 +2482,7 @@ $('body').on( 'click', '#queue #queueTracksList li', function(evt, ui) {
 
 	var queueTrackIndex = $li.attr('data-queue-track-index');
 	var queueTrackFile = $li.attr('data-queue-track-file');
-	var queueTrackLink = $li.attr('data-queue-track-link');
+	//var queueTrackLink = $li.attr('data-queue-track-link');
 	var liElementId = $li.attr('id');
 
 	idOfQueueTrackJustClicked = 'queueTrack_'+queueTrackIndex;
@@ -2409,8 +2501,8 @@ $('body').on( 'click', '#queue #queueTracksList li', function(evt, ui) {
 
 	$( '#queueTrackPopupMenu a[data-id="playQueueTrack"]' ).attr( 'data-queue-track-index', queueTrackIndex )
 								.attr( 'data-queue-track-true-index', queueTrackTrueIndex )
-								.attr( 'data-queue-track-file', queueTrackFile )
-								.attr( 'data-queue-track-link', queueTrackLink );
+								.attr( 'data-queue-track-file', queueTrackFile );
+								//.attr( 'data-queue-track-link', queueTrackLink );
 
 	$( '#queueTrackPopupMenu a[data-id="removeFromQueue"]' ).attr( 'data-queue-track-index', queueTrackIndex )
 								.attr( 'data-queue-track-true-index', queueTrackTrueIndex )
@@ -2484,6 +2576,8 @@ $( 'body' ).on( 'click', '#queueTrackPopupMenu ul li a[data-id="removeFromQueue"
 	});
 
 	$( '#queueTrackPopupMenu' ).popup( 'close' );
+
+
 });
 
 $( 'body' ).on( 'popupafterclose', '#queueTrackPopupMenu', function( event, ui ) {
@@ -2607,7 +2701,7 @@ $( 'body' ).on( 'click', '#playlistTrackPopupMenu ul li a[data-id="removeFromPla
 		var playlistName = $('#playlistTracks').attr('data-playlist-name');
 
 		// Get the post parameters ready to send to the control_mpd function
-		post = { 'parameters' : [ { 'playlist_name' : playlistName, 'pos' : playlistTrackTrueIndex } ] }; 
+		post = { 'parameters' : [ { 'playlist_name' : playlistName, 'pos' : playlistTrackIndex } ] }; 
 		
 		// Call the track_move function through control_mpd
 		control_mpd( 'track_remove', post.parameters[0] ); 
@@ -2630,9 +2724,9 @@ $( 'body' ).on( 'click', '#albumTracksPage #albumTracks li', function(evt, ui) {
 	var options = { "corners": true, "shadow": true, "history": false, "positionTo": this, "transition": "pop" }; 
 
 	$( "#albumTrackPopupMenu" ).popup( "open", options );
-
+	
 	$( '#albumTrackPopupMenu ul li a[data-id="addTrackToQueue"]' ).attr( 'data-album-track-index', albumTrackIndex )
-																	.attr( 'data-album-track-file', albumTrackFile );
+									.attr( 'data-album-track-file', albumTrackFile );
 
 	$( '#albumTrackPopupMenu ul div #availablePlaylists a[data-id="addTrackToPlaylist"]' ).attr( 'data-album-track-index', albumTrackIndex )
 																							.attr( 'data-album-track-file', albumTrackFile )

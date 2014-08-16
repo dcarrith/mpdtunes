@@ -3,6 +3,8 @@
 define('NO_ALBUM_ART_MD5', '74ec2ed1b5856df36c21263a7ab47f3d');
 define('NO_ALBUM_ART_MD52', 'd89199131765f24bafae77ab8685f58a');
 
+use Dcarrith\LxMPD\MPDConnection as MPDConnection;
+
 class MPDTunesController extends BaseController {
 
     	function __construct() {
@@ -176,11 +178,21 @@ class MPDTunesController extends BaseController {
 		Config::set("lxmpd::port", $this->data['mpd_port']);
 		Config::set("lxmpd::password", $this->data['mpd_password']);
 
-		$this->xMPD = new LxMPD( Config::get("lxmpd::host"),
-                        	       	 Config::get("lxmpd::port"),
-				 	 Config::get("lxmpd::password")	);
+		//$connection = new MPDConnection( Config::get("lxmpd::host"), Config::get("lxmpd::port"), Config::get("lxmpd::password")	);
+		//$this->xMPD = new LxMPD( $connection );
 
-		$this->xMPD->connect();
+		Log::info( 'MPDTunesController', array( 'host' => Config::get('lxmpd::host')));
+		Log::info( 'MPDTunesController', array( 'port' => Config::get('lxmpd::port')));
+		Log::info( 'MPDTunesController', array( 'password' => Config::get('lxmpd::password')));
+
+		// Resolve the LxMPD object out of the IoC container
+		$this->xMPD = App::make('lxmpd');
+
+		// Authenticate to MPD
+		$this->xMPD->authenticate();
+
+		// Refresh the xMPD properties with status and statistics from MPD
+		$this->xMPD->refreshInfo();
 
 		$this->firephp->log($this->xMPD, "xMPD");
 
@@ -204,6 +216,21 @@ class MPDTunesController extends BaseController {
 		$this->firephp->log($this->xMPD->mixrampdelay, "mixrampdelay"); 	
 		$this->firephp->log($this->xMPD->audio, "audio"); 
 	
+		// Default repeat to off
+		$this->data['repeat'] = 0;
+
+		// Default shuffle to off
+		$this->data['shuffle'] = 0;
+
+		if ($this->xMPD->isConnected()) {
+
+			// This is so we can determine whether or not to hightlight the repeat button as active or not
+			$this->data['repeat'] = $this->xMPD->repeat;
+			
+			// This is so we can determine whether or not to hightlight the shuffle button as active or not
+			$this->data['shuffle'] = $this->xMPD->random;
+		}
+
 		//$home_link = $this->data['base_protocol'] . $this->data['base_domain'] . "/home";	
 		$home_link = "/home";
 		$this->firephp->log($home_link, "home_link");
@@ -254,10 +281,12 @@ class MPDTunesController extends BaseController {
 
 		} else {
 
-			$playlistTracks = $this->xMPD->listplaylistinfo($playlistName);
+			$playlistTracks = $this->xMPD->listplaylistinfo( $playlistName );
 		}
 
 		$tracksCount = count($playlistTracks);
+
+		$this->firephp->log($tracksCount, "tracksCount");
 
 		// Default this to zero in case this is a sync operation
 		$defaultNumTracksToDisplay = 0;
@@ -269,10 +298,14 @@ class MPDTunesController extends BaseController {
 
 			$tracksListedSoFarSession = Session::get($context.'_tracks_listed_so_far');
 
+			$this->firephp->log($tracksListedSoFarSession, "tracksListedSoFarSession");
+
 			if ($tracksListedSoFarSession > $defaultNumTracksToDisplay) {
 
 				$defaultNumTracksToDisplay = $tracksListedSoFarSession;
 			}
+			
+			$this->firephp->log($defaultNumTracksToDisplay, "defaultNumTracksToDisplay");
 
 			//$this->firephp->log($playlistTracks, "playlistTracks");
 
@@ -287,12 +320,16 @@ class MPDTunesController extends BaseController {
 		} 
 
 		// There are certain elements that every track should have - otherwise, we'll filter them out
-		$essentialElements = array("file", "Time", "Artist", "Title", "Album", "Track");
-	
-		// Filter out any bum track records
-		$playlistTracks = array_filter($playlistTracks, function($track) use ($essentialElements) {
+		$essentialTags = $this->xMPD->getEssentialTags();
 
-			return count( array_intersect( array_keys( $track ), $essentialElements )) == count( $essentialElements ); 
+		// We don't seem to need the Id and Pos for anything but the current playlist
+		unset( $essentialTags[ array_search( "Id", $essentialTags ) ]);
+		unset( $essentialTags[ array_search( "Pos", $essentialTags ) ]);
+
+		// Filter out any bum track records
+		$playlistTracks = array_filter($playlistTracks, function($track) use ($essentialTags) {
+
+			return count( array_intersect( array_keys( $track ), $essentialTags )) == count( $essentialTags ); 
 		});
 
 		// Iterate over the entire array so we can add the supplemental track info to each item

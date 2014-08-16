@@ -6,7 +6,7 @@
         _defaultOptions : {
 
             // threshold for how close to the bottom should we trigger a load of more items - default to height of viewport
-            'threshold'     : $( window ).height(),
+            'threshold'     : ( $( window ).height() * 1.5 ),
             // this is the number of items to retrieve from server by default
             'retrieve'      : 20,
             // this is the number of items retrieved so far
@@ -323,9 +323,9 @@
             if ( document.documentElement.scrollTop ) {
 
                 currentScroll = document.documentElement.scrollTop;
-            
+        
             } else { 
-            
+       
                 currentScroll = document.body.scrollTop; 
             }
 

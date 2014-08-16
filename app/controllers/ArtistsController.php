@@ -191,7 +191,7 @@ class ArtistsController extends MPDTunesController {
 
 						$albums = $this->xMPD->list("album", $artist);
 
-						$artistUrl = 'artist/'.urlencode(urlencode($artist)).'/albums';
+						$artistUrl = '/artist/'.urlencode(urlencode($artist)).'/albums';
 
 						$response['data']['json'][] = array( 	'href' => $artistUrl,
 											'transition' => $this->data['default_page_transition'],
@@ -217,7 +217,7 @@ class ArtistsController extends MPDTunesController {
 							}
 						}
 
-						$artistUrl = 'artist/'.urlencode(urlencode($artist)).'/albums';
+						$artistUrl = '/artist/'.urlencode(urlencode($artist)).'/albums';
 
 						$response['data']['json'][] = array( 	'href' => $artistUrl,
 											'transition' => $this->data['default_page_transition'],

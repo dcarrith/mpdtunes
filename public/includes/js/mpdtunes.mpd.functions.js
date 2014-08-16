@@ -10,6 +10,15 @@ function control_mpd(action, parameters) {
 
 	switch (action) {
 		
+		case 'mpdidling' :
+			url = "/musicpd/control/mpdidling";
+			break;
+		case 'idle' :
+			url = "/musicpd/control/idle";
+			break;
+		case 'noidle' :
+			url = "/musicpd/control/noidle";
+			break;
 		case 'play' :
 			url = "/musicpd/control/play";
 			break;
@@ -22,26 +31,38 @@ function control_mpd(action, parameters) {
 		case 'next' :
 			url = "/musicpd/control/next";
 			break;
-		case 'prev' :
+		case 'previous' :
 			url = "/musicpd/control/previous";
 			break;
-		case 'set_crossfade' :
+		case 'skip' :
+			url = "/musicpd/control/skip";
+			break;
+		case 'crossfade' :
 			url = "/musicpd/control/crossfade";
 			break;
-		case 'shuffle' :
-			url = "/musicpd/control/shuffle";
+		case 'mixrampdb' :
+			url = "/musicpd/control/mixrampdb";
+			break;
+		case 'mixrampdelay' :
+			url = "/musicpd/control/mixrampdelay";
+			break;
+		case 'random' :
+			url = "/musicpd/control/random";
 			break;
 		case 'repeat' :
 			url = "/musicpd/control/repeat";
 			break;
-		case 'set_volume' :
+		case 'setvol' :
 			url = "/musicpd/control/volume";
 			break;
 		case 'mute' :
 			url = "/musicpd/control/mute";
 			break;
-		case 'start_over' :
+		case 'reset' :
 			url = "/musicpd/control/reset";
+			break;
+		case 'status' :
+			url = "/musicpd/control/status";
 			break;
 		case 'save_playlist' :
 			show_message = true;
@@ -103,20 +124,17 @@ function control_mpd(action, parameters) {
 			url = "/musicpd/playlist/add/albums";
 			go_back = true;
 			break;
-		case 'skip_to' :
-			url = "/musicpd/control/skip";
-			break;
 		case 'update' :
 			timeout = 3000;
 			show_message = true;
 			message = 'Refreshing MPD';
 			url = "/musicpd/control/refresh";
 			break;
-		case 'status' :
-			url = "musicpd/control/status";
-			break;
 		default :
-			url = "/musicpd/index";
+			// As long as the client and server commands are the same, we can just form the url with 
+			// whatever action was called. This works fine for: play, pause, stop, next, previous, skip,
+			// crossfade, mixrampdb, mixrampdelay, shuffle, repeat, setvol, mute, reset, status, and refresh
+			url = "/musicpd/control/"+action;
 			break;
 	}
 
@@ -148,7 +166,17 @@ function control_mpd(action, parameters) {
 
 	//alert("url: "+url+"\npost_data: "+post_data);
 
-	$.ajax({
+	// I'll eventually want to switch to using Promises
+	/*post( url, post_data ).then( function( response ) {
+
+		console.log( "Success!", response );
+	
+	}, function( error ) {
+
+		console.error( "Failed!", error );
+	});*/
+
+	var xhr = $.ajax({
 
 	   type: "POST",
 	   url: url,
@@ -159,9 +187,7 @@ function control_mpd(action, parameters) {
 	   success: function( result ) {
 
 	   		if ( show_message ) {
-		
-				//alert(JSON.stringify( result ));
-	
+			
 				if( result.message != "" ) {
 
 					// Hide and reshow with the new message
@@ -189,11 +215,6 @@ function control_mpd(action, parameters) {
 					}
 				}
 			}
-
-			if ( go_back ) {
-
-				setTimeout( function() { $('#header-back-link').trigger('click'); }, timeout);
-			}
 			
 			// This is for any actions that are contingent on a successful server-side operation		
 			if( result.success ) {
@@ -204,13 +225,94 @@ function control_mpd(action, parameters) {
 						clearQueue();			
 						break;
 					case 'remove':
-						removeQueuedTrack( result.id, result.index );					
+						removeQueuedTrack( result.id, result.index );
+					
+						// Hide the loading message
+						$.mobile.loading( "hide" ); 
+						$.mobile.loadingMessage = 'Loading';	
 						break;
-					default: 
+					case 'play':
+					case 'next':
+					case 'previous':
+					case 'skip':
+						break;					
+					case 'pause':
+						control_mpd('noidle');
+						break;
+					case 'idle':
+						break;	
+					case 'add_all' :
+						// Hide the loading message
+						$.mobile.loading( "hide" ); 
+						$.mobile.loadingMessage = 'Loading';
+						break;			
+
+					default:
 
 						break;	
 				}
+
+				if ( typeof result.mpdidling != 'undefined' ) {
+				
+					if ( !result.mpdidling ) {
+
+						// If the server communicates to us that MPD is not yet sitting idle, then send the idle command
+						control_mpd('idle');
+
+						// Set the server side session variable to indicate that idle has been started
+						control_mpd('mpdidling');
+					}
+				}
 			}
+
+			if ( go_back ) {
+							
+				$('#header-back-link').trigger('click');
+			} 
 	   	}
 	});
+
+	if( action == 'idle' ) {
+
+		// We don't need to wait around for a response from idle the idle command
+		//xhr.abort();
+	}
 }
+
+
+/* I'll eventually want to switch to using promises
+function post(url, data) {
+
+	// Return a new promise.
+	return new Promise(function(resolve, reject) {
+
+		// Do the usual XHR stuff
+		var req = new XMLHttpRequest();
+		req.open("POST", url, true);
+		req.setRequestHeader("Content-type","application/json");
+
+		req.onload = function() {
+
+			// This is called even on 404 etc, so check the status
+			if (req.status == 200) {
+				
+				// Resolve the promise with the response text
+				resolve(req.response);
+			
+			} else {
+
+				// Otherwise reject with the status text which will hopefully be a meaningful error
+				reject(Error(req.statusText));
+			}
+		};
+
+		// Handle network errors
+		req.onerror = function() {
+     
+			reject(Error("Network Error"));
+		};
+
+		// Make the request
+		req.send(data);
+	});
+}*/

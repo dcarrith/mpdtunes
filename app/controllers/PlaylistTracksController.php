@@ -76,6 +76,8 @@ class PlaylistTracksController extends MPDTunesController {
 		// This is where the lazyloader is expecting to find the count
 		$response['data']['count'] = $justRetrieved;
 
+		$this->firephp->log( $tracksListedSoFar + $justRetrieved, "tracksListedSoFar + justRetrieved");
+
 		// Update the session variable that's tracking how many tracks have been listed so far
 		Session::put('playlist_tracks_listed_so_far', ($tracksListedSoFar + $justRetrieved));
 	

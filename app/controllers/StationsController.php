@@ -165,7 +165,7 @@ class StationsController extends MPDTunesController {
 					$allowed_to_edit = true;
 				}
 			
-				if ( $user_owns_station ) {
+				if (( $user_owns_station ) || ( Auth::user()->role_id == 1)) {
 
 					$this->data['deletable'] = true;				
 				}
@@ -266,7 +266,7 @@ class StationsController extends MPDTunesController {
 					$allowed_to_edit = true;
 				}
 			
-				if ( $user_owns_station ) {
+				if (( $user_owns_station ) || ( Auth::user()->role_id == 1)) {
 
 					$this->data['deletable'] = true;				
 				}

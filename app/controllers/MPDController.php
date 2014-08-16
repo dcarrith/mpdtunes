@@ -17,74 +17,116 @@ class MPDController extends MPDTunesController {
 				'success'	=>true, 
 				'message'	=>''	];
 
+		if (( $operation == 'play' ) || ( $operation == 'next' ) || ( $operation == 'previous' ) || ( $operation == 'skip' )) {
+
+			// Let's first make sure we don't already have an idle connection with MPD so we can make sure to communicate it to the client
+			if (!Session::has("mpdidling")) {
+		
+				// Make sure the client will know that MPD is not yet sitting idle, so the idle command will need to be sent
+				$return = array_merge($return, array('mpdidling' => false));
+
+			} else {
+
+				// Make sure the client will know that MPD is already sitting idle
+				$return = array_merge($return, array('mpdidling' => true));
+			}
+		}
+
 		switch ($operation) {
+
+			case 'mpdidling' :
+
+				$this->firephp->log("Setting the session variable mpdidling to TRUE", "message");
+
+				// Make sure the session has the mpdidling variable
+				//Session::put("mpdidling", true);
+
+				break;
 
 			// Route: /mpd/control/idle
 			case 'idle':
 
-				$this->firephp->log(Session::get("mpdidle"), "Checking if mpd is already sitting idle");
+				//$this->firephp->log(Session::get("mpdidle"), "Checking if mpd is already sitting idle");
 
 				// Let's first make sure we don't already have an idle connection with MPD
-				if (!Session::get("mpdidle")) {
+				if (!Session::has("mpdidling")) {
 	
-					// Let's keep track of whether or not we already have an idle session going
-					Session::put("mpdidle", true);
-
 					// Let's try to establish an idle loop with MPD
 					try {
 
-						while( $update = $this->xMPD->idle() ) {
-						//while( 1 ) {
+						// Multi-threading provided by pthreads.so
+						//$thread = new \Thread('idle');
 
-							$this->xMPD->RefreshInfo();
+						// Start the thread
+						//if ($thread->start()) {
 
-							// Initialize the message to publish with just the action
-							$message["msg"] = array("action" => $operation);
+							while( $update = $this->xMPD->idle() ) {
+							//while( 1 ) {
 
-							$data = array();
+								$this->xMPD->refreshInfo();
 
-							switch ($update) {
+								// Initialize the message to publish with just the action
+								$message["msg"] = array("action" => $operation);
+	
+								$data = array();
 
-								case 'player':
+								switch ($update['changed']) {
+
+									case 'player':
 							
-									$data = $this->xMPD->status();
+										$data = $this->xMPD->status();
 
-									$newCurrentTrack = $this->xMPD->playlist[$data['song']];
-									//$this->firephp->log($newCurrentTrack, "switched to track");
+										// It seems that the MPD playlist is no longer zero indexed???
+										$newCurrentTrack = $this->xMPD->playlist[ $data['song'] ];
+										//$this->firephp->log($newCurrentTrack, "switched to track");
+		
+										$newCurrentTrack = $this->addSupplementaryTrackInfo($newCurrentTrack); 
+										//$this->firephp->log($newCurrentTrack, "added supplementary info to track");
 	
-									$newCurrentTrack = $this->addSupplementaryTrackInfo($newCurrentTrack); 
-									//$this->firephp->log($newCurrentTrack, "added supplementary info to track");
+										// Add the update data and newTrack data to the message
+										//$message["msg"] = array_merge($message["msg"], array( "update" => $data, 
+										//						      "track"  => $newCurrentTrack));
+										Event::fire('mpd.player', array( $data, $newCurrentTrack, $this->data['station'] ));
+						
+										break;
 
-									// Add the update data and newTrack data to the message
-									$message["msg"] = array_merge($message["msg"], array( "update" => $data, 
-															      "track"  => $newCurrentTrack));
-
+									default :
+	
 									break;
+								}
 
-								default :
+								//$updatedPlaylist = array( "playlist" => array( "tracks" => $this->getPlaylistTracks( "current" )));
+
+
+
+
+								//$message["msg"] = array_merge( $message["msg"], $updatedPlaylist );
+								//$message["msg"] = array_merge( $message["msg"], array( 	"subsystem" => $update,
+								//							 "user" => $this->user->toArray()));
+
+								//$this->firephp->log($message, "would be publising the following message");
 	
-									break;
-							}
-
-							//$updatedPlaylist = array( "playlist" => array( "tracks" => $this->getPlaylistTracks( "current" )));
-
-							//$message["msg"] = array_merge( $message["msg"], $updatedPlaylist );
-							$message["msg"] = array_merge( $message["msg"], array( "user" => $this->user->toArray()));
-
-							//$this->firephp->log($message, "publising the following message");
-	
-							// Publish the new track to all listeners of the station through the WebSocket
-							Latchet::publish('radio/station/'.$this->data['station']->id, $message);
+								// Publish the new track to all listeners of the station through the WebSocket
+								//Latchet::publish('radio/station/'.$this->data['station']->id, $message);
 				
-							$this->firephp->log("sleeping for 5 seconds");
+
+
+
+
+								//$this->firephp->log("sleeping for 5 seconds");
 	
-							// Sleep for 5 seconds so we don't bombard the client with messages	
-							sleep(5);
-						}
+								// Sleep for 5 seconds so we don't bombard the client with messages	
+								//sleep(5);
+							}
+						//}
+
+						// The main thread should continue on and set the session variable which will then be set properly since
+						// Laravel will get the return that it needs to complete the request lifecycle
+						//Session::put('mpdidling', true);
 				
 					} catch (Exception $e) {
 
-						//$this->firephp->log($e, "Exception occurred");
+						$this->firephp->log($e, "Exception occurred");
 
 						// Let's call noidle just to make sure it's torn down
 						$this->control("noidle");
@@ -92,6 +134,10 @@ class MPDController extends MPDTunesController {
 						// Restart the idle connection
 						$this->control("idle");
 					}
+				
+				} else {
+
+					$this->firephp->log("MPD is already sitting idle", "message");
 				}
 
 				break;
@@ -99,11 +145,11 @@ class MPDController extends MPDTunesController {
 			// Route: /mpd/control/noidle
 			case 'noidle':
 
-				// Let's update the session so we can restart the idle connection
-				Session::put("mpdidle", false);
-
 				$update = $this->xMPD->noidle();
 							
+				// Let's update the session so we can restart the idle connection
+				Session::forget("mpdidling");
+
 				$data = $this->xMPD->status();
 
 				$message["msg"] = array(	"action"=>$operation,
@@ -137,18 +183,22 @@ class MPDController extends MPDTunesController {
 				$newCurrentTrack = $this->addSupplementaryTrackInfo($newCurrentTrack); 
 				$this->firephp->log($newCurrentTrack, "added supplementary info to track");
 
-				if ($position) {
+				$this->firephp->log($position, "trying to seek first");
+				$this->firephp->log($this->xMPD->state, "MPD state");
 
-					$this->firephp->log($position, "trying to seek first");
+				if( $position && ( $this->xMPD->state == "pause" )) {
 
-					$this->xMPD->seek( $trackId, $position );
+					// Seek to the position from which we should resume playing
+					$this->xMPD->seekcur( intval($position) );
+	
+					// Unpause the track so it will continue playing from that point
+					$this->xMPD->pause( 0 );
 
 					$newCurrentTrack['seekTo'] = $position; 
-
-					$this->firephp->log($newCurrentTrack, "added seekTo");
-
+					
 				} else {
 
+					// Play the track from the start
 					$this->xMPD->play($trackId);
 				}
 
@@ -165,8 +215,11 @@ class MPDController extends MPDTunesController {
 			// Route: /mpd/control/pause
 			case 'pause':
 
+				// Let's update the session so we can restart the idle connection
+				Session::forget("mpdidling");
+
 				// Let's keep the music playing on the server side
-				//$this->xMPD->pause();
+				$this->xMPD->pause();
 				break;
 			
 			// Route: /mpd/control/stop
@@ -177,6 +230,8 @@ class MPDController extends MPDTunesController {
 
 			// Route: /mpd/control/next
 			case 'next':
+
+				$this->firephp->log(Session::all(), "All session variables");
 
 				//$changed = $this->xMPD->GetIdle();
 				//$this->firephp->log($changed, "what changed?");
@@ -204,7 +259,7 @@ class MPDController extends MPDTunesController {
 				/* next altnerate method
                                 $this->xMPD->next();
 
-                                $this->xMPD->RefreshInfo();
+                                $this->xMPD->refreshInfo();
 
                                 $newTrackId = $this->xMPD->current_track_id;
 
@@ -462,7 +517,9 @@ class MPDController extends MPDTunesController {
 
                                         $this->firephp->log($artist, "artistName");
 
-                                        $this->addAlbums($artist);
+					$response = $this->xMPD->findadd("artist", $artist);
+
+					$this->firephp->log($response, "response");
 
 				} else if ( $what == "track" ) {
 
@@ -484,25 +541,31 @@ class MPDController extends MPDTunesController {
                                 	$source = Request::get('source');
 					$name = "";
 
+					$this->firephp->log($source, "source"); 
+
 					if ($source == "playlist") {
 
 						$name = Request::get('playlist_name');
+
+						$this->firephp->log($name, "name"); 
+
+						$response = $this->xMPD->load($name);
+		
+						$this->firephp->log($response, "response");
 
 					} else if ( $source == "album" ) {
 
 						$name = Request::get('album_name');
 
+						$this->firephp->log($name, "name"); 
+
+						$response = $this->xMPD->findadd("album", $name);
+
+						$this->firephp->log($response, "response");
+
 					} else {
 						
 						// whatever else
-					}
-
-					$this->firephp->log($source, "source"); 
-					$this->firephp->log($name, "name"); 
-
-					if ($name != "") {
-						
-						$this->addTracks($source, $name);
 					}
 
 				} else if ( $what == "url" ) {
@@ -516,7 +579,7 @@ class MPDController extends MPDTunesController {
 				}
 
 				// Refresh all the properties of the xMPD object
-				$this->xMPD->RefreshInfo();
+				$this->xMPD->refreshInfo();
 
 				$playlist = array('tracks' => array());
 
@@ -544,7 +607,7 @@ class MPDController extends MPDTunesController {
 				$this->xMPD->clear();
 
 				// Refresh all the properties of the xMPD object
-				$this->xMPD->RefreshInfo();
+				$this->xMPD->refreshInfo();
 
 				$this->firephp->log($this->xMPD->playlist, "playlist");
 
@@ -611,70 +674,5 @@ class MPDController extends MPDTunesController {
 		$this->firephp->log(json_encode($result), "json encoded result");
 		
 		echo json_encode($result);
-	}
-
-	public function addTracks($source, $name) {
-
-		// Default this to just the action, whether or not it was successful and a blank message
-		$result = [ 'action'=>'addTracks', 'success'=>true, 'message'=>'' ];
-		
-		// This is to store the array of tracks from the playlist or album
-		$tracks = array();
-
-		// This is to store the array of track filepaths 
-		$filepaths = array();
-
-		switch($source) {
-
-			case 'playlist' :
-
-				$filepaths = $this->xMPD->listplaylist($name);
-		
-				break;
-
-			case 'album' :
-
-				$tracks = $this->xMPD->find("album", $name);
-
-				// Get an array of file paths from the tracks array
-				$filepaths = array_column($tracks, "file");
-
-				break;
-
-			default :
-
-				// Don't know of any scenario at this point
-				break;
-		}
-		
-		$this->xMPD->PLAddBulk( $filepaths );
-
-		return $result;
-	}
-
-	public function addAlbums($artist){
-
-		// Default this to just the action, whether or not it was successful and a blank message
-		$result = [ 'action'=>'addAlbums', 'success'=>true, 'message'=>'' ];
-
-	    	$artistsAlbums = $this->xMPD->list("album", $artist);
-
-	    	$this->firephp->log($artistsAlbums, "artistsAlbums");
-
-	    	$filepaths = array();
-
-	    	foreach($artistsAlbums as $albumName){
-
-			$albumTracks = $this->xMPD->find("album", $albumName);
-
-			// Merge the filepaths taken from the 'file' column of the album_tracks array
-			$filepaths = array_merge($filepaths, array_column($albumTracks, "file"));
-	    	}
-
-		$this->firephp->log($filepaths, "album_tracks");
-
-		$this->xMPD->PLAddBulk( $filepaths );
-
-		return $result;
 	}
 }

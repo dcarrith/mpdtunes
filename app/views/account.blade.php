@@ -16,8 +16,6 @@
 
 		{{ Form::open(array('url'=>'/admin/account', 'method'=>'POST', 'data-ajax'=>'true', 'data-transition'=>'none', 'data-history'=>'false')) }}
 
-                <?php echo Form::input('hidden', 'csrf_token', csrf_token()); ?>
-
 			<div data-role="fieldcontain" class="align-left">
 
                                 <div class="form-field-div width-hundred-percent center-element">

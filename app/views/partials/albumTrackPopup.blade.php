@@ -15,10 +15,10 @@
 
 							<?php if (isset($playlists) && (count($playlists) > 0) && $playlists != '') : ?>
 
-								<?php foreach($playlists as $key=>$value) : ?>
+								<?php foreach($playlists as $key => $value) : ?>
 
-									<li data-playlist-name="{{ $value['playlist'] }}" data-theme="{{ $theme_action }}" data-corners="false" data-shadow="false" data-iconshadow="true" data-icon="plus" data-inset="true" data-iconpos="right">
-										<a href="" data-id="addTrackToPlaylist" data-theme="{{ $theme_action }}" class="ui-link-inherit">{{ $value['playlist'] }}</a>
+									<li data-playlist-name="{{ $value }}" data-theme="{{ $theme_action }}" data-corners="false" data-shadow="false" data-iconshadow="true" data-icon="plus" data-inset="true" data-iconpos="right">
+										<a href="" data-id="addTrackToPlaylist" data-theme="{{ $theme_action }}" class="ui-link-inherit">{{ $value }}</a>
 									</li>
 										
 								<?php endforeach; ?>

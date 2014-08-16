@@ -21,8 +21,6 @@
 
 		{{ Form::open(array('id'=>'login_form', 'route'=>'login', 'method'=>'POST', 'data-ajax'=>'false')) }}
 
-		{{ Form::input('hidden', 'csrf_token', csrf_token()) }}
-
 		<div data-role="fieldcontain" class="align-left">
 
 			<div class="form-field-div width-hundred-percent center-element">

@@ -14,8 +14,6 @@
 
                 {{ Form::open(array('id'=>'stations_add_form', 'url'=>$form_action_url, 'method'=>'POST', 'data-ajax'=>'true', 'data-transition'=>'none', 'data-history'=>'false')) }}
 
-                {{ Form::input('hidden', 'csrf_token', csrf_token()) }}
-
                 {{ Form::input('hidden', 'station_id', $station_id, array('id'=>'station_id')) }}
 
                 {{ Form::input('hidden', 'station_icon_id', $icon_id, array('id'=>'station_icon_id')) }}

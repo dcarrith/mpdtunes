@@ -16,8 +16,6 @@
 
                 {{ Form::open(array('url'=>'/admin/edit/user/'.$user_id, 'method'=>'POST', 'data-ajax'=>'true', 'data-transition'=>'none', 'data-history'=>'false')) }}
 
-                	{{ Form::input('hidden', 'csrf_token', csrf_token()) }}
-
 			{{ Form::input('hidden', 'user_id', $user_id, array('id'=>'user_id')) }}
 
 			<div data-role="fieldcontain" class="width-hundred-percent align-left">

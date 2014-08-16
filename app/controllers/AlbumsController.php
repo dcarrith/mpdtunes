@@ -91,7 +91,7 @@ class AlbumsController extends MPDTunesController {
 				foreach( $albums as $index => $album ) {
 
 					// Get the first track of the album so we can get the album art
-					$firstTrack = $this->xMPD->GetFirstTrack("album", $album);
+					$firstTrack = $this->xMPD->getFirstTrack("album", $album);
 		
 					// We need to double url encode the album name since it can contain some special characters
 					$encodedAlbumName = urlencode( urlencode( $album ));
@@ -194,7 +194,7 @@ class AlbumsController extends MPDTunesController {
 						}
 
 						// Get the first track of the album so we can get the album art
-						$firstTrack = $this->xMPD->GetFirstTrack("album", $album);
+						$firstTrack = $this->xMPD->getFirstTrack("album", $album);
 		
 						// We need to double url encode the album name since it can contain some special characters
 						$encodedAlbumName = urlencode( urlencode( $album ));

@@ -169,10 +169,10 @@ var playing = false;
 var paused = true;
 
 // This is for keeping track of whether or not the track should be repeated
-var repeat_track = false;
+var repeat_track = <?php echo $repeat; ?>;
 
 // This is for keeping track of whether or not the next song in the playlist should be random
-var shuffle_queue = false;
+var shuffle_queue = <?php echo $shuffle; ?>;
 
 // This is for future use
 var repeat_album = false;

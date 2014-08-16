@@ -1,9 +1,81 @@
+
+//var trackStart = 0;
+//var trackEnd = 0;
+var trackProgress;
+
+var started = false;
+var waiting = false;
+var elapsed = 0;
+
+window.onerror = function(){
+   return true;
+}
+
+function startProgress(trackStart, trackEnd) {
+
+	consoleLog("inside startProgress, trackStart: "+trackStart+" and trackEnd: "+trackEnd);
+	// Globals: elapsed and started
+
+	// We only want to start it once
+	if (started === false) {
+
+		// Store the fact that we started
+		started = true;
+
+		// If trackStart is greater than zero, then we must be resuming the track 
+		if (trackStart > 0) {
+
+			// Override elapsed with whatever trackStart was set to
+			elapsed = trackStart;
+		}
+
+		//consoleLog( "calling setInterval which will call updatePlayProgressDisplay( "+elapsed+", "+trackEnd+", "+((elapsed / trackEnd ) * 100)+")");
+
+		// Run the callback every second
+		trackProgress = setInterval( function() {
+
+			//alert("elapsed: "+elapsed+"\ntrackEnd: "+trackEnd+"\nProgress: "+((elapsed / trackEnd) * 100));
+
+			//consoleLog( "calling updatePlayProgressDisplay( "+elapsed+", "+trackEnd+", "+((elapsed / trackEnd ) * 100)+")");
+
+			// Update the track progress time, total length and progress bar percentage played
+			updatePlayProgressDisplay( elapsed, trackEnd, (( elapsed / trackEnd ) * 100 ) );  
+
+			// Increment the elapsed seconds
+			elapsed++;
+
+		}, 1000);
+	}
+}
+
+function pauseProgress() {
+
+	// Clear the trackProgress interval
+	window.clearInterval(trackProgress);
+
+	// Store the fact tht it's no longer running
+	started = false;	
+}
+
+function resetProgress() {
+
+	// Clear the trackProgress interval
+	window.clearInterval(trackProgress);
+
+	// Reset the elapsed time since we stopped the timer
+	elapsed = 0;
+
+	// Store the fact that it's no longer running
+	started = false;
+}
+
 function get_timer_display( timer_input ) {
-	
+
+	hours = "-";
 	minutes = "-";
 	seconds = "--";
 
-	time_display = minutes+':'+seconds;
+	time_display = hours+':'+minutes+':'+seconds;
 
 	if ( timer_input == "Infinity:NaN" ) {
 		
@@ -27,23 +99,27 @@ function get_timer_display( timer_input ) {
 		return time_display;
 	}
 
-	if ( timer_input > 0 ) {
+	if ( timer_input >= 0 ) {
 
-		minutes = Math.floor( timer_input / 60 );
+		// Create a date just based on the month/day/year (so time will be 00:00:00)
+		var epoch = Date.parse(new Date().toDateString());
 
-		seconds = Math.floor( timer_input % 60 );
+		// Add the timer input in milliseconds to our rounded down epoch date 
+		var time = new Date(parseInt(epoch) + (parseInt(timer_input) * 1000));
 
-		if ( seconds < 10 ) {
-			
-			seconds = "0" + seconds;
+		// Get the time display which will be in the format 00:00:00 GMT-0500 (EST)
+		time_display = time.toTimeString();
+
+		// We don't want the GMT-0500 (EST) part, so we'll just take the part up to the first space
+		time_display = time_display.substr(0, time_display.indexOf(' '));
+	
+		if ( parseInt( time.getHours()) == 0 ) {
+
+			// We don't want to display 00 for hours since this will usually be the case
+			time_display = time_display.substr( (time_display.indexOf(':') + 1), 5 );
 		}
-	}
 
-	time_display = minutes+':'+seconds;
-
-	if (( time_display == "0:01" ) || ( time_display == "0:00" )) {
-
-		time_display = "-:--";
+		//consoleLog(time_display);
 	}
 
 	return time_display;
@@ -93,6 +169,8 @@ function fade_in_next_track () {
 
 // This updates the play progress indicators in the footer on the home page
 function updatePlayProgressDisplay( currentTime, totalDuration, playProgress ) {
+
+	//alert("Inside updatePlayProgressDisplay\ntime: "+time+"\ncurrent: "+current+"\nprogress: "+progress);
 	
 	$( '#trackTotalDuration' ).html( get_timer_display( totalDuration ));
 
@@ -104,13 +182,13 @@ function updatePlayProgressDisplay( currentTime, totalDuration, playProgress ) {
 // This updates the load progress indicator in the footer on the home page
 function updateLoadProgressDisplay( loaded ) {
 
-	consoleLog( "Inside updateLoadProgressDisplay - setting loadProgressDiv to ", loaded );
+	//consoleLog( "Inside updateLoadProgressDisplay - setting loadProgressDiv to ", loaded );
 
 	$( '#loadProgressDiv' ).css( 'width', loaded+'%' );	
 }
 
 function getNextTrackPosition( destination, currentTrackPosition, currentPlaylistLength ) {
-
+	
 	consoleLog( "Inside getNextTrackPosition - destination ", destination );
 	consoleLog( "Inside getNextTrackPosition - currentTrackPosition ", "'" + currentTrackPosition + "'" );
 	consoleLog( "Inside getNextTrackPosition - currentPlaylistLength ", currentPlaylistLength ); 
@@ -291,12 +369,17 @@ function updatePlayerDisplay( playing, action ) {
 	}
 }
 
-function skipto( destination ){
+function skipto( destination, position ){
+
+	trackStart = 0 | position;
+
+	if (trackStart == 0) {
+
+		elapsed = 0;
+	}
 
 	$.mobile.loading( "hide" ); 
    	$.mobile.loadingMessage = "Loading";
-
-   	initialize_timer_display();
 
 	if ( typeof playlist.tracks === 'undefined' ) {
 		
@@ -323,8 +406,15 @@ function skipto( destination ){
 	// Update the album art and track info as well as the player progress divs
 	updateCurrentTrackInfo( playlist.tracks[ track_position ] );
 
+	// Set the length of the song for the progress watch
+	trackEnd = playlist.tracks[ track_position ].Time;
+
+	//alert("calling updatePlayerDisplay("+playing+")");
+
 	// Show the track info div if it's hidden and update the play/pause button
 	updatePlayerDisplay( playing );
+
+	//startProgress( trackStart, trackEnd );
 
 	/*alert("inside skipto calling setMedia");
 
@@ -351,19 +441,37 @@ function skipto( destination ){
 
 		// send the command to the MPD server to skip to the track that's next in the shuffle
 		post = { "parameters" : [ { "index" : playlist.tracks[ track_position ].mpd_index } ] }; 
-		control_mpd( 'skip_to', post.parameters[ 0 ] );
+		control_mpd( 'skip', post.parameters[ 0 ] );
 
 	} else {*/
 
-		if ( destination == "next" ) {
+		if (destination == "same") {
+
+			if (trackStart == 0) {
+	
+				// send the command to the MPD server to play the current track
+				control_mpd( 'play' );
+
+			} else {
+
+				// send the command to the MPD server to play the current track at the specified position
+				post = { "parameters" : [ { "position" : trackStart } ] }; 
+				control_mpd( 'play', post.parameters[0] );
+			}
+
+		} else if ( destination == "next" ) {
+
+   			initialize_timer_display();
 
 			// send the command to the MPD server to move to the next track
 			control_mpd( 'next' );
 
 		} else if ( destination == "previous" ) {
 
-			// send the command to the MPD server to move to the next track
-			control_mpd( 'prev' );
+   			initialize_timer_display();
+
+			// send the command to the MPD server to move to the previous track
+			control_mpd( 'previous' );
 		
 		} else if ( destination == "beginning" ) {
 
@@ -371,11 +479,13 @@ function skipto( destination ){
 
 		} else {
 
+			//alert("track_position: "+track_position);
+
 			// The destination must be a specific track position
 			if( track_position ) {
 			
 				post = { "parameters" : [ { "index" : track_position } ] }; 
-				control_mpd( 'skip_to', post.parameters[0] );
+				control_mpd( 'skip', post.parameters[0] );
 			}
 		}
 	//}
@@ -397,11 +507,11 @@ function updateCurrentTrackInfo( currentTrack ){
 
 	// We need to check to see if these items exist because if so, then that means we're on the Queue page
     	var currentart = document.getElementById( "currentalbumart" );
-    	var currently = document.getElementById( "currentlyPlayingInfoDiv" );
+    	//var currently = document.getElementById( "currentlyPlayingInfoDiv" );
     	var playerCurrently = document.getElementById( "playerCurrentlyPlayingDiv" );
 
 	// If currently exists, then we must be on the queue page, so we need to update/show the track info div
-    	if (( typeof currently !== 'undefined' ) && ( currently != '' ) && ( currently != null )) {
+    	/*if (( typeof currently !== 'undefined' ) && ( currently != '' ) && ( currently != null )) {
 
 		$( '.currentalbumart' ).attr( 'src', currentTrack.art );
 		$( '#currentlyPlayingArtistDiv' ).html( currentTrack.artist );
@@ -418,45 +528,45 @@ function updateCurrentTrackInfo( currentTrack ){
 				//$.mobile.fixedToolbars.show();
 			}
 		});
-	}
+	}*/
 
 	// set the info about the song being played
-	$( '#currentAlbumArtImg' ).attr( 'src', currentTrack.art );
-	$( '#artistDiv' ).html( currentTrack.artist );
+	$( '#currentAlbumArtImg' ).attr( 'src', currentTrack.Art );
+	$( '#artistDiv' ).html( currentTrack.Artist );
 
-	var fullAlbum = currentTrack.album;
+	var fullAlbum = currentTrack.Album;
 	var truncatedAlbum = ((fullAlbum.length > max_album_name_string_length) ? (fullAlbum.substring(0, max_album_name_string_length)+'...') : fullAlbum);
 	$( '#albumDiv' ).html( truncatedAlbum ).trigger( 'updatelayout' );
 
-	if ( currentTrack.url.indexOf( "http://" ) === 0) {
+	if ( currentTrack.file.indexOf( "http://" ) === 0) {
 			
-		$( '#trackDiv' ).html( currentTrack.url ).trigger( 'updatelayout' );
+		$( '#trackDiv' ).html( currentTrack.file ).trigger( 'updatelayout' );
 
 	} else {
 
-		var fullTitle = currentTrack.title;
+		var fullTitle = currentTrack.Title;
 		var truncatedTitle = ((fullTitle.length > max_track_title_string_length) ? (fullTitle.substring(0, max_track_title_string_length)+'...') : fullTitle);
 		$( '#trackDiv' ).html( truncatedTitle ).trigger( 'updatelayout' );
 	}
 
 	$( '#playerCurrentlyPlayingDiv' ).css( 'max-width', ( $( window ).width() * .9 ) );
 
-	if ( currentTrack.file.indexOf( "http://" ) === 0 ) {
+	/*if ( currentTrack.file.indexOf( "http://" ) === 0 ) {
 
 		$( '#streamProgressDiv' ).css( 'width', "100%" );
 		$( '#streamProgressDiv' ).css( 'background', 'rgba(0, 0, 0, .4)' );
 	} else {
 
 		$( '#streamProgressDiv' ).css( 'width', "0" );
-	}
+	}*/
 
 	// If currently exists, then we must be on the queue page, so we need to update/show the track info div
-    	if (( typeof currently !== 'undefined' ) && ( currently != '' ) && ( currently != null )) {
+    	/*if (( typeof currently !== 'undefined' ) && ( currently != '' ) && ( currently != null )) {
 
 		$( '#currentlyPlayingArtistDiv' ).css( 'max-width', ( $( window ).width() * .6 ) );
 		$( '#currentlyPlayingAlbumDiv' ).css( 'max-width', ( $( window ).width() * .6 ) );
 		$( '#currentlyPlayingTrackDiv' ).css( 'max-width', ( $( window ).width() * .6 ) );
-	}
+	}*/
 }
 
 // Do the crossfading
@@ -488,19 +598,3 @@ function crossfadePlayers( crossfadeTime ) {
 
         $("#" + priPlayerID + '_elements').show();
 }
-
-function consoleLog( msg, obj ) {
-
-	obj = obj || "";
-	
-	if( 'console' in window && 'log' in window.console && debug ) {
-
-		console.log( msg );
-		
-		if ( obj != "" ) {
-
-			console.log( obj );
-		}
-	}
-}
-

@@ -9,6 +9,13 @@ class HomeController extends MPDTunesController {
 
                 // Get and merge all the words we need for the base controller into the main data array
                 $this->data = array_merge($this->data, Langurator::getLocalizedWords("home"));
+	
+		//$mpdidle = Session::get("mpdidle");
+		//$this->firephp->log($mpdidle, "mpdidle?");
+
+		//Session::put("mpdidle", true);
+		//$mpdidle = Session::get("mpdidle");
+		//$this->firephp->log($mpdidle, "mpdidle?");
 
 		$this->data['data_url'] 	= "";
 		$this->data['music_playing']	= false;
@@ -25,19 +32,9 @@ class HomeController extends MPDTunesController {
 		$music_playing 			= false;
 		$stream_is_current_track	= false;
 
-		// Default repeat to off
-		$this->data['repeat'] = 0;
-		$this->data['shuffle'] = 0;
-
 		if ($this->xMPD->isConnected()) {
 			
-			$this->xMPD->RefreshInfo();
-
-			// This is so we can determine whether or not to hightlight the repeat button as active or not
-			$this->data['repeat'] = $this->xMPD->repeat;
-			
-			// This is so we can determine whether or not to hightlight the shuffle button as active or not
-			$this->data['shuffle'] = $this->xMPD->random;
+			$this->xMPD->refreshInfo();
 
 			$current_mpd_state = $this->xMPD->state;	
 			
@@ -207,7 +204,8 @@ class HomeController extends MPDTunesController {
 		// We don't need the count
 		unset($queue['tracks']['count']);
 
-		$this->firephp->log($queue, "current tracks in the queue");
+		// This caused 502 bad gateway from HAProxy when the queue has a lot of tracks in it
+		//$this->firephp->log($queue, "current tracks in the queue");
 
 		$this->data['current_track_playlist_index'] = (isset($current_track_id) ? $current_track_id : 0);
 

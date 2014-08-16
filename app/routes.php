@@ -25,7 +25,7 @@ Route::group(array(), function() {
         Route::get('register', array('uses' => 'RegisterController@getIndex'));
 
         // This will route requests to www.domain.com/login to the Login controller's postIndex action
-        Route::post('register', array('as' => 'register', 'uses' => 'RegisterController@postIndex'));
+        Route::post('register', array('as' => 'register', 'uses' => 'RegisterController@postIndex', 'before' => 'csrf'));
 
 	// This will route requests to the registration success page
 	Route::get('registration/success', array('uses' => 'RegisterController@success'));
@@ -61,7 +61,7 @@ Route::group(array('before' => 'auth'), function() {
 
 	Route::get('playlist/create', array('uses' => 'PlaylistsController@create'));
 
-	Route::post('playlist/save', array('uses' => 'PlaylistsController@postCreate'));
+	Route::post('playlist/save', array('uses' => 'PlaylistsController@postCreate', 'before' => 'csrf'));
 
         // This will route requests to www.domain.com/stations to the Stations controller's index action
         Route::get('stations', array('as' => 'stations', 'uses' => 'StationsController@index'));
@@ -91,13 +91,13 @@ Route::group(array('before' => 'auth'), function() {
         Route::get('stations/add', array('uses' => 'StationsController@getStation'));
 
         // This will route requests to www.domain.com/stations/add to the Stations controller's postStation action
-        Route::post('stations/add', array('uses' => 'StationsController@postStation'));
+        Route::post('stations/add', array('uses' => 'StationsController@postStation', 'before' => 'csrf'));
 
         // This will route requests to www.domain.com/stations/edit/id to the Stations controller's getStation action
         Route::get('stations/edit/{stationid}', array('uses' => 'StationsController@getStation'))->where('stationid', '[0-9]+');
 
         // This will route requests to www.domain.com/stations/edit/id to the Stations controller's postStation action
-        Route::post('stations/edit/{stationid}', array('uses' => 'StationsController@postStation'))->where('stationid', '[0-9]+');
+        Route::post('stations/edit/{stationid}', array('uses' => 'StationsController@postStation', 'before' => 'csrf'))->where('stationid', '[0-9]+');
 
 	Route::post('stations/delete', array('uses' => 'StationsController@delete'));
 
@@ -135,19 +135,19 @@ Route::group(array('before' => 'auth'), function() {
 
 	Route::get('admin/account', array('uses' => 'AdminController@getAccount'));
 
-	Route::post('admin/account', array('uses' => 'AdminController@postAccount'));
+	Route::post('admin/account', array('uses' => 'AdminController@postAccount', 'before' => 'csrf'));
 
 	Route::get('admin', array('uses' => 'AdminController@index'));
 
 	Route::get('admin/payments', array('uses' => 'AdminController@getPayments'));
 	
-	Route::post('admin/payments', array('uses' => 'AdminController@postPayments'));
+	Route::post('admin/payments', array('uses' => 'AdminController@postPayments', 'before' => 'csrf'));
 
 	Route::get('admin/users', array('uses' => 'AdminController@users'));
 
 	Route::get('admin/edit/user/{userid}', array('uses' => 'AdminController@getUser'))->where('userid', '.*');
 
-	Route::post('admin/edit/user/{userid}', array('uses' => 'AdminController@postUser'))->where('userid', '.*');
+	Route::post('admin/edit/user/{userid}', array('uses' => 'AdminController@postUser', 'before' => 'csrf'))->where('userid', '.*');
 
 	Route::post('musicpd/playlist/{operation}', array('uses' => 'MPDController@playlist'))->where('operation', '.*');
 
@@ -162,3 +162,8 @@ Route::group(array('before' => 'auth'), function() {
 
 Latchet::connection('Connection');
 Latchet::topic('radio/station/{stationid}', 'RadioStationController');
+
+Route::post('receive/notifications', function()
+{
+    return Queue::marshal();
+});
