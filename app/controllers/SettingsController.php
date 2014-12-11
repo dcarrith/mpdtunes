@@ -1,10 +1,10 @@
-<?php 
+<?php
 
 class SettingsController extends MPDTunesController {
 
     	public function __construct() {
 
-        	parent::__construct();        
+        	parent::__construct();
 
                 // Get and merge the site config defaults into the main data array
                 $this->data = array_merge($this->data, Configurator::getDefaults("settings"));
@@ -17,7 +17,7 @@ class SettingsController extends MPDTunesController {
 
 		// Get the user object for the currently logged in user
                 //$user = $this->user;
-		
+
 
 		// Get the logged in user's preferences
 		//$preferences = $user->usersPreferences;
@@ -28,24 +28,24 @@ class SettingsController extends MPDTunesController {
 
 		// if mpd is connected, make sure we have the current volume and crossfade settings
 		if ($this->xMPD->isConnected()) {
-			
+
 			$this->data['current_volume'] = $this->xMPD->volume;
 			$this->data['current_xfade'] = $this->xMPD->xfade;
 			$this->data['current_mixrampdb'] = $this->xMPD->mixrampdb;
 			$this->data['current_mixrampdelay'] = $this->xMPD->mixrampdelay;
 		}
 
-		// First check to see if all themes are in cache already 
+		// First check to see if all themes are in cache already
 		if (!Cache::has('themes')) {
 
 			$this->themes = Cache::rememberForever('themes', function() {
-	
+
 				// Get all available themes
 				return Theme::all();
 			});
-	
+
 		} else {
-			
+
 			// Retrieve all themes from cache
 			$this->themes = Cache::get('themes');
 		}
@@ -61,7 +61,7 @@ class SettingsController extends MPDTunesController {
 			$this->data['theme_options'][$theme->id] = $theme->name;
 
 			if ($theme->id == $this->data['currrent_theme_id']) {
-					
+
 				$this->data['selected_theme'] = $theme->id;
 			}
 		}
@@ -71,7 +71,7 @@ class SettingsController extends MPDTunesController {
 		$this->data['selected_mode'] = "streaming";
 
 		if ( $this->data['mode'] == 'remote-control') {
-			
+
 			$this->data['selected_mode'] = "remote-control";
 
 		} else if ( $this->data['mode'] == 'disc-jockey') {
@@ -87,21 +87,21 @@ class SettingsController extends MPDTunesController {
 		$this->data['mode_options']['remote-control'] 	= "Remote Control";
 		$this->data['mode_options']['disc-jockey'] 	= "Disc Jockey";
 
-		// First check to see if all languages are in cache already 
+		// First check to see if all languages are in cache already
 		if (!Cache::has('languages')) {
 
 			$this->languages = Cache::rememberForever('languages', function() {
-		
+
 				// Get all the available languages
 				return Language::all();
 			});
-	
+
 		} else {
-			
+
 			// Retrieve all languages from cache
 			$this->languages = Cache::get('languages');
 		}
-	
+
 		$this->firephp->log($this->languages->toJson(), "languages");
 
 		$this->data['language_options'] = array();
@@ -115,14 +115,14 @@ class SettingsController extends MPDTunesController {
 			$this->data['language_options'][$language->id] = $language->name;
 
 			if ($language->code == $default_language) {
-					
+
 				$this->data['selected_language'] = $language->id;
 			}
 		}
 
                 $this->firephp->log( $this->data, "this->data");
 
-                // Return the settings view 
+                // Return the settings view
                 return View::make('settings', $this->data);
 	}
 
@@ -134,14 +134,14 @@ class SettingsController extends MPDTunesController {
                 if ($this->xMPD->isConnected()) {
 
                         $this->data['current_volume']   = $this->xMPD->volume;
-                        $this->data['current_xfade']    = $this->xMPD->xfade; 
+                        $this->data['current_xfade']    = $this->xMPD->xfade;
 			$this->data['current_mixrampdb'] = $this->xMPD->mixrampdb;
 			$this->data['current_mixrampdelay'] = $this->xMPD->mixrampdelay;
 		}
 
                 $this->firephp->log( $this->data, "this->data");
 
-                // Return the volumeCrossfade view 
+                // Return the volumeCrossfade view
                 return View::make('volumeCrossfade', $this->data);
         }
 
@@ -149,7 +149,7 @@ class SettingsController extends MPDTunesController {
 
                 $this->firephp->log( $this->data, "this->data");
 
-                // Return the applySettings view 
+                // Return the applySettings view
                 return View::make('applySettings', $this->data);
         }
 
@@ -158,15 +158,15 @@ class SettingsController extends MPDTunesController {
                 // Get the user object for the currently logged in user
                 $user = Auth::user();
 		$user_id = $user->id;
-		
+
 		switch($what) {
-	
+
 			case 'theme':
 
 				$theme_id = Request::get('theme_id');
 
 				if (isset($theme_id) && isset($user_id)) {
-                
+
                         		// Get the logged in user's preferences
                         		$preferences = $user->preferences;
                         		$preferences->theme_id = $theme_id;
@@ -183,7 +183,7 @@ class SettingsController extends MPDTunesController {
                         		$theme = $preferences->theme;
 
                         		// Echo out the theme as JSON so we can apply it to the client
-                        		echo $theme->toJson();	
+                        		echo $theme->toJson();
                 		}
 
 				break;
@@ -209,7 +209,7 @@ class SettingsController extends MPDTunesController {
 					$language = Language::find($language_id);
 					$language_code = $language->code;
 
-					App::setLocale( $language_code );	
+					App::setLocale( $language_code );
 
 					echo 1;
                              	}
@@ -237,9 +237,9 @@ class SettingsController extends MPDTunesController {
                                         	$this->xMPD->setvol($volume);
                                 	}
 
-                                	$this->xMPD->crossfade($crossfade/10);
-		                        $this->xMPD->mixrampdb($mixrampdb);		
-					$this->xMPD->mixrampdelay($mixrampdelay/10);
+                                	$this->xMPD->crossfade($crossfade);
+		                        $this->xMPD->mixrampdb($mixrampdb);
+					$this->xMPD->mixrampdelay($mixrampdelay);
 				}
 
                                 // Get the logged in user's preferences
@@ -249,7 +249,7 @@ class SettingsController extends MPDTunesController {
                      		$preferences->save();
 
                                 echo 1;
-                              
+
                                 break;
 
 			default:
@@ -265,7 +265,7 @@ class SettingsController extends MPDTunesController {
 	}
 
 	public function custom($what) {
-		
+
 		// get all the available colors that can be used when mixing together a new theme
 		$theme_colors = ThemesColors::all();
 
@@ -280,7 +280,7 @@ class SettingsController extends MPDTunesController {
 
 			foreach($theme_colors as $theme_color){
 
-				// this is out here in the logic for performance reasons (so we don't have to iterate 
+				// this is out here in the logic for performance reasons (so we don't have to iterate
 				// through the same loop 6 times in the view)
 				$this->data['theme_color_options'][$theme_color->letter_code] = $theme_color->name;
 			}
@@ -290,7 +290,7 @@ class SettingsController extends MPDTunesController {
 
 		$this->firephp->log($this->data, "data");
 
-                // Return the createTheme view 
+                // Return the createTheme view
                 return View::make('createTheme', $this->data);
 	}
 
@@ -299,9 +299,9 @@ class SettingsController extends MPDTunesController {
                 // Get the user object for the currently logged in user
                 $user = Auth::user();
 		$user_id = $user->id;
-		
+
 		switch($what) {
-	
+
 			case 'theme':
 
 				$icon_color			= Request::get('icon_color');
@@ -314,12 +314,12 @@ class SettingsController extends MPDTunesController {
 				$active_state_letter_code 	= Request::get('active_state_letter_code');
 
 				$this->firephp->log($icon_color, "icon_color");
-				$this->firephp->log($theme_name, "name");							
-				$this->firephp->log($bars_letter_code, "bars");	
+				$this->firephp->log($theme_name, "name");
+				$this->firephp->log($bars_letter_code, "bars");
 				$this->firephp->log($buttons_letter_code, "buttons");
 				$this->firephp->log($body_letter_code, "body");
 				$this->firephp->log($controls_letter_code, "controls");
-				$this->firephp->log($action_buttons_letter_code, "action");	
+				$this->firephp->log($action_buttons_letter_code, "action");
 				$this->firephp->log($active_state_letter_code, "active");
 
 				$theme = new Theme();
@@ -331,11 +331,11 @@ class SettingsController extends MPDTunesController {
 				$theme->body = $body_letter_code;
 				$theme->controls = $controls_letter_code;
 				$theme->actions = $action_buttons_letter_code;
-				$theme->active = $active_state_letter_code;	
+				$theme->active = $active_state_letter_code;
 				$theme->save();
 
 				$this->firephp->log($theme, "theme object");
- 
+
 				// Get the logged in user's preferences
 				$preferences = $user->preferences;
 
@@ -362,7 +362,7 @@ class SettingsController extends MPDTunesController {
 				/*$theme_id = Request::get('theme_id');
 
 				if (isset($theme_id) && isset($user_id)) {
-                
+
                         		// Get the logged in user's preferences
                         		$preferences = $user->preferences;
                         		$preferences->theme_id = $theme_id;
@@ -373,15 +373,15 @@ class SettingsController extends MPDTunesController {
                         		$theme = $preferences->theme;
 
                         		// Echo out the theme as JSON so we can apply it to the client
-                        		echo $theme->toJson();	
+                        		echo $theme->toJson();
                 		}*/
 
 				break;
 
                         case 'playlist':
- 
+
                                 echo 1;
-                              
+
                                 break;
 
 			default:
