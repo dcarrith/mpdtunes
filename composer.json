@@ -16,6 +16,7 @@
                 "Dcarrith/CIZip": "dev-master",
                 "Dcarrith/LxMPD": "dev-master",
                 "Dcarrith/LetId3": "dev-master",
+		"Dcarrith/Queuel": "dev-master",
 		"way/generators": "dev-master",
 		"barryvdh/laravel-debugbar": "dev-master",	
 		"barryvdh/laravel-ide-helper": "1.*",
@@ -47,6 +48,10 @@
 			"type": "vcs",
 			"url": "https://github.com/dcarrith/letid3"
 		},
+		{
+			"type": "vcs",
+			"url": "https://github.com/dcarrith/queuel"
+		},
     		{
         		"type": "vcs",
         		"url": "https://github.com/sidneywidmer/latchet"
@@ -74,12 +79,10 @@
 		],
 		"post-install-cmd": [
     			"php artisan ide-helper:generate",
-    			"php artisan debugbar:publish",
 			"php artisan optimize"	
 		],
 		"post-update-cmd": [
     			"php artisan ide-helper:generate",
-    			"php artisan debugbar:publish",
 			"php artisan optimize"	
 		]
 	},

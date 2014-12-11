@@ -27,21 +27,21 @@ class MPDTunesController extends BaseController {
 
 		$this->firephp->log($this->data['station']->toArray(), "this->user->station->toArray()");
 
-		//Cache::flush();	
+		//Cache::flush();
 
 
 		if (!Cache::has('role'.Session::getId())) {
 
 			$this->role = Cache::rememberForever('role'.Session::getId(), function() {
-	
+
 				return $this->user->role;
 			});
-	
+
 		} else {
-			
+
 			$this->role = Cache::get('role'.Session::getId());
 		}
-	
+
 		// Check to see if role level is 99 and if so, then we know this is a master admin
 		$this->data['admin_user'] = (($this->role->level == 99) ? true : false);
 
@@ -60,26 +60,26 @@ class MPDTunesController extends BaseController {
 		if (!Cache::has('preferences'.Session::getId())) {
 
 			$this->preferences = Cache::rememberForever('preferences'.Session::getId(), function() {
-	
+
 				return $this->user->preferences;
 			});
-	
+
 		} else {
-			
+
 			$this->preferences = Cache::get('preferences'.Session::getId());
 		}
-		
+
 		if ($this->preferences) {
- 
+
 			if (!Cache::has('theme'.Session::getId())) {
 
 				$this->theme = Cache::rememberForever('theme'.Session::getId(), function() {
-	
+
 					return $this->preferences->theme;
 				});
-	
+
 			} else {
-			
+
 				$this->theme = Cache::get('theme'.Session::getId());
 			}
 
@@ -114,33 +114,33 @@ class MPDTunesController extends BaseController {
 			// default volume fade is also 5
 			$this->data['volume_fade'] = $this->preferences->volume_fade;
 
-			// user's preferred language 
+			// user's preferred language
 			if (!Cache::has('language'.Session::getId())) {
 
 				$this->language = Cache::rememberForever('language'.Session::getId(), function() {
-	
+
 					return $this->preferences->language;
 				});
-	
+
 			} else {
-			
+
 				$this->language = Cache::get('language'.Session::getId());
 			}
 
 			$this->data['language_code'] = $this->language->code;
-	
+
 			// Set the language for the application
 			App::setLocale( $this->language->code );
-	
+
         	        // Get and merge all the words we need for the base controller into the main data array
         	        $this->data = array_merge($this->data, Langurator::getLocalizedWords("base"));
 		}
-		
+
 		// default current_volume_fade to whatever was the default or in the user preferences
 		$this->data['current_volume_fade'] = $this->data['volume_fade'];
 
 		/* It doesn't look like the MPD object can be cached
-		
+
 		// First check to see if there is already an MPD object in cache
 		if (!Cache::has('xMPD')) {
 
@@ -153,17 +153,17 @@ class MPDTunesController extends BaseController {
 
 				require_once($this->data['document_root'].'includes/php/classes/xMPD.php');
 
-        		        // Instantiate the MPD object to be used by the derived controllers             
+        		        // Instantiate the MPD object to be used by the derived controllers
 	        	        return new xMPD( $mpd_host, $mpd_port, $mpd_password );
 			});
 
 			//var_dump($this->xMPD);
 			//exit();
-	
+
 		} else {
-		
+
 			//Cache::forget('mpd');
-	
+
 			// Retrieve the MPD object from cache
 			$this->xMPD = Cache::get('xMPD');
 
@@ -202,20 +202,20 @@ class MPDTunesController extends BaseController {
 		$this->firephp->log($this->xMPD->single, "single");
 		$this->firephp->log($this->xMPD->consume, "consume");
 		$this->firephp->log($this->xMPD->volume, "volume");
-		$this->firephp->log($this->xMPD->playlist_id, "playlist_id"); 	
-		$this->firephp->log($this->xMPD->playlist_length, "playlist_length"); 
-		$this->firephp->log($this->xMPD->song , "song");	
-		$this->firephp->log($this->xMPD->songid, "songid"); 	
+		$this->firephp->log($this->xMPD->playlist_id, "playlist_id");
+		$this->firephp->log($this->xMPD->playlist_length, "playlist_length");
+		$this->firephp->log($this->xMPD->song , "song");
+		$this->firephp->log($this->xMPD->songid, "songid");
 		$this->firephp->log($this->xMPD->nextsong, "nextsong");
-		$this->firephp->log($this->xMPD->nextsongid, "nextsongid"); 
-		$this->firephp->log($this->xMPD->time, "time"); 	
-		$this->firephp->log($this->xMPD->elapsed, "elapsed");	
-		$this->firephp->log($this->xMPD->bitrate , "bitrate");	
-		$this->firephp->log($this->xMPD->xfade, "xfade"); 	
-		$this->firephp->log($this->xMPD->mixrampdb, "mixrampdb"); 
-		$this->firephp->log($this->xMPD->mixrampdelay, "mixrampdelay"); 	
-		$this->firephp->log($this->xMPD->audio, "audio"); 
-	
+		$this->firephp->log($this->xMPD->nextsongid, "nextsongid");
+		$this->firephp->log($this->xMPD->time, "time");
+		$this->firephp->log($this->xMPD->elapsed, "elapsed");
+		$this->firephp->log($this->xMPD->bitrate , "bitrate");
+		$this->firephp->log($this->xMPD->xfade, "xfade");
+		$this->firephp->log($this->xMPD->mixrampdb, "mixrampdb");
+		$this->firephp->log($this->xMPD->mixrampdelay, "mixrampdelay");
+		$this->firephp->log($this->xMPD->audio, "audio");
+
 		// Default repeat to off
 		$this->data['repeat'] = 0;
 
@@ -226,12 +226,12 @@ class MPDTunesController extends BaseController {
 
 			// This is so we can determine whether or not to hightlight the repeat button as active or not
 			$this->data['repeat'] = $this->xMPD->repeat;
-			
+
 			// This is so we can determine whether or not to hightlight the shuffle button as active or not
 			$this->data['shuffle'] = $this->xMPD->random;
 		}
 
-		//$home_link = $this->data['base_protocol'] . $this->data['base_domain'] . "/home";	
+		//$home_link = $this->data['base_protocol'] . $this->data['base_domain'] . "/home";
 		$home_link = "/home";
 		$this->firephp->log($home_link, "home_link");
 		$this->data['home_link_data_ajax']	= "true";
@@ -243,7 +243,7 @@ class MPDTunesController extends BaseController {
 		$this->data['item_type'] = Request::get('item_type');
 		$this->data['item_name'] = Request::get('item_name');
 		$this->data['item_id'] = Request::get('item_id');
-	
+
 		// replace the %item% and %item_value% placeholders with the items to be confirmed for deletion
 		$this->data['are_you_sure_i18n'] = str_replace("%item_type%", $this->data['item_type'], $this->data['are_you_sure_i18n']);
 		$this->data['are_you_sure_i18n'] = str_replace("%item_name%", $this->data['item_name'], $this->data['are_you_sure_i18n']);
@@ -259,14 +259,14 @@ class MPDTunesController extends BaseController {
 		$this->firephp->log($playlistName, "playlist_name");
 		$this->firephp->log($tracksListedSoFar, "tracksListedSoFar");
 		$this->firephp->log($tracksToRetrieve, "tracksToRetrieve");
-	
+
 		// Variable to determine if we need to retrieve the rest of the tracks or not (in case of search filtering)
 		$retrievingTheRest = false;
 		if ($tracksToRetrieve == "all") {
 			$retrievingTheRest = true;
 		}
-		
-		$encodedPlaylistName = urlencode($playlistName);	
+
+		$encodedPlaylistName = urlencode($playlistName);
 
 		$this->data['playlist_name'] 		= $playlistName;
 		$this->data['encoded_playlist_name'] 	= $encodedPlaylistName;
@@ -277,7 +277,7 @@ class MPDTunesController extends BaseController {
 		// The playlist is current on the queue page
 		if ($playlistName == "current") {
 
-			$playlistTracks = $this->xMPD->playlist;	
+			$playlistTracks = $this->xMPD->playlist;
 
 		} else {
 
@@ -293,7 +293,7 @@ class MPDTunesController extends BaseController {
 
 		// We want to make sure we use the passed in values for a sync operation
 		if ($context != "sync") {
-				
+
 			$defaultNumTracksToDisplay = $this->data['default_num_'.$context.'_tracks_to_display'];
 
 			$tracksListedSoFarSession = Session::get($context.'_tracks_listed_so_far');
@@ -304,7 +304,7 @@ class MPDTunesController extends BaseController {
 
 				$defaultNumTracksToDisplay = $tracksListedSoFarSession;
 			}
-			
+
 			$this->firephp->log($defaultNumTracksToDisplay, "defaultNumTracksToDisplay");
 
 			//$this->firephp->log($playlistTracks, "playlistTracks");
@@ -317,7 +317,7 @@ class MPDTunesController extends BaseController {
 			$playlistTracks = array_slice( $playlistTracks, $tracksListedSoFar, $sliceLength );
 
 			//$this->firephp->log($playlistTracks, "playlistTracks after the slice");
-		} 
+		}
 
 		// There are certain elements that every track should have - otherwise, we'll filter them out
 		$essentialTags = $this->xMPD->getEssentialTags();
@@ -329,7 +329,7 @@ class MPDTunesController extends BaseController {
 		// Filter out any bum track records
 		$playlistTracks = array_filter($playlistTracks, function($track) use ($essentialTags) {
 
-			return count( array_intersect( array_keys( $track ), $essentialTags )) == count( $essentialTags ); 
+			return count( array_intersect( array_keys( $track ), $essentialTags )) == count( $essentialTags );
 		});
 
 		// Iterate over the entire array so we can add the supplemental track info to each item
@@ -342,28 +342,28 @@ class MPDTunesController extends BaseController {
 		$playlistTracks['count'] = (( $context == "sync" ) ? $tracksCount : $sliceLength );
 
 		return $playlistTracks;
-	} 
+	}
 
 	public function addSupplementaryTrackInfo($track, $index = null, $context = null, $displayed = null) {
 
 		//$this->firephp->log($track, "track");
 
-		if (strpos($track['file'], "http://") === 0) {	
+		if (strpos($track['file'], "http://") === 0) {
 
 			$station = DB::table('stations')->where('url_hash', hash('sha512', $track['file']))->where('creator_id', Auth::user()->id)->first();
 
 			$track['Title'] = $station->name;
-	
+
 			$stationsIcon = StationsIcon::find($station->icon_id);
-				
-			$track['Art'] = URL::to( $stationsIcon->baseurl . $stationsIcon->filename );	
+
+			$track['Art'] = URL::to( $stationsIcon->baseurl . $stationsIcon->filename );
 
 			$track['length'] = get_timer_display(0);
 
 		} else {
 
 			$track['Art'] = Request::root()."/".$this->getAlbumArt(	$track['file'], $track['Artist'], $track['Album'] );
-				
+
 			$track['length'] = get_timer_display($track['Time']);
 		}
 
@@ -380,7 +380,7 @@ class MPDTunesController extends BaseController {
 			$track['anchorTitle'] = $this->data['taphold_then_drag_to_reorder_i18n'];
 			$track['mpd_index'] = (isset($track['Pos']) ? $track['Pos'] : $index);
 		}
-	
+
 				// This is what the json response used to look like for a query for playlist
 				/*
 				// the playlist is just a JSON-style object.  we need to double escape double quotes.
@@ -403,50 +403,42 @@ class MPDTunesController extends BaseController {
 
 	function getAlbumArt( $filepath, $artist, $album ) {
 
-		//$this->firephp->log($filepath, "filepath");
-		//$this->firephp->log($artist, "artist");
-		//$this->firephp->log($album, "album");
-	
 		if ( !isset( $filepath )){
-        
+
 			return $this->data['default_no_album_art_image'];
 		}
 
+		// The absolute path to the music file
 		$absolute_path = $this->data['music_dir'] . $filepath;
 
+		// Generate a sha1 based on the artist and album names
 		$filename = sha1( $artist . " - " . $album );
 
-		// check for an existing album art cache file based on a default value and type
-		$album_art_file_exists = file_exists( $this->data['document_root'] . $this->data['art_dir'] . $filename . ".jpeg" );
-	
-		//$this->firephp->log($absolute_path, "absolute_path");
-		//$this->firephp->log($filename, "filename");
-		//$this->firephp->log($album_art_file_exists, "album_art_file_exists");
-	
+		// Concatenate the relative path to where the art file would be if it exists
 		$art_file = $this->data['art_dir'] . $filename . '.jpeg';
 
+		// Concatenate the absoluate path to where the art file would be if it exists
+		$art_file_abs = $this->data['document_root'] . $art_file;
+
 		// If no album art cache file exists yet, then create an album art cache file
-		if ( $album_art_file_exists === false ) {
+		if ( !File::exists( $art_file_abs )) {
 
 			try {
+				$id3 = LetID3::analyze($absolute_path);
 
-				$letid3 = new LetId3();
-
-				$id3 = $letid3->analyze($absolute_path);
-	
-				$album_art_data = $letid3->getAlbumArtData( $id3 );
+				$album_art_data = LetID3::getAlbumArtData($id3);
 
 				// If we weren't able to extract any album art data, then we have to use the default image
 				if ( !isset( $album_art_data )) {
- 	
-					$album_art_data = file_get_contents( $this->data['document_root'] . ltrim( $this->data['default_no_album_art_image'], "/" ));
-				}
-	
-				Image::make( $album_art_data )->resize( 64, 64 )->save( $this->data['document_root'] . $art_file, 70 );
 
-        		} catch (Exception $error) { 
-        
-				print($error->getMessage()); 
+					$album_art_data = File::get( $this->data['document_root'] . ltrim( $this->data['default_no_album_art_image'] ));
+				}
+
+				Image::make( $album_art_data )->resize( 64, 64 )->save( $art_file_abs, 70 );
+
+        		} catch (Exception $error) {
+
+				print($error->getMessage());
         		}
 		}
 

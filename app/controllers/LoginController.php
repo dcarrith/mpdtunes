@@ -14,7 +14,7 @@ class LoginController extends BaseController {
                 $this->data['current_track_position'] = 0;*/
         }
 
-	public function getLogin() { 
+	public function getLogin() {
 
                 if (Auth::check()) {
                         return Redirect::to('home');
@@ -25,10 +25,10 @@ class LoginController extends BaseController {
 		$this->data = array_merge($this->data, Configurator::getDefaults("theme"));
 
 		// Get and merge the theme defaults into the main data array
-                $this->data = array_merge($this->data, Configurator::getDefaults("app"));		
+                $this->data = array_merge($this->data, Configurator::getDefaults("app"));
 
 		// Get and merge the theme defaults into the main data array
-                $this->data = array_merge($this->data, Configurator::getDefaults("analytics")); 
+                $this->data = array_merge($this->data, Configurator::getDefaults("analytics"));
 
 		// Get and merge all the words we need for the login controller into the main data array
                 $this->data = array_merge($this->data, Langurator::getLocalizedWords("login"));
@@ -41,10 +41,10 @@ class LoginController extends BaseController {
 
 		$this->data['username'] = $email;
 		$this->data['password'] = $password;
-	
+
 		//$this->firephp->log( $this->data, "this->data");
 
-		// Return the login view 
+		// Return the login view
 		return View::make('login', $this->data);
 	}
 
@@ -59,10 +59,10 @@ class LoginController extends BaseController {
 			$validation->login();
 
 		} catch (ValidateException $errors) {
-			
+
 			return Redirect::to('login')->withErrors($errors->get())->withInput();
 		}
- 
+
 		$credentials = array('email' =>Input::get('username'), 'password' =>Input::get('password'));
 
 		if (Auth::attempt($credentials)) {
@@ -71,18 +71,18 @@ class LoginController extends BaseController {
 
 			// Spawn an instance of MPD so we know it's running
 			$path_to_mpd_binary = Config::get('defaults.default_path_to_mpd_binary');
-			
+
 			$output = array();
 			$resultCode = array();
 			// exec(escapeshellcmd('rm -f -v').' '.escapeshellarg($symbolic_link).' 2>&1', $output, $resultCode);
-	
+
 			// Now spawn a new instance of mpd
 			$execResult = exec($path_to_mpd_binary.' '.ltrim($this->data['mpd_dir'], "/").'mpd.conf 2>&1', $output, $resultCode);
-	
+
 			$this->firephp->log($output, "output from trying to start mpd");
 			$this->firephp->log($resultCode, "resultCode from trying to start mpd");
 
-			// Let's push a thank you email onto the queue 
+			// Let's push a thank you email onto the queue
 			Queue::push('MailHandler@send', array('first_name' => Auth::user()->first_name), 'emails');
 			//Queue::push('MailHandler@send', array('first_name' => Auth::user()->first_name), 'https://sqs.us-east-1.amazonaws.com/204060697438/emails');
 			/*Mail::queue('emails.login', array('first_name' => Auth::user()->first_name), function($message) {
@@ -95,13 +95,13 @@ class LoginController extends BaseController {
 
 			}, 'emails');*/
 
-			// Fire off an event that will update the last_login field for the user 
+			// Fire off an event that will update the last_login field for the user
 			Event::fire('user.login', array(Auth::user()));
 
 			return Redirect::to('home');
-			
+
 		} else {
-			
+
 			return Redirect::to('login')->with('login_errors', true)->withInput();
 		}
 	}
