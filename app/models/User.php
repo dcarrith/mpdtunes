@@ -5,9 +5,9 @@ use Illuminate\Auth\Reminders\RemindableInterface;
 
 class User extends Eloquent implements UserInterface, RemindableInterface {
 
-	/*	
-		Examples of how to use the User model	
-	
+	/*
+		Examples of how to use the User model
+
                 // Retrieve User with id = 1
                 $user = User::find(1);
 
@@ -80,7 +80,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
      	{
           	return $this->hasOne('UsersConfig');
      	}
-	
+
 	/**
          * Get the user's role from the Role model
          *
@@ -122,7 +122,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
         {
  		return $this->belongsTo('Station');
 	}
-       
+
         /**
          * The relationship between a User and UserPreferences
          *
@@ -147,4 +147,20 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
     	{
         	return $this->belongsToMany('Role');
     	}*/
+
+	public function getRememberToken()
+	{
+		return $this->remember_token;
+	}
+
+	public function setRememberToken($value)
+	{
+		$this->remember_token = $value;
+	}
+
+	public function getRememberTokenName()
+	{
+		return 'remember_token';
+	}
+
 }
