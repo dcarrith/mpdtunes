@@ -1,7 +1,7 @@
 <?php
 /**
  * An helper file for Laravel 4, to provide autocomplete information to your IDE
- * Generated for Laravel 4.2-dev on 2014-08-16.
+ * Generated for Laravel 4.2.8 on 2014-12-10.
  *
  * @author Barry vd. Heuvel <barryvdh@gmail.com>
  * @see https://github.com/barryvdh/laravel-ide-helper
@@ -11,17 +11,6 @@ namespace {
     exit("This file should not be included, only analyzed by your IDE");
 
     class App extends \Illuminate\Support\Facades\App{
-        
-        /**
-         * Create a new Illuminate application instance.
-         *
-         * @param \Illuminate\Http\Request
-         * @return void 
-         * @static 
-         */
-        public static function __construct($request = null){
-            \Illuminate\Foundation\Application::__construct($request);
-        }
         
         /**
          * Bind the installation paths to the application.
@@ -164,7 +153,7 @@ namespace {
         }
         
         /**
-         * Register a deffered provider and service.
+         * Register a deferred provider and service.
          *
          * @param string $provider
          * @param string $service
@@ -187,6 +176,34 @@ namespace {
          */
         public static function make($abstract, $parameters = array()){
             return \Illuminate\Foundation\Application::make($abstract, $parameters);
+        }
+        
+        /**
+         * Determine if the given abstract type has been bound.
+         * 
+         * (Overriding Container::bound)
+         *
+         * @param string $abstract
+         * @return bool 
+         * @static 
+         */
+        public static function bound($abstract){
+            return \Illuminate\Foundation\Application::bound($abstract);
+        }
+        
+        /**
+         * "Extend" an abstract type in the container.
+         * 
+         * (Overriding Container::extend)
+         *
+         * @param string $abstract
+         * @param \Closure $closure
+         * @return void 
+         * @throws \InvalidArgumentException
+         * @static 
+         */
+        public static function extend($abstract, $closure){
+            \Illuminate\Foundation\Application::extend($abstract, $closure);
         }
         
         /**
@@ -302,7 +319,7 @@ namespace {
          *
          * @param string $class
          * @param array $parameters
-         * @return \Illuminate\Foundation\Application 
+         * @return $this 
          * @static 
          */
         public static function middleware($class, $parameters = array()){
@@ -330,6 +347,7 @@ namespace {
          * @param int $type
          * @param bool $catch
          * @return \Symfony\Component\HttpFoundation\Response 
+         * @throws \Exception
          * @static 
          */
         public static function handle($request, $type = 1, $catch = true){
@@ -610,38 +628,15 @@ namespace {
         }
         
         /**
-         * Dynamically access application services.
-         *
-         * @param string $key
-         * @return mixed 
-         * @static 
-         */
-        public static function __get($key){
-            return \Illuminate\Foundation\Application::__get($key);
-        }
-        
-        /**
-         * Dynamically set application services.
-         *
-         * @param string $key
-         * @param mixed $value
-         * @return void 
-         * @static 
-         */
-        public static function __set($key, $value){
-            \Illuminate\Foundation\Application::__set($key, $value);
-        }
-        
-        /**
-         * Determine if the given abstract type has been bound.
+         * Determine if the given abstract type has been resolved.
          *
          * @param string $abstract
          * @return bool 
          * @static 
          */
-        public static function bound($abstract){
+        public static function resolved($abstract){
             //Method inherited from \Illuminate\Container\Container            
-            return \Illuminate\Foundation\Application::bound($abstract);
+            return \Illuminate\Foundation\Application::resolved($abstract);
         }
         
         /**
@@ -676,12 +671,12 @@ namespace {
          * @param string $abstract
          * @param \Closure|string|null $concrete
          * @param bool $shared
-         * @return bool 
+         * @return void 
          * @static 
          */
         public static function bindIf($abstract, $concrete = null, $shared = false){
             //Method inherited from \Illuminate\Container\Container            
-            return \Illuminate\Foundation\Application::bindIf($abstract, $concrete, $shared);
+            \Illuminate\Foundation\Application::bindIf($abstract, $concrete, $shared);
         }
         
         /**
@@ -720,20 +715,6 @@ namespace {
         public static function bindShared($abstract, $closure){
             //Method inherited from \Illuminate\Container\Container            
             \Illuminate\Foundation\Application::bindShared($abstract, $closure);
-        }
-        
-        /**
-         * "Extend" an abstract type in the container.
-         *
-         * @param string $abstract
-         * @param \Closure $closure
-         * @return void 
-         * @throws \InvalidArgumentException
-         * @static 
-         */
-        public static function extend($abstract, $closure){
-            //Method inherited from \Illuminate\Container\Container            
-            \Illuminate\Foundation\Application::extend($abstract, $closure);
         }
         
         /**
@@ -953,7 +934,7 @@ namespace {
         /**
          * Boot the Console application.
          *
-         * @return \Illuminate\Console\Application 
+         * @return $this 
          * @static 
          */
         public static function boot(){
@@ -1022,7 +1003,7 @@ namespace {
          * Set the exception handler instance.
          *
          * @param \Illuminate\Exception\Handler $handler
-         * @return \Illuminate\Console\Application 
+         * @return $this 
          * @static 
          */
         public static function setExceptionHandler($handler){
@@ -1033,7 +1014,7 @@ namespace {
          * Set the Laravel application instance.
          *
          * @param \Illuminate\Foundation\Application $laravel
-         * @return \Illuminate\Console\Application 
+         * @return $this 
          * @static 
          */
         public static function setLaravel($laravel){
@@ -1044,24 +1025,11 @@ namespace {
          * Set whether the Console app should auto-exit when done.
          *
          * @param bool $boolean
-         * @return \Illuminate\Console\Application 
+         * @return $this 
          * @static 
          */
         public static function setAutoExit($boolean){
             return \Illuminate\Console\Application::setAutoExit($boolean);
-        }
-        
-        /**
-         * Constructor.
-         *
-         * @param string $name The name of the application
-         * @param string $version The version of the application
-         * @api 
-         * @static 
-         */
-        public static function __construct($name = 'UNKNOWN', $version = 'UNKNOWN'){
-            //Method inherited from \Symfony\Component\Console\Application            
-            \Illuminate\Console\Application::__construct($name, $version);
         }
         
         /**
@@ -1079,7 +1047,7 @@ namespace {
          *
          * @param \Symfony\Component\Console\InputInterface $input An Input instance
          * @param \Symfony\Component\Console\OutputInterface $output An Output instance
-         * @return integer 0 if everything went fine, or an error code
+         * @return int 0 if everything went fine, or an error code
          * @throws \Exception When doRun returns Exception
          * @api 
          * @static 
@@ -1094,7 +1062,7 @@ namespace {
          *
          * @param \Symfony\Component\Console\InputInterface $input An Input instance
          * @param \Symfony\Component\Console\OutputInterface $output An Output instance
-         * @return integer 0 if everything went fine, or an error code
+         * @return int 0 if everything went fine, or an error code
          * @static 
          */
         public static function doRun($input, $output){
@@ -1163,7 +1131,7 @@ namespace {
         /**
          * Sets whether to catch exceptions or not during commands execution.
          *
-         * @param Boolean $boolean Whether to catch exceptions or not during commands execution
+         * @param bool $boolean Whether to catch exceptions or not during commands execution
          * @api 
          * @static 
          */
@@ -1275,7 +1243,7 @@ namespace {
          * Returns true if the command exists, false otherwise.
          *
          * @param string $name The command name or alias
-         * @return Boolean true if the command exists, false otherwise
+         * @return bool true if the command exists, false otherwise
          * @api 
          * @static 
          */
@@ -1358,7 +1326,7 @@ namespace {
          * Returns a text representation of the Application.
          *
          * @param string $namespace An optional namespace name
-         * @param boolean $raw Whether to return raw command list
+         * @param bool $raw Whether to return raw command list
          * @return string A string representing the Application
          * @deprecated Deprecated since version 2.3, to be removed in 3.0.
          * @static 
@@ -1372,7 +1340,7 @@ namespace {
          * Returns an XML representation of the Application.
          *
          * @param string $namespace An optional namespace name
-         * @param Boolean $asDom Whether to return a DOM or an XML string
+         * @param bool $asDom Whether to return a DOM or an XML string
          * @return string|\DOMDocument An XML string representing the Application
          * @deprecated Deprecated since version 2.3, to be removed in 3.0.
          * @static 
@@ -1398,8 +1366,8 @@ namespace {
          * 
          * Can be useful to force terminal dimensions for functional tests.
          *
-         * @param integer $width The width
-         * @param integer $height The height
+         * @param int $width The width
+         * @param int $height The height
          * @return \Symfony\Component\Console\Application The current application
          * @static 
          */
@@ -1421,6 +1389,17 @@ namespace {
         public static function extractNamespace($name, $limit = null){
             //Method inherited from \Symfony\Component\Console\Application            
             return \Illuminate\Console\Application::extractNamespace($name, $limit);
+        }
+        
+        /**
+         * Sets the default Command name.
+         *
+         * @param string $commandName The Command name
+         * @static 
+         */
+        public static function setDefaultCommand($commandName){
+            //Method inherited from \Symfony\Component\Console\Application            
+            return \Illuminate\Console\Application::setDefaultCommand($commandName);
         }
         
     }
@@ -1470,18 +1449,6 @@ namespace {
         }
         
         /**
-         * Create a new manager instance.
-         *
-         * @param \Illuminate\Foundation\Application $app
-         * @return void 
-         * @static 
-         */
-        public static function __construct($app){
-            //Method inherited from \Illuminate\Support\Manager            
-            \Illuminate\Auth\AuthManager::__construct($app);
-        }
-        
-        /**
          * Get a driver instance.
          *
          * @param string $driver
@@ -1518,19 +1485,6 @@ namespace {
         }
         
         /**
-         * Dynamically call the default driver instance.
-         *
-         * @param string $method
-         * @param array $parameters
-         * @return mixed 
-         * @static 
-         */
-        public static function __call($method, $parameters){
-            //Method inherited from \Illuminate\Support\Manager            
-            return \Illuminate\Auth\AuthManager::__call($method, $parameters);
-        }
-        
-        /**
          * Determine if the current user is authenticated.
          *
          * @return bool 
@@ -1558,6 +1512,16 @@ namespace {
          */
         public static function user(){
             return \Illuminate\Auth\Guard::user();
+        }
+        
+        /**
+         * Get the ID for the currently authenticated user.
+         *
+         * @return int|null 
+         * @static 
+         */
+        public static function id(){
+            return \Illuminate\Auth\Guard::id();
         }
         
         /**
@@ -1783,7 +1747,7 @@ namespace {
          * Set the current request instance.
          *
          * @param \Symfony\Component\HttpFoundation\Request
-         * @return \Illuminate\Auth\Guard 
+         * @return $this 
          * @static 
          */
         public static function setRequest($request){
@@ -1842,8 +1806,29 @@ namespace {
          * @return void 
          * @static 
          */
-        public static function compile($path){
+        public static function compile($path = null){
             \Illuminate\View\Compilers\BladeCompiler::compile($path);
+        }
+        
+        /**
+         * Get the path currently being compiled.
+         *
+         * @return string 
+         * @static 
+         */
+        public static function getPath(){
+            return \Illuminate\View\Compilers\BladeCompiler::getPath();
+        }
+        
+        /**
+         * Set the path currently being compiled.
+         *
+         * @param string $path
+         * @return void 
+         * @static 
+         */
+        public static function setPath($path){
+            \Illuminate\View\Compilers\BladeCompiler::setPath($path);
         }
         
         /**
@@ -1958,19 +1943,6 @@ namespace {
         }
         
         /**
-         * Create a new compiler instance.
-         *
-         * @param \Illuminate\Filesystem\Filesystem $files
-         * @param string $cachePath
-         * @return void 
-         * @static 
-         */
-        public static function __construct($files, $cachePath){
-            //Method inherited from \Illuminate\View\Compilers\Compiler            
-            \Illuminate\View\Compilers\BladeCompiler::__construct($files, $cachePath);
-        }
-        
-        /**
          * Get the path to the compiled version of a view.
          *
          * @param string $path
@@ -2042,18 +2014,6 @@ namespace {
         }
         
         /**
-         * Create a new manager instance.
-         *
-         * @param \Illuminate\Foundation\Application $app
-         * @return void 
-         * @static 
-         */
-        public static function __construct($app){
-            //Method inherited from \Illuminate\Support\Manager            
-            \Illuminate\Cache\CacheManager::__construct($app);
-        }
-        
-        /**
          * Get a driver instance.
          *
          * @param string $driver
@@ -2090,19 +2050,6 @@ namespace {
         }
         
         /**
-         * Dynamically call the default driver instance.
-         *
-         * @param string $method
-         * @param array $parameters
-         * @return mixed 
-         * @static 
-         */
-        public static function __call($method, $parameters){
-            //Method inherited from \Illuminate\Support\Manager            
-            return \Illuminate\Cache\CacheManager::__call($method, $parameters);
-        }
-        
-        /**
          * Determine if an item exists in the cache.
          *
          * @param string $key
@@ -2123,6 +2070,18 @@ namespace {
          */
         public static function get($key, $default = null){
             return \Illuminate\Cache\Repository::get($key, $default);
+        }
+        
+        /**
+         * Retrieve an item from the cache and delete it.
+         *
+         * @param string $key
+         * @param mixed $default
+         * @return mixed 
+         * @static 
+         */
+        public static function pull($key, $default = null){
+            return \Illuminate\Cache\Repository::pull($key, $default);
         }
         
         /**
@@ -2296,19 +2255,6 @@ namespace {
          * @throws \BadMethodCallException
          * @static 
          */
-        public static function __callStatic($method, $parameters){
-            return \Illuminate\Cache\Repository::__callStatic($method, $parameters);
-        }
-        
-        /**
-         * Dynamically handle calls to the class.
-         *
-         * @param string $method
-         * @param array $parameters
-         * @return mixed 
-         * @throws \BadMethodCallException
-         * @static 
-         */
         public static function macroCall($method, $parameters){
             return \Illuminate\Cache\Repository::macroCall($method, $parameters);
         }
@@ -2318,23 +2264,23 @@ namespace {
          *
          * @param string $key
          * @param mixed $value
-         * @return void 
+         * @return int|bool 
          * @static 
          */
         public static function increment($key, $value = 1){
-            \Illuminate\Cache\MemcachedStore::increment($key, $value);
+            return \Illuminate\Cache\MemcachedStore::increment($key, $value);
         }
         
         /**
-         * Increment the value of an item in the cache.
+         * Decrement the value of an item in the cache.
          *
          * @param string $key
          * @param mixed $value
-         * @return void 
+         * @return int|bool 
          * @static 
          */
         public static function decrement($key, $value = 1){
-            \Illuminate\Cache\MemcachedStore::decrement($key, $value);
+            return \Illuminate\Cache\MemcachedStore::decrement($key, $value);
         }
         
         /**
@@ -2413,18 +2359,6 @@ namespace {
 
 
     class Config extends \Illuminate\Support\Facades\Config{
-        
-        /**
-         * Create a new configuration repository.
-         *
-         * @param \Illuminate\Config\LoaderInterface $loader
-         * @param string $environment
-         * @return void 
-         * @static 
-         */
-        public static function __construct($loader, $environment){
-            \Illuminate\Config\Repository::__construct($loader, $environment);
-        }
         
         /**
          * Determine if the given configuration value exists.
@@ -2734,7 +2668,7 @@ namespace {
         /**
          * Remove a cookie from the queue.
          *
-         * @param $cookieName
+         * @param string $name
          * @static 
          */
         public static function unqueue($name){
@@ -2746,7 +2680,7 @@ namespace {
          *
          * @param string $path
          * @param string $domain
-         * @return self 
+         * @return $this 
          * @static 
          */
         public static function setDefaultPathAndDomain($path, $domain){
@@ -2767,17 +2701,6 @@ namespace {
 
 
     class Crypt extends \Illuminate\Support\Facades\Crypt{
-        
-        /**
-         * Create a new encrypter instance.
-         *
-         * @param string $key
-         * @return void 
-         * @static 
-         */
-        public static function __construct($key){
-            \Illuminate\Encryption\Encrypter::__construct($key);
-        }
         
         /**
          * Encrypt the given value.
@@ -2840,18 +2763,6 @@ namespace {
     class DB extends \Illuminate\Support\Facades\DB{
         
         /**
-         * Create a new database manager instance.
-         *
-         * @param \Illuminate\Foundation\Application $app
-         * @param \Illuminate\Database\Connectors\ConnectionFactory $factory
-         * @return void 
-         * @static 
-         */
-        public static function __construct($app, $factory){
-            \Illuminate\Database\DatabaseManager::__construct($app, $factory);
-        }
-        
-        /**
          * Get a database connection instance.
          *
          * @param string $name
@@ -2863,14 +2774,14 @@ namespace {
         }
         
         /**
-         * Reconnect to the given database.
+         * Disconnect from the given database and remove from local cache.
          *
          * @param string $name
-         * @return \Illuminate\Database\Connection 
+         * @return void 
          * @static 
          */
-        public static function reconnect($name = null){
-            return \Illuminate\Database\DatabaseManager::reconnect($name);
+        public static function purge($name = null){
+            \Illuminate\Database\DatabaseManager::purge($name);
         }
         
         /**
@@ -2882,6 +2793,17 @@ namespace {
          */
         public static function disconnect($name = null){
             \Illuminate\Database\DatabaseManager::disconnect($name);
+        }
+        
+        /**
+         * Reconnect to the given database.
+         *
+         * @param string $name
+         * @return \Illuminate\Database\Connection 
+         * @static 
+         */
+        public static function reconnect($name = null){
+            return \Illuminate\Database\DatabaseManager::reconnect($name);
         }
         
         /**
@@ -2925,18 +2847,6 @@ namespace {
          */
         public static function getConnections(){
             return \Illuminate\Database\DatabaseManager::getConnections();
-        }
-        
-        /**
-         * Dynamically pass methods to the default connection.
-         *
-         * @param string $method
-         * @param array $parameters
-         * @return mixed 
-         * @static 
-         */
-        public static function __call($method, $parameters){
-            return \Illuminate\Database\DatabaseManager::__call($method, $parameters);
         }
         
         /**
@@ -3168,6 +3078,17 @@ namespace {
         }
         
         /**
+         * Get the number of active transactions.
+         *
+         * @return int 
+         * @static 
+         */
+        public static function transactionLevel(){
+            //Method inherited from \Illuminate\Database\Connection            
+            return \Illuminate\Database\MySqlConnection::transactionLevel();
+        }
+        
+        /**
          * Execute the given callback in "dry run" mode.
          *
          * @param \Closure $callback
@@ -3265,8 +3186,8 @@ namespace {
         /**
          * Set the PDO connection.
          *
-         * @param \Illuminate\Database\PDO $pdo
-         * @return \Illuminate\Database\Connection 
+         * @param \PDO|null $pdo
+         * @return $this 
          * @static 
          */
         public static function setPdo($pdo){
@@ -3277,13 +3198,25 @@ namespace {
         /**
          * Set the PDO connection used for reading.
          *
-         * @param \Illuminate\Database\PDO $pdo
-         * @return \Illuminate\Database\Connection 
+         * @param \PDO|null $pdo
+         * @return $this 
          * @static 
          */
         public static function setReadPdo($pdo){
             //Method inherited from \Illuminate\Database\Connection            
             return \Illuminate\Database\MySqlConnection::setReadPdo($pdo);
+        }
+        
+        /**
+         * Set the reconnect instance on the connection.
+         *
+         * @param callable $reconnector
+         * @return $this 
+         * @static 
+         */
+        public static function setReconnector($reconnector){
+            //Method inherited from \Illuminate\Database\Connection            
+            return \Illuminate\Database\MySqlConnection::setReconnector($reconnector);
         }
         
         /**
@@ -3704,29 +3637,17 @@ namespace {
         }
         
         /**
-         * Increment a column's value by a given amount.
+         * Get a paginator only supporting simple next and previous links.
+         * 
+         * This is more efficient on larger data-sets, etc.
          *
-         * @param string $column
-         * @param int $amount
-         * @param array $extra
-         * @return int 
+         * @param int $perPage
+         * @param array $columns
+         * @return \Illuminate\Pagination\Paginator 
          * @static 
          */
-        public static function increment($column, $amount = 1, $extra = array()){
-            return \Illuminate\Database\Eloquent\Builder::increment($column, $amount, $extra);
-        }
-        
-        /**
-         * Decrement a column's value by a given amount.
-         *
-         * @param string $column
-         * @param int $amount
-         * @param array $extra
-         * @return int 
-         * @static 
-         */
-        public static function decrement($column, $amount = 1, $extra = array()){
-            return \Illuminate\Database\Eloquent\Builder::decrement($column, $amount, $extra);
+        public static function simplePaginate($perPage = null, $columns = array()){
+            return \Illuminate\Database\Eloquent\Builder::simplePaginate($perPage, $columns);
         }
         
         /**
@@ -3779,7 +3700,7 @@ namespace {
          * @param string $operator
          * @param mixed $value
          * @param string $boolean
-         * @return \Illuminate\Database\Eloquent\Builder|static 
+         * @return $this 
          * @static 
          */
         public static function where($column, $operator = null, $value = null, $boolean = 'and'){
@@ -3911,7 +3832,7 @@ namespace {
          * Set a model instance for the model being queried.
          *
          * @param \Illuminate\Database\Eloquent\Model $model
-         * @return \Illuminate\Database\Eloquent\Builder 
+         * @return $this 
          * @static 
          */
         public static function setModel($model){
@@ -3945,7 +3866,7 @@ namespace {
          * Set the columns to be selected.
          *
          * @param array $columns
-         * @return \Illuminate\Database\Query\Builder|static 
+         * @return $this 
          * @static 
          */
         public static function select($columns = array()){
@@ -3967,7 +3888,7 @@ namespace {
          * Add a new select column to the query.
          *
          * @param mixed $column
-         * @return \Illuminate\Database\Query\Builder|static 
+         * @return $this 
          * @static 
          */
         public static function addSelect($column){
@@ -3977,7 +3898,7 @@ namespace {
         /**
          * Force the query to only return distinct results.
          *
-         * @return \Illuminate\Database\Query\Builder|static 
+         * @return $this 
          * @static 
          */
         public static function distinct(){
@@ -3988,7 +3909,7 @@ namespace {
          * Set the table which the query is targeting.
          *
          * @param string $table
-         * @return \Illuminate\Database\Query\Builder|static 
+         * @return $this 
          * @static 
          */
         public static function from($table){
@@ -3999,12 +3920,12 @@ namespace {
          * Add a join clause to the query.
          *
          * @param string $table
-         * @param string $first
+         * @param string $one
          * @param string $operator
          * @param string $two
          * @param string $type
          * @param bool $where
-         * @return \Illuminate\Database\Query\Builder|static 
+         * @return $this 
          * @static 
          */
         public static function join($table, $one, $operator = null, $two = null, $type = 'inner', $where = false){
@@ -4015,7 +3936,7 @@ namespace {
          * Add a "join where" clause to the query.
          *
          * @param string $table
-         * @param string $first
+         * @param string $one
          * @param string $operator
          * @param string $two
          * @param string $type
@@ -4044,7 +3965,7 @@ namespace {
          * Add a "join where" clause to the query.
          *
          * @param string $table
-         * @param string $first
+         * @param string $one
          * @param string $operator
          * @param string $two
          * @return \Illuminate\Database\Query\Builder|static 
@@ -4055,12 +3976,40 @@ namespace {
         }
         
         /**
+         * Add a right join to the query.
+         *
+         * @param string $table
+         * @param string $first
+         * @param string $operator
+         * @param string $second
+         * @return \Illuminate\Database\Query\Builder|static 
+         * @static 
+         */
+        public static function rightJoin($table, $first, $operator = null, $second = null){
+            return \Illuminate\Database\Query\Builder::rightJoin($table, $first, $operator, $second);
+        }
+        
+        /**
+         * Add a "right join where" clause to the query.
+         *
+         * @param string $table
+         * @param string $one
+         * @param string $operator
+         * @param string $two
+         * @return \Illuminate\Database\Query\Builder|static 
+         * @static 
+         */
+        public static function rightJoinWhere($table, $one, $operator, $two){
+            return \Illuminate\Database\Query\Builder::rightJoinWhere($table, $one, $operator, $two);
+        }
+        
+        /**
          * Add a raw where clause to the query.
          *
          * @param string $sql
          * @param array $bindings
          * @param string $boolean
-         * @return \Illuminate\Database\Query\Builder|static 
+         * @return $this 
          * @static 
          */
         public static function whereRaw($sql, $bindings = array(), $boolean = 'and'){
@@ -4086,7 +4035,7 @@ namespace {
          * @param array $values
          * @param string $boolean
          * @param bool $not
-         * @return \Illuminate\Database\Query\Builder|static 
+         * @return $this 
          * @static 
          */
         public static function whereBetween($column, $values, $boolean = 'and', $not = false){
@@ -4098,12 +4047,11 @@ namespace {
          *
          * @param string $column
          * @param array $values
-         * @param bool $not
          * @return \Illuminate\Database\Query\Builder|static 
          * @static 
          */
-        public static function orWhereBetween($column, $values, $not = false){
-            return \Illuminate\Database\Query\Builder::orWhereBetween($column, $values, $not);
+        public static function orWhereBetween($column, $values){
+            return \Illuminate\Database\Query\Builder::orWhereBetween($column, $values);
         }
         
         /**
@@ -4148,7 +4096,7 @@ namespace {
          *
          * @param \Illuminate\Database\Query\Builder|static $query
          * @param string $boolean
-         * @return \Illuminate\Database\Query\Builder|static 
+         * @return $this 
          * @static 
          */
         public static function addNestedWhereQuery($query, $boolean = 'and'){
@@ -4161,7 +4109,7 @@ namespace {
          * @param \Closure $callback
          * @param string $boolean
          * @param bool $not
-         * @return \Illuminate\Database\Query\Builder|static 
+         * @return $this 
          * @static 
          */
         public static function whereExists($callback, $boolean = 'and', $not = false){
@@ -4210,7 +4158,7 @@ namespace {
          * @param mixed $values
          * @param string $boolean
          * @param bool $not
-         * @return \Illuminate\Database\Query\Builder|static 
+         * @return $this 
          * @static 
          */
         public static function whereIn($column, $values, $boolean = 'and', $not = false){
@@ -4260,7 +4208,7 @@ namespace {
          * @param string $column
          * @param string $boolean
          * @param bool $not
-         * @return \Illuminate\Database\Query\Builder|static 
+         * @return $this 
          * @static 
          */
         public static function whereNull($column, $boolean = 'and', $not = false){
@@ -4302,11 +4250,53 @@ namespace {
         }
         
         /**
+         * Add a "where day" statement to the query.
+         *
+         * @param string $column
+         * @param string $operator
+         * @param int $value
+         * @param string $boolean
+         * @return \Illuminate\Database\Query\Builder|static 
+         * @static 
+         */
+        public static function whereDay($column, $operator, $value, $boolean = 'and'){
+            return \Illuminate\Database\Query\Builder::whereDay($column, $operator, $value, $boolean);
+        }
+        
+        /**
+         * Add a "where month" statement to the query.
+         *
+         * @param string $column
+         * @param string $operator
+         * @param int $value
+         * @param string $boolean
+         * @return \Illuminate\Database\Query\Builder|static 
+         * @static 
+         */
+        public static function whereMonth($column, $operator, $value, $boolean = 'and'){
+            return \Illuminate\Database\Query\Builder::whereMonth($column, $operator, $value, $boolean);
+        }
+        
+        /**
+         * Add a "where year" statement to the query.
+         *
+         * @param string $column
+         * @param string $operator
+         * @param int $value
+         * @param string $boolean
+         * @return \Illuminate\Database\Query\Builder|static 
+         * @static 
+         */
+        public static function whereYear($column, $operator, $value, $boolean = 'and'){
+            return \Illuminate\Database\Query\Builder::whereYear($column, $operator, $value, $boolean);
+        }
+        
+        /**
          * Handles dynamic "where" clauses to the query.
          *
          * @param string $method
          * @param string $parameters
-         * @return \Illuminate\Database\Query\Builder|static 
+         * @return $this 
          * @static 
          */
         public static function dynamicWhere($method, $parameters){
@@ -4316,8 +4306,7 @@ namespace {
         /**
          * Add a "group by" clause to the query.
          *
-         * @param mixed $columns
-         * @return \Illuminate\Database\Query\Builder|static 
+         * @return $this 
          * @static 
          */
         public static function groupBy(){
@@ -4330,11 +4319,25 @@ namespace {
          * @param string $column
          * @param string $operator
          * @param string $value
+         * @param string $boolean
+         * @return $this 
+         * @static 
+         */
+        public static function having($column, $operator = null, $value = null, $boolean = 'and'){
+            return \Illuminate\Database\Query\Builder::having($column, $operator, $value, $boolean);
+        }
+        
+        /**
+         * Add a "or having" clause to the query.
+         *
+         * @param string $column
+         * @param string $operator
+         * @param string $value
          * @return \Illuminate\Database\Query\Builder|static 
          * @static 
          */
-        public static function having($column, $operator = null, $value = null){
-            return \Illuminate\Database\Query\Builder::having($column, $operator, $value);
+        public static function orHaving($column, $operator = null, $value = null){
+            return \Illuminate\Database\Query\Builder::orHaving($column, $operator, $value);
         }
         
         /**
@@ -4343,7 +4346,7 @@ namespace {
          * @param string $sql
          * @param array $bindings
          * @param string $boolean
-         * @return \Illuminate\Database\Query\Builder|static 
+         * @return $this 
          * @static 
          */
         public static function havingRaw($sql, $bindings = array(), $boolean = 'and'){
@@ -4367,7 +4370,7 @@ namespace {
          *
          * @param string $column
          * @param string $direction
-         * @return \Illuminate\Database\Query\Builder|static 
+         * @return $this 
          * @static 
          */
         public static function orderBy($column, $direction = 'asc'){
@@ -4401,7 +4404,7 @@ namespace {
          *
          * @param string $sql
          * @param array $bindings
-         * @return \Illuminate\Database\Query\Builder|static 
+         * @return $this 
          * @static 
          */
         public static function orderByRaw($sql, $bindings = array()){
@@ -4412,7 +4415,7 @@ namespace {
          * Set the "offset" value of the query.
          *
          * @param int $value
-         * @return \Illuminate\Database\Query\Builder|static 
+         * @return $this 
          * @static 
          */
         public static function offset($value){
@@ -4434,7 +4437,7 @@ namespace {
          * Set the "limit" value of the query.
          *
          * @param int $value
-         * @return \Illuminate\Database\Query\Builder|static 
+         * @return $this 
          * @static 
          */
         public static function limit($value){
@@ -4490,8 +4493,8 @@ namespace {
         /**
          * Lock the selected rows in the table.
          *
-         * @param bool $update
-         * @return \Illuminate\Database\Query\Builder 
+         * @param bool $value
+         * @return $this 
          * @static 
          */
         public static function lock($value = true){
@@ -4533,7 +4536,7 @@ namespace {
          *
          * @param \DateTime|int $minutes
          * @param string $key
-         * @return \Illuminate\Database\Query\Builder|static 
+         * @return $this 
          * @static 
          */
         public static function remember($minutes, $key = null){
@@ -4555,7 +4558,7 @@ namespace {
          * Indicate that the results, if cached, should use the given cache tags.
          *
          * @param array|mixed $cacheTags
-         * @return \Illuminate\Database\Query\Builder|static 
+         * @return $this 
          * @static 
          */
         public static function cacheTags($cacheTags){
@@ -4566,7 +4569,7 @@ namespace {
          * Indicate that the results, if cached, should use the given cache driver.
          *
          * @param string $cacheDriver
-         * @return \Illuminate\Database\Query\Builder|static 
+         * @return $this 
          * @static 
          */
         public static function cacheDriver($cacheDriver){
@@ -4663,12 +4666,12 @@ namespace {
         /**
          * Retrieve the "count" result of the query.
          *
-         * @param string $column
+         * @param string $columns
          * @return int 
          * @static 
          */
-        public static function count($column = '*'){
-            return \Illuminate\Database\Query\Builder::count($column);
+        public static function count($columns = '*'){
+            return \Illuminate\Database\Query\Builder::count($columns);
         }
         
         /**
@@ -4784,7 +4787,7 @@ namespace {
         }
         
         /**
-         * Get the current query value bindings.
+         * Get the current query value bindings in a flattened array.
          *
          * @return array 
          * @static 
@@ -4794,32 +4797,46 @@ namespace {
         }
         
         /**
+         * Get the raw array of bindings.
+         *
+         * @return array 
+         * @static 
+         */
+        public static function getRawBindings(){
+            return \Illuminate\Database\Query\Builder::getRawBindings();
+        }
+        
+        /**
          * Set the bindings on the query builder.
          *
          * @param array $bindings
-         * @return \Illuminate\Database\Query\Builder 
+         * @param string $type
+         * @return $this 
+         * @throws \InvalidArgumentException
          * @static 
          */
-        public static function setBindings($bindings){
-            return \Illuminate\Database\Query\Builder::setBindings($bindings);
+        public static function setBindings($bindings, $type = 'where'){
+            return \Illuminate\Database\Query\Builder::setBindings($bindings, $type);
         }
         
         /**
          * Add a binding to the query.
          *
          * @param mixed $value
-         * @return \Illuminate\Database\Query\Builder 
+         * @param string $type
+         * @return $this 
+         * @throws \InvalidArgumentException
          * @static 
          */
-        public static function addBinding($value){
-            return \Illuminate\Database\Query\Builder::addBinding($value);
+        public static function addBinding($value, $type = 'where'){
+            return \Illuminate\Database\Query\Builder::addBinding($value, $type);
         }
         
         /**
          * Merge an array of bindings into our bindings.
          *
          * @param \Illuminate\Database\Query\Builder $query
-         * @return \Illuminate\Database\Query\Builder 
+         * @return $this 
          * @static 
          */
         public static function mergeBindings($query){
@@ -4852,20 +4869,9 @@ namespace {
     class Event extends \Illuminate\Support\Facades\Event{
         
         /**
-         * Create a new event dispatcher instance.
-         *
-         * @param \Illuminate\Container\Container $container
-         * @return void 
-         * @static 
-         */
-        public static function __construct($container = null){
-            \Illuminate\Events\Dispatcher::__construct($container);
-        }
-        
-        /**
          * Register an event listener with the dispatcher.
          *
-         * @param string|array $event
+         * @param string|array $events
          * @param mixed $listener
          * @param int $priority
          * @return void 
@@ -5301,19 +5307,6 @@ namespace {
     class Form extends \Illuminate\Support\Facades\Form{
         
         /**
-         * Create a new form builder instance.
-         *
-         * @param \Illuminate\Routing\UrlGenerator $url
-         * @param \Illuminate\Html\HtmlBuilder $html
-         * @param string $csrfToken
-         * @return void 
-         * @static 
-         */
-        public static function __construct($html, $url, $csrfToken){
-            \Illuminate\Html\FormBuilder::__construct($html, $url, $csrfToken);
-        }
-        
-        /**
          * Open up a new HTML form.
          *
          * @param array $options
@@ -5533,11 +5526,12 @@ namespace {
          * @param string $name
          * @param string $selected
          * @param array $options
+         * @param string $format
          * @return string 
          * @static 
          */
-        public static function selectMonth($name, $selected = null, $options = array()){
-            return \Illuminate\Html\FormBuilder::selectMonth($name, $selected, $options);
+        public static function selectMonth($name, $selected = null, $options = array(), $format = '%B'){
+            return \Illuminate\Html\FormBuilder::selectMonth($name, $selected, $options, $format);
         }
         
         /**
@@ -5689,7 +5683,7 @@ namespace {
          * Set the session store implementation.
          *
          * @param \Illuminate\Session\Store $session
-         * @return \Illuminate\Html\FormBuilder 
+         * @return $this 
          * @static 
          */
         public static function setSessionStore($session){
@@ -5717,32 +5711,6 @@ namespace {
          */
         public static function hasMacro($name){
             return \Illuminate\Html\FormBuilder::hasMacro($name);
-        }
-        
-        /**
-         * Dynamically handle calls to the class.
-         *
-         * @param string $method
-         * @param array $parameters
-         * @return mixed 
-         * @throws \BadMethodCallException
-         * @static 
-         */
-        public static function __callStatic($method, $parameters){
-            return \Illuminate\Html\FormBuilder::__callStatic($method, $parameters);
-        }
-        
-        /**
-         * Dynamically handle calls to the class.
-         *
-         * @param string $method
-         * @param array $parameters
-         * @return mixed 
-         * @throws \BadMethodCallException
-         * @static 
-         */
-        public static function __call($method, $parameters){
-            return \Illuminate\Html\FormBuilder::__call($method, $parameters);
         }
         
     }
@@ -5794,17 +5762,6 @@ namespace {
     class HTML extends \Illuminate\Support\Facades\HTML{
         
         /**
-         * Create a new HTML builder instance.
-         *
-         * @param \Illuminate\Routing\UrlGenerator $url
-         * @return void 
-         * @static 
-         */
-        public static function __construct($url = null){
-            \Illuminate\Html\HtmlBuilder::__construct($url);
-        }
-        
-        /**
          * Convert an HTML string to entities.
          *
          * @param string $value
@@ -5831,11 +5788,12 @@ namespace {
          *
          * @param string $url
          * @param array $attributes
+         * @param bool $secure
          * @return string 
          * @static 
          */
-        public static function script($url, $attributes = array()){
-            return \Illuminate\Html\HtmlBuilder::script($url, $attributes);
+        public static function script($url, $attributes = array(), $secure = null){
+            return \Illuminate\Html\HtmlBuilder::script($url, $attributes, $secure);
         }
         
         /**
@@ -5843,11 +5801,12 @@ namespace {
          *
          * @param string $url
          * @param array $attributes
+         * @param bool $secure
          * @return string 
          * @static 
          */
-        public static function style($url, $attributes = array()){
-            return \Illuminate\Html\HtmlBuilder::style($url, $attributes);
+        public static function style($url, $attributes = array(), $secure = null){
+            return \Illuminate\Html\HtmlBuilder::style($url, $attributes, $secure);
         }
         
         /**
@@ -5856,11 +5815,12 @@ namespace {
          * @param string $url
          * @param string $alt
          * @param array $attributes
+         * @param bool $secure
          * @return string 
          * @static 
          */
-        public static function image($url, $alt = null, $attributes = array()){
-            return \Illuminate\Html\HtmlBuilder::image($url, $alt, $attributes);
+        public static function image($url, $alt = null, $attributes = array(), $secure = null){
+            return \Illuminate\Html\HtmlBuilder::image($url, $alt, $attributes, $secure);
         }
         
         /**
@@ -6038,32 +5998,6 @@ namespace {
             return \Illuminate\Html\HtmlBuilder::hasMacro($name);
         }
         
-        /**
-         * Dynamically handle calls to the class.
-         *
-         * @param string $method
-         * @param array $parameters
-         * @return mixed 
-         * @throws \BadMethodCallException
-         * @static 
-         */
-        public static function __callStatic($method, $parameters){
-            return \Illuminate\Html\HtmlBuilder::__callStatic($method, $parameters);
-        }
-        
-        /**
-         * Dynamically handle calls to the class.
-         *
-         * @param string $method
-         * @param array $parameters
-         * @return mixed 
-         * @throws \BadMethodCallException
-         * @static 
-         */
-        public static function __call($method, $parameters){
-            return \Illuminate\Html\HtmlBuilder::__call($method, $parameters);
-        }
-        
     }
 
 
@@ -6072,7 +6006,7 @@ namespace {
         /**
          * Return the Request instance.
          *
-         * @return \Illuminate\Http\Request 
+         * @return $this 
          * @static 
          */
         public static function instance(){
@@ -6193,7 +6127,18 @@ namespace {
         }
         
         /**
-         * Determine if the request contains a given input item.
+         * Determine if the request contains a given input item key.
+         *
+         * @param string|array $key
+         * @return bool 
+         * @static 
+         */
+        public static function exists($key){
+            return \Illuminate\Http\Request::exists($key);
+        }
+        
+        /**
+         * Determine if the request contains a non-empty value for an input item.
          *
          * @param string|array $key
          * @return bool 
@@ -6442,6 +6387,7 @@ namespace {
         /**
          * Get the data format expected in the response.
          *
+         * @param string $default
          * @return string 
          * @static 
          */
@@ -6464,28 +6410,11 @@ namespace {
          * Get the session associated with the request.
          *
          * @return \Illuminate\Session\Store 
+         * @throws \RuntimeException
          * @static 
          */
         public static function session(){
             return \Illuminate\Http\Request::session();
-        }
-        
-        /**
-         * Constructor.
-         *
-         * @param array $query The GET parameters
-         * @param array $request The POST parameters
-         * @param array $attributes The request attributes (parameters parsed from the PATH_INFO, ...)
-         * @param array $cookies The COOKIE parameters
-         * @param array $files The FILES parameters
-         * @param array $server The SERVER parameters
-         * @param string $content The raw body data
-         * @api 
-         * @static 
-         */
-        public static function __construct($query = array(), $request = array(), $attributes = array(), $cookies = array(), $files = array(), $server = array(), $content = null){
-            //Method inherited from \Symfony\Component\HttpFoundation\Request            
-            \Illuminate\Http\Request::__construct($query, $request, $attributes, $cookies, $files, $server, $content);
         }
         
         /**
@@ -6573,17 +6502,6 @@ namespace {
         public static function duplicate($query = null, $request = null, $attributes = null, $cookies = null, $files = null, $server = null){
             //Method inherited from \Symfony\Component\HttpFoundation\Request            
             return \Illuminate\Http\Request::duplicate($query, $request, $attributes, $cookies, $files, $server);
-        }
-        
-        /**
-         * Returns the request as a string.
-         *
-         * @return string The request
-         * @static 
-         */
-        public static function __toString(){
-            //Method inherited from \Symfony\Component\HttpFoundation\Request            
-            return \Illuminate\Http\Request::__toString();
         }
         
         /**
@@ -6717,7 +6635,7 @@ namespace {
         /**
          * Checks whether support for the _method request parameter is enabled.
          *
-         * @return Boolean True when the _method request parameter is enabled, false otherwise
+         * @return bool True when the _method request parameter is enabled, false otherwise
          * @static 
          */
         public static function getHttpMethodParameterOverride(){
@@ -6742,7 +6660,7 @@ namespace {
          *
          * @param string $key the key
          * @param mixed $default the default value
-         * @param Boolean $deep is parameter deep in multidimensional array
+         * @param bool $deep is parameter deep in multidimensional array
          * @return mixed 
          * @static 
          */
@@ -6767,7 +6685,7 @@ namespace {
          * Whether the request contains a Session which was started in one of the
          * previous requests.
          *
-         * @return Boolean 
+         * @return bool 
          * @api 
          * @static 
          */
@@ -6783,7 +6701,7 @@ namespace {
          * like whether the session is started or not. It is just a way to check if this Request
          * is associated with a Session instance.
          *
-         * @return Boolean true when the Request contains a Session object, false otherwise
+         * @return bool true when the Request contains a Session object, false otherwise
          * @api 
          * @static 
          */
@@ -7073,7 +6991,7 @@ namespace {
          * ("SSL_HTTPS" for instance), configure it via "setTrustedHeaderName()" with
          * the "client-proto" key.
          *
-         * @return Boolean 
+         * @return bool 
          * @api 
          * @static 
          */
@@ -7269,7 +7187,7 @@ namespace {
          * Checks if the request method is of specified type.
          *
          * @param string $method Uppercase request method (GET, POST etc).
-         * @return Boolean 
+         * @return bool 
          * @static 
          */
         public static function isMethod($method){
@@ -7280,7 +7198,7 @@ namespace {
         /**
          * Checks whether the method is safe or not.
          *
-         * @return Boolean 
+         * @return bool 
          * @api 
          * @static 
          */
@@ -7292,7 +7210,7 @@ namespace {
         /**
          * Returns the request body content.
          *
-         * @param Boolean $asResource If true, a resource will be returned
+         * @param bool $asResource If true, a resource will be returned
          * @return string|resource The request body content or a resource to read the body stream.
          * @throws \LogicException
          * @static 
@@ -7316,7 +7234,7 @@ namespace {
         /**
          * 
          *
-         * @return Boolean 
+         * @return bool 
          * @static 
          */
         public static function isNoCache(){
@@ -7391,7 +7309,7 @@ namespace {
          * It is known to work with common JavaScript frameworks:
          *
          * @link http://en.wikipedia.org/wiki/List_of_Ajax_frameworks#JavaScript
-         * @return Boolean true if the request is an XMLHttpRequest, false otherwise
+         * @return bool true if the request is an XMLHttpRequest, false otherwise
          * @api 
          * @static 
          */
@@ -7404,18 +7322,6 @@ namespace {
 
 
     class Lang extends \Illuminate\Support\Facades\Lang{
-        
-        /**
-         * Create a new translator instance.
-         *
-         * @param \Illuminate\Translation\LoaderInterface $loader
-         * @param string $locale
-         * @return void 
-         * @static 
-         */
-        public static function __construct($loader, $locale){
-            \Illuminate\Translation\Translator::__construct($loader, $locale);
-        }
         
         /**
          * Determine if a translation exists.
@@ -7584,7 +7490,7 @@ namespace {
         }
         
         /**
-         * Set the fallback locale being used.
+         * Get the fallback locale being used.
          *
          * @return string 
          * @static 
@@ -7719,18 +7625,6 @@ namespace {
         }
         
         /**
-         * Create a new log writer instance.
-         *
-         * @param \Monolog\Logger $monolog
-         * @param \Illuminate\Events\Dispatcher $dispatcher
-         * @return void 
-         * @static 
-         */
-        public static function __construct($monolog, $dispatcher = null){
-            \Illuminate\Log\Writer::__construct($monolog, $dispatcher);
-        }
-        
-        /**
          * Register a file log handler.
          *
          * @param string $path
@@ -7753,6 +7647,18 @@ namespace {
          */
         public static function useDailyFiles($path, $days = 0, $level = 'debug'){
             \Illuminate\Log\Writer::useDailyFiles($path, $days, $level);
+        }
+        
+        /**
+         * Register an error_log handler.
+         *
+         * @param string $level
+         * @param integer $messageType
+         * @return void 
+         * @static 
+         */
+        public static function useErrorLog($level = 'debug', $messageType = 0){
+            \Illuminate\Log\Writer::useErrorLog($level, $messageType);
         }
         
         /**
@@ -7810,35 +7716,10 @@ namespace {
             return \Illuminate\Log\Writer::write();
         }
         
-        /**
-         * Dynamically handle error additions.
-         *
-         * @param string $method
-         * @param array $parameters
-         * @return mixed 
-         * @throws \BadMethodCallException
-         * @static 
-         */
-        public static function __call($method, $parameters){
-            return \Illuminate\Log\Writer::__call($method, $parameters);
-        }
-        
     }
 
 
     class Mail extends \Illuminate\Support\Facades\Mail{
-        
-        /**
-         * Create a new Mailer instance.
-         *
-         * @param \Illuminate\View\Factory $views
-         * @param \Swift_Mailer $swift
-         * @return void 
-         * @static 
-         */
-        public static function __construct($views, $swift){
-            \Illuminate\Mail\Mailer::__construct($views, $swift);
-        }
         
         /**
          * Set the global from address and name.
@@ -7871,11 +7752,11 @@ namespace {
          * @param string|array $view
          * @param array $data
          * @param \Closure|string $callback
-         * @return int 
+         * @return void 
          * @static 
          */
         public static function send($view, $data, $callback){
-            return \Illuminate\Mail\Mailer::send($view, $data, $callback);
+            \Illuminate\Mail\Mailer::send($view, $data, $callback);
         }
         
         /**
@@ -7960,6 +7841,16 @@ namespace {
         }
         
         /**
+         * Check if the mailer is pretending to send messages.
+         *
+         * @return bool 
+         * @static 
+         */
+        public static function isPretending(){
+            return \Illuminate\Mail\Mailer::isPretending();
+        }
+        
+        /**
          * Get the view factory instance.
          *
          * @return \Illuminate\View\Factory 
@@ -8004,7 +7895,7 @@ namespace {
          * Set the log writer instance.
          *
          * @param \Illuminate\Log\Writer $logger
-         * @return \Illuminate\Mail\Mailer 
+         * @return $this 
          * @static 
          */
         public static function setLogger($logger){
@@ -8015,7 +7906,7 @@ namespace {
          * Set the queue manager instance.
          *
          * @param \Illuminate\Queue\QueueManager $queue
-         * @return \Illuminate\Mail\Mailer 
+         * @return $this 
          * @static 
          */
         public static function setQueue($queue){
@@ -8039,29 +7930,15 @@ namespace {
     class Paginator extends \Illuminate\Support\Facades\Paginator{
         
         /**
-         * Create a new pagination factory.
-         *
-         * @param \Symfony\Component\HttpFoundation\Request $request
-         * @param \Illuminate\View\Factory $view
-         * @param \Symfony\Component\Translation\TranslatorInterface $trans
-         * @param string $pageName
-         * @return void 
-         * @static 
-         */
-        public static function __construct($request, $view, $trans, $pageName = 'page'){
-            \Illuminate\Pagination\Factory::__construct($request, $view, $trans, $pageName);
-        }
-        
-        /**
          * Get a new paginator instance.
          *
          * @param array $items
          * @param int $total
-         * @param int $perPage
+         * @param int|null $perPage
          * @return \Illuminate\Pagination\Paginator 
          * @static 
          */
-        public static function make($items, $total, $perPage){
+        public static function make($items, $total, $perPage = null){
             return \Illuminate\Pagination\Factory::make($items, $total, $perPage);
         }
         
@@ -8241,20 +8118,6 @@ namespace {
     class Password extends \Illuminate\Support\Facades\Password{
         
         /**
-         * Create a new password broker instance.
-         *
-         * @param \Illuminate\Auth\Reminders\ReminderRepositoryInterface $reminders
-         * @param \Illuminate\Auth\UserProviderInterface $users
-         * @param \Illuminate\Mail\Mailer $mailer
-         * @param string $reminderView
-         * @return void 
-         * @static 
-         */
-        public static function __construct($reminders, $users, $mailer, $reminderView){
-            \Illuminate\Auth\Reminders\PasswordBroker::__construct($reminders, $users, $mailer, $reminderView);
-        }
-        
-        /**
          * Send a password reminder to a user.
          *
          * @param array $credentials
@@ -8272,11 +8135,11 @@ namespace {
          * @param \Illuminate\Auth\Reminders\RemindableInterface $user
          * @param string $token
          * @param \Closure $callback
-         * @return void 
+         * @return int 
          * @static 
          */
         public static function sendReminder($user, $token, $callback = null){
-            \Illuminate\Auth\Reminders\PasswordBroker::sendReminder($user, $token, $callback);
+            return \Illuminate\Auth\Reminders\PasswordBroker::sendReminder($user, $token, $callback);
         }
         
         /**
@@ -8317,17 +8180,17 @@ namespace {
     }
 
 
-    class Queue extends \Illuminate\Support\Facades\Queue{
+    class Queue extends \Dcarrith\Queuel\QueuelFacade{
         
         /**
-         * Create a new queue manager instance.
+         * Register an event listener for the daemon queue loop.
          *
-         * @param \Illuminate\Foundation\Application $app
+         * @param mixed $callback
          * @return void 
          * @static 
          */
-        public static function __construct($app){
-            \Illuminate\Queue\QueueManager::__construct($app);
+        public static function looping($callback){
+            \Illuminate\Queue\QueueManager::looping($callback);
         }
         
         /**
@@ -8339,6 +8202,17 @@ namespace {
          */
         public static function failing($callback){
             \Illuminate\Queue\QueueManager::failing($callback);
+        }
+        
+        /**
+         * Register an event listener for the daemon queue stopping.
+         *
+         * @param mixed $callback
+         * @return void 
+         * @static 
+         */
+        public static function stopping($callback){
+            \Illuminate\Queue\QueueManager::stopping($callback);
         }
         
         /**
@@ -8356,7 +8230,7 @@ namespace {
          * Resolve a queue connection instance.
          *
          * @param string $name
-         * @return \Illuminate\Queue\BeanstalkdQueue 
+         * @return \Dcarrith\Queuel\RabbitQueue 
          * @static 
          */
         public static function connection($name = null){
@@ -8420,18 +8294,6 @@ namespace {
         }
         
         /**
-         * Dynamically pass calls to the default connection.
-         *
-         * @param string $method
-         * @param array $parameters
-         * @return mixed 
-         * @static 
-         */
-        public static function __call($method, $parameters){
-            return \Illuminate\Queue\QueueManager::__call($method, $parameters);
-        }
-        
-        /**
          * Push a new job onto the queue.
          *
          * @param string $job
@@ -8441,7 +8303,7 @@ namespace {
          * @static 
          */
         public static function push($job, $data = '', $queue = null){
-            return \Illuminate\Queue\BeanstalkdQueue::push($job, $data, $queue);
+            return \Dcarrith\Queuel\RabbitQueue::push($job, $data, $queue);
         }
         
         /**
@@ -8450,11 +8312,24 @@ namespace {
          * @param string $payload
          * @param string $queue
          * @param array $options
-         * @return mixed 
+         * @return \Illuminate\Http\Response 
          * @static 
          */
         public static function pushRaw($payload, $queue = null, $options = array()){
-            return \Illuminate\Queue\BeanstalkdQueue::pushRaw($payload, $queue, $options);
+            return \Dcarrith\Queuel\RabbitQueue::pushRaw($payload, $queue, $options);
+        }
+        
+        /**
+         * Push a raw payload onto the queue after recreating it after some delay
+         *
+         * @param string $payload
+         * @param string $queue
+         * @param int $delay
+         * @return mixed 
+         * @static 
+         */
+        public static function recreate($payload, $queue, $delay){
+            return \Dcarrith\Queuel\RabbitQueue::recreate($payload, $queue, $delay);
         }
         
         /**
@@ -8464,43 +8339,43 @@ namespace {
          * @param string $job
          * @param mixed $data
          * @param string $queue
-         * @return mixed 
+         * @throws \RuntimeException
          * @static 
          */
         public static function later($delay, $job, $data = '', $queue = null){
-            return \Illuminate\Queue\BeanstalkdQueue::later($delay, $job, $data, $queue);
+            return \Dcarrith\Queuel\RabbitQueue::later($delay, $job, $data, $queue);
         }
         
         /**
          * Pop the next job off of the queue.
          *
          * @param string $queue
-         * @return \Illuminate\Queue\Jobs\Job|null 
+         * @return \Illuminate\Queue\Jobs\RabbitJob|null 
          * @static 
          */
         public static function pop($queue = null){
-            return \Illuminate\Queue\BeanstalkdQueue::pop($queue);
+            return \Dcarrith\Queuel\RabbitQueue::pop($queue);
         }
         
         /**
-         * Get the queue or return the default.
+         * Get the queue or return the default queue.
          *
          * @param string|null $queue
          * @return string 
          * @static 
          */
-        public static function getQueue($queue){
-            return \Illuminate\Queue\BeanstalkdQueue::getQueue($queue);
+        public static function getQueue($queue = null){
+            return \Dcarrith\Queuel\RabbitQueue::getQueue($queue);
         }
         
         /**
-         * Get the underlying Pheanstalk instance.
+         * Get the underlying Rabbit connection channel instance.
          *
-         * @return \Illuminate\Queue\Pheanstalk 
+         * @return \Dcarrith\Queuel\PhpAmqpLib\Channel\AMQPChannel 
          * @static 
          */
-        public static function getPheanstalk(){
-            return \Illuminate\Queue\BeanstalkdQueue::getPheanstalk();
+        public static function getChannel(){
+            return \Dcarrith\Queuel\RabbitQueue::getChannel();
         }
         
         /**
@@ -8510,8 +8385,8 @@ namespace {
          * @static 
          */
         public static function marshal(){
-            //Method inherited from \Illuminate\Queue\Queue            
-            return \Illuminate\Queue\BeanstalkdQueue::marshal();
+            //Method inherited from \Dcarrith\Queuel\Queuel            
+            return \Dcarrith\Queuel\RabbitQueue::marshal();
         }
         
         /**
@@ -8527,8 +8402,8 @@ namespace {
          * @static 
          */
         public static function subscribe($queue, $endpoint, $options = array(), $advanced = array()){
-            //Method inherited from \Illuminate\Queue\Queue            
-            return \Illuminate\Queue\BeanstalkdQueue::subscribe($queue, $endpoint, $options, $advanced);
+            //Method inherited from \Dcarrith\Queuel\Queuel            
+            return \Dcarrith\Queuel\RabbitQueue::subscribe($queue, $endpoint, $options, $advanced);
         }
         
         /**
@@ -8542,8 +8417,8 @@ namespace {
          * @static 
          */
         public static function unsubscribe($queue, $endpoint){
-            //Method inherited from \Illuminate\Queue\Queue            
-            return \Illuminate\Queue\BeanstalkdQueue::unsubscribe($queue, $endpoint);
+            //Method inherited from \Dcarrith\Queuel\Queuel            
+            return \Dcarrith\Queuel\RabbitQueue::unsubscribe($queue, $endpoint);
         }
         
         /**
@@ -8559,8 +8434,8 @@ namespace {
          * @static 
          */
         public static function update($queue, $endpoint, $options = array(), $advanced = array()){
-            //Method inherited from \Illuminate\Queue\Queue            
-            return \Illuminate\Queue\BeanstalkdQueue::update($queue, $endpoint, $options, $advanced);
+            //Method inherited from \Dcarrith\Queuel\Queuel            
+            return \Dcarrith\Queuel\RabbitQueue::update($queue, $endpoint, $options, $advanced);
         }
         
         /**
@@ -8574,7 +8449,7 @@ namespace {
          */
         public static function bulk($jobs, $data = '', $queue = null){
             //Method inherited from \Illuminate\Queue\Queue            
-            return \Illuminate\Queue\BeanstalkdQueue::bulk($jobs, $data, $queue);
+            return \Dcarrith\Queuel\RabbitQueue::bulk($jobs, $data, $queue);
         }
         
         /**
@@ -8585,7 +8460,7 @@ namespace {
          */
         public static function getTime(){
             //Method inherited from \Illuminate\Queue\Queue            
-            return \Illuminate\Queue\BeanstalkdQueue::getTime();
+            return \Dcarrith\Queuel\RabbitQueue::getTime();
         }
         
         /**
@@ -8597,24 +8472,25 @@ namespace {
          */
         public static function setContainer($container){
             //Method inherited from \Illuminate\Queue\Queue            
-            \Illuminate\Queue\BeanstalkdQueue::setContainer($container);
+            \Dcarrith\Queuel\RabbitQueue::setContainer($container);
+        }
+        
+        /**
+         * Set the encrypter instance.
+         *
+         * @param \Illuminate\Encryption\Encrypter $crypt
+         * @return void 
+         * @static 
+         */
+        public static function setEncrypter($crypt){
+            //Method inherited from \Illuminate\Queue\Queue            
+            \Dcarrith\Queuel\RabbitQueue::setEncrypter($crypt);
         }
         
     }
 
 
     class Redirect extends \Illuminate\Support\Facades\Redirect{
-        
-        /**
-         * Create a new Redirector instance.
-         *
-         * @param \Illuminate\Routing\UrlGenerator $generator
-         * @return void 
-         * @static 
-         */
-        public static function __construct($generator){
-            \Illuminate\Routing\Redirector::__construct($generator);
-        }
         
         /**
          * Create a new redirect response to the "home" route.
@@ -8774,21 +8650,10 @@ namespace {
     class Redis extends \Illuminate\Support\Facades\Redis{
         
         /**
-         * Create a new Redis connection instance.
-         *
-         * @param array $servers
-         * @return void 
-         * @static 
-         */
-        public static function __construct($servers = array()){
-            \Illuminate\Redis\Database::__construct($servers);
-        }
-        
-        /**
          * Get a specific Redis connection instance.
          *
          * @param string $name
-         * @return \Predis\Connection\SingleConnectionInterface 
+         * @return \Predis\ClientInterface 
          * @static 
          */
         public static function connection($name = 'default'){
@@ -8807,18 +8672,6 @@ namespace {
             return \Illuminate\Redis\Database::command($method, $parameters);
         }
         
-        /**
-         * Dynamically make a Redis command.
-         *
-         * @param string $method
-         * @param array $parameters
-         * @return mixed 
-         * @static 
-         */
-        public static function __call($method, $parameters){
-            return \Illuminate\Redis\Database::__call($method, $parameters);
-        }
-        
     }
 
 
@@ -8827,7 +8680,7 @@ namespace {
         /**
          * Return the Request instance.
          *
-         * @return \Illuminate\Http\Request 
+         * @return $this 
          * @static 
          */
         public static function instance(){
@@ -8948,7 +8801,18 @@ namespace {
         }
         
         /**
-         * Determine if the request contains a given input item.
+         * Determine if the request contains a given input item key.
+         *
+         * @param string|array $key
+         * @return bool 
+         * @static 
+         */
+        public static function exists($key){
+            return \Illuminate\Http\Request::exists($key);
+        }
+        
+        /**
+         * Determine if the request contains a non-empty value for an input item.
          *
          * @param string|array $key
          * @return bool 
@@ -9197,6 +9061,7 @@ namespace {
         /**
          * Get the data format expected in the response.
          *
+         * @param string $default
          * @return string 
          * @static 
          */
@@ -9219,28 +9084,11 @@ namespace {
          * Get the session associated with the request.
          *
          * @return \Illuminate\Session\Store 
+         * @throws \RuntimeException
          * @static 
          */
         public static function session(){
             return \Illuminate\Http\Request::session();
-        }
-        
-        /**
-         * Constructor.
-         *
-         * @param array $query The GET parameters
-         * @param array $request The POST parameters
-         * @param array $attributes The request attributes (parameters parsed from the PATH_INFO, ...)
-         * @param array $cookies The COOKIE parameters
-         * @param array $files The FILES parameters
-         * @param array $server The SERVER parameters
-         * @param string $content The raw body data
-         * @api 
-         * @static 
-         */
-        public static function __construct($query = array(), $request = array(), $attributes = array(), $cookies = array(), $files = array(), $server = array(), $content = null){
-            //Method inherited from \Symfony\Component\HttpFoundation\Request            
-            \Illuminate\Http\Request::__construct($query, $request, $attributes, $cookies, $files, $server, $content);
         }
         
         /**
@@ -9328,17 +9176,6 @@ namespace {
         public static function duplicate($query = null, $request = null, $attributes = null, $cookies = null, $files = null, $server = null){
             //Method inherited from \Symfony\Component\HttpFoundation\Request            
             return \Illuminate\Http\Request::duplicate($query, $request, $attributes, $cookies, $files, $server);
-        }
-        
-        /**
-         * Returns the request as a string.
-         *
-         * @return string The request
-         * @static 
-         */
-        public static function __toString(){
-            //Method inherited from \Symfony\Component\HttpFoundation\Request            
-            return \Illuminate\Http\Request::__toString();
         }
         
         /**
@@ -9472,7 +9309,7 @@ namespace {
         /**
          * Checks whether support for the _method request parameter is enabled.
          *
-         * @return Boolean True when the _method request parameter is enabled, false otherwise
+         * @return bool True when the _method request parameter is enabled, false otherwise
          * @static 
          */
         public static function getHttpMethodParameterOverride(){
@@ -9497,7 +9334,7 @@ namespace {
          *
          * @param string $key the key
          * @param mixed $default the default value
-         * @param Boolean $deep is parameter deep in multidimensional array
+         * @param bool $deep is parameter deep in multidimensional array
          * @return mixed 
          * @static 
          */
@@ -9522,7 +9359,7 @@ namespace {
          * Whether the request contains a Session which was started in one of the
          * previous requests.
          *
-         * @return Boolean 
+         * @return bool 
          * @api 
          * @static 
          */
@@ -9538,7 +9375,7 @@ namespace {
          * like whether the session is started or not. It is just a way to check if this Request
          * is associated with a Session instance.
          *
-         * @return Boolean true when the Request contains a Session object, false otherwise
+         * @return bool true when the Request contains a Session object, false otherwise
          * @api 
          * @static 
          */
@@ -9828,7 +9665,7 @@ namespace {
          * ("SSL_HTTPS" for instance), configure it via "setTrustedHeaderName()" with
          * the "client-proto" key.
          *
-         * @return Boolean 
+         * @return bool 
          * @api 
          * @static 
          */
@@ -10024,7 +9861,7 @@ namespace {
          * Checks if the request method is of specified type.
          *
          * @param string $method Uppercase request method (GET, POST etc).
-         * @return Boolean 
+         * @return bool 
          * @static 
          */
         public static function isMethod($method){
@@ -10035,7 +9872,7 @@ namespace {
         /**
          * Checks whether the method is safe or not.
          *
-         * @return Boolean 
+         * @return bool 
          * @api 
          * @static 
          */
@@ -10047,7 +9884,7 @@ namespace {
         /**
          * Returns the request body content.
          *
-         * @param Boolean $asResource If true, a resource will be returned
+         * @param bool $asResource If true, a resource will be returned
          * @return string|resource The request body content or a resource to read the body stream.
          * @throws \LogicException
          * @static 
@@ -10071,7 +9908,7 @@ namespace {
         /**
          * 
          *
-         * @return Boolean 
+         * @return bool 
          * @static 
          */
         public static function isNoCache(){
@@ -10146,7 +9983,7 @@ namespace {
          * It is known to work with common JavaScript frameworks:
          *
          * @link http://en.wikipedia.org/wiki/List_of_Ajax_frameworks#JavaScript
-         * @return Boolean true if the request is an XMLHttpRequest, false otherwise
+         * @return bool true if the request is an XMLHttpRequest, false otherwise
          * @api 
          * @static 
          */
@@ -10164,18 +10001,6 @@ namespace {
 
 
     class Route extends \Illuminate\Support\Facades\Route{
-        
-        /**
-         * Create a new Router instance.
-         *
-         * @param \Illuminate\Events\Dispatcher $events
-         * @param \Illuminate\Container\Container $container
-         * @return void 
-         * @static 
-         */
-        public static function __construct($events, $container = null){
-            \Illuminate\Routing\Router::__construct($events, $container);
-        }
         
         /**
          * Register a new GET route with the router.
@@ -10393,7 +10218,7 @@ namespace {
         /**
          * Register a route matched event listener.
          *
-         * @param callable $callback
+         * @param string|callable $callback
          * @return void 
          * @static 
          */
@@ -10404,7 +10229,7 @@ namespace {
         /**
          * Register a new "before" filter with the router.
          *
-         * @param mixed $callback
+         * @param string|callable $callback
          * @return void 
          * @static 
          */
@@ -10415,7 +10240,7 @@ namespace {
         /**
          * Register a new "after" filter with the router.
          *
-         * @param mixed $callback
+         * @param string|callable $callback
          * @return void 
          * @static 
          */
@@ -10427,7 +10252,7 @@ namespace {
          * Register a new filter with the router.
          *
          * @param string $name
-         * @param mixed $callback
+         * @param string|callable $callback
          * @return void 
          * @static 
          */
@@ -10441,10 +10266,11 @@ namespace {
          * @param string $pattern
          * @param string $name
          * @param array|null $methods
+         * @return void 
          * @static 
          */
         public static function when($pattern, $name, $methods = null){
-            return \Illuminate\Routing\Router::when($pattern, $name, $methods);
+            \Illuminate\Routing\Router::when($pattern, $name, $methods);
         }
         
         /**
@@ -10478,12 +10304,23 @@ namespace {
          * Add a new route parameter binder.
          *
          * @param string $key
-         * @param callable $binder
+         * @param string|callable $binder
          * @return void 
          * @static 
          */
         public static function bind($key, $binder){
             \Illuminate\Routing\Router::bind($key, $binder);
+        }
+        
+        /**
+         * Create a class based binding using the IoC container.
+         *
+         * @param string $binding
+         * @return \Closure 
+         * @static 
+         */
+        public static function createClassBinding($binding){
+            return \Illuminate\Routing\Router::createClassBinding($binding);
         }
         
         /**
@@ -10496,6 +10333,17 @@ namespace {
          */
         public static function pattern($key, $pattern){
             \Illuminate\Routing\Router::pattern($key, $pattern);
+        }
+        
+        /**
+         * Set a group of global where patterns on all routes
+         *
+         * @param array $patterns
+         * @return void 
+         * @static 
+         */
+        public static function patterns($patterns){
+            \Illuminate\Routing\Router::patterns($patterns);
         }
         
         /**
@@ -10613,6 +10461,17 @@ namespace {
         }
         
         /**
+         * Check if a route with the given name exists.
+         *
+         * @param string $name
+         * @return bool 
+         * @static 
+         */
+        public static function has($name){
+            return \Illuminate\Routing\Router::has($name);
+        }
+        
+        /**
          * Get the current route name.
          *
          * @return string|null 
@@ -10620,6 +10479,17 @@ namespace {
          */
         public static function currentRouteName(){
             return \Illuminate\Routing\Router::currentRouteName();
+        }
+        
+        /**
+         * Alias for the "currentRouteNamed" method.
+         *
+         * @param mixed  string
+         * @return bool 
+         * @static 
+         */
+        public static function is(){
+            return \Illuminate\Routing\Router::is();
         }
         
         /**
@@ -10641,6 +10511,17 @@ namespace {
          */
         public static function currentRouteAction(){
             return \Illuminate\Routing\Router::currentRouteAction();
+        }
+        
+        /**
+         * Alias for the "currentRouteUses" method.
+         *
+         * @param mixed  string
+         * @return bool 
+         * @static 
+         */
+        public static function uses(){
+            return \Illuminate\Routing\Router::uses();
         }
         
         /**
@@ -10706,10 +10587,22 @@ namespace {
         }
         
         /**
+         * Get the global "where" patterns.
+         *
+         * @return array 
+         * @static 
+         */
+        public static function getPatterns(){
+            return \Illuminate\Routing\Router::getPatterns();
+        }
+        
+        /**
          * Get the response for a given request.
          *
          * @param \Symfony\Component\HttpFoundation\Request $request
-         * @return \Symfony\Component\HttpFoundation\Response 
+         * @param int $type
+         * @param bool $catch
+         * @return \Illuminate\Http\Response 
          * @static 
          */
         public static function handle($request, $type = 1, $catch = true){
@@ -10733,15 +10626,14 @@ namespace {
         }
         
         /**
-         * Create a new database Schema manager.
+         * Get the column listing for a given table.
          *
-         * @param \Illuminate\Database\Connection $connection
-         * @return void 
+         * @param string $table
+         * @return array 
          * @static 
          */
-        public static function __construct($connection){
-            //Method inherited from \Illuminate\Database\Schema\Builder            
-            \Illuminate\Database\Schema\MySqlBuilder::__construct($connection);
+        public static function getColumnListing($table){
+            return \Illuminate\Database\Schema\MySqlBuilder::getColumnListing($table);
         }
         
         /**
@@ -10835,7 +10727,7 @@ namespace {
          * Set the database connection instance.
          *
          * @param \Illuminate\Database\Connection
-         * @return \Illuminate\Database\Schema\Builder 
+         * @return $this 
          * @static 
          */
         public static function setConnection($connection){
@@ -10897,18 +10789,6 @@ namespace {
         }
         
         /**
-         * Create a new manager instance.
-         *
-         * @param \Illuminate\Foundation\Application $app
-         * @return void 
-         * @static 
-         */
-        public static function __construct($app){
-            //Method inherited from \Illuminate\Support\Manager            
-            \Illuminate\Session\SessionManager::__construct($app);
-        }
-        
-        /**
          * Get a driver instance.
          *
          * @param string $driver
@@ -10945,22 +10825,9 @@ namespace {
         }
         
         /**
-         * Dynamically call the default driver instance.
-         *
-         * @param string $method
-         * @param array $parameters
-         * @return mixed 
-         * @static 
-         */
-        public static function __call($method, $parameters){
-            //Method inherited from \Illuminate\Support\Manager            
-            return \Illuminate\Session\SessionManager::__call($method, $parameters);
-        }
-        
-        /**
          * Starts the session storage.
          *
-         * @return Boolean True if session started.
+         * @return bool True if session started.
          * @throws \RuntimeException If session fails to start.
          * @api 
          * @static 
@@ -11019,11 +10886,11 @@ namespace {
          * Clears all session attributes and flashes and regenerates the
          * session and deletes the old session from persistence.
          *
-         * @param integer $lifetime Sets the cookie lifetime for the session cookie. A null value
+         * @param int $lifetime Sets the cookie lifetime for the session cookie. A null value
          *                          will leave the system settings unchanged, 0 sets the cookie
          *                          to expire with browser session. Time is in seconds, and is
          *                          not a Unix timestamp.
-         * @return Boolean True if session invalidated, false if error.
+         * @return bool True if session invalidated, false if error.
          * @api 
          * @static 
          */
@@ -11035,12 +10902,12 @@ namespace {
          * Migrates the current session to a new session id while maintaining all
          * session attributes.
          *
-         * @param Boolean $destroy Whether to delete the old session or leave it to garbage collection.
-         * @param integer $lifetime Sets the cookie lifetime for the session cookie. A null value
+         * @param bool $destroy Whether to delete the old session or leave it to garbage collection.
+         * @param int $lifetime Sets the cookie lifetime for the session cookie. A null value
          *                          will leave the system settings unchanged, 0 sets the cookie
          *                          to expire with browser session. Time is in seconds, and is
          *                          not a Unix timestamp.
-         * @return Boolean True if session migrated, false if error.
+         * @return bool True if session migrated, false if error.
          * @api 
          * @static 
          */
@@ -11086,7 +10953,7 @@ namespace {
          * Checks if an attribute is defined.
          *
          * @param string $name The attribute name
-         * @return Boolean true if the attribute is defined, false otherwise
+         * @return bool true if the attribute is defined, false otherwise
          * @api 
          * @static 
          */
@@ -11105,6 +10972,18 @@ namespace {
          */
         public static function get($name, $default = null){
             return \Illuminate\Session\Store::get($name, $default);
+        }
+        
+        /**
+         * Get the value of a given key and then forget it.
+         *
+         * @param string $key
+         * @param string $default
+         * @return mixed 
+         * @static 
+         */
+        public static function pull($key, $default = null){
+            return \Illuminate\Session\Store::pull($key, $default);
         }
         
         /**
@@ -11143,14 +11022,14 @@ namespace {
         }
         
         /**
-         * Put a key / value pair in the session.
+         * Put a key / value pair or array of key / value pairs in the session.
          *
-         * @param string $key
-         * @param mixed $value
+         * @param string|array $key
+         * @param mixed|null $value
          * @return void 
          * @static 
          */
-        public static function put($key, $value){
+        public static function put($key, $value = null){
             \Illuminate\Session\Store::put($key, $value);
         }
         
@@ -11277,7 +11156,7 @@ namespace {
         /**
          * Checks if the session was started.
          *
-         * @return Boolean 
+         * @return bool 
          * @static 
          */
         public static function isStarted(){
@@ -11347,6 +11226,27 @@ namespace {
         }
         
         /**
+         * Regenerate the CSRF token value.
+         *
+         * @return void 
+         * @static 
+         */
+        public static function regenerateToken(){
+            \Illuminate\Session\Store::regenerateToken();
+        }
+        
+        /**
+         * Set the existence of the session on the handler if applicable.
+         *
+         * @param bool $value
+         * @return void 
+         * @static 
+         */
+        public static function setExists($value){
+            \Illuminate\Session\Store::setExists($value);
+        }
+        
+        /**
          * Get the underlying session handler implementation.
          *
          * @return \SessionHandlerInterface 
@@ -11381,17 +11281,6 @@ namespace {
 
 
     class SSH extends \Illuminate\Support\Facades\SSH{
-        
-        /**
-         * Create a new remote manager instance.
-         *
-         * @param \Illuminate\Foundation\Application $app
-         * @return void 
-         * @static 
-         */
-        public static function __construct($app){
-            \Illuminate\Remote\RemoteManager::__construct($app);
-        }
         
         /**
          * Get a remote connection instance.
@@ -11467,18 +11356,6 @@ namespace {
          */
         public static function setDefaultConnection($name){
             \Illuminate\Remote\RemoteManager::setDefaultConnection($name);
-        }
-        
-        /**
-         * Dynamically pass methods to the default connection.
-         *
-         * @param string $method
-         * @param array $parameters
-         * @return mixed 
-         * @static 
-         */
-        public static function __call($method, $parameters){
-            return \Illuminate\Remote\RemoteManager::__call($method, $parameters);
         }
         
         /**
@@ -11589,6 +11466,7 @@ namespace {
          * Get the gateway implementation.
          *
          * @return \Illuminate\Remote\GatewayInterface 
+         * @throws \RuntimeException
          * @static 
          */
         public static function getGateway(){
@@ -11625,18 +11503,6 @@ namespace {
 
 
     class URL extends \Illuminate\Support\Facades\URL{
-        
-        /**
-         * Create a new URL Generator instance.
-         *
-         * @param \Illuminate\Routing\RouteCollection $routes
-         * @param \Symfony\Component\HttpFoundation\Request $request
-         * @return void 
-         * @static 
-         */
-        public static function __construct($routes, $request){
-            \Illuminate\Routing\UrlGenerator::__construct($routes, $request);
-        }
         
         /**
          * Get the full URL for the current request.
@@ -11717,6 +11583,17 @@ namespace {
         }
         
         /**
+         * Force the schema for URLs.
+         *
+         * @param string $schema
+         * @return void 
+         * @static 
+         */
+        public static function forceSchema($schema){
+            \Illuminate\Routing\UrlGenerator::forceSchema($schema);
+        }
+        
+        /**
          * Get the URL to a named route.
          *
          * @param string $name
@@ -11745,6 +11622,17 @@ namespace {
         }
         
         /**
+         * Set the forced root URL.
+         *
+         * @param string $root
+         * @return void 
+         * @static 
+         */
+        public static function forceRootUrl($root){
+            \Illuminate\Routing\UrlGenerator::forceRootUrl($root);
+        }
+        
+        /**
          * Determine if the given path is a valid URL.
          *
          * @param string $path
@@ -11768,7 +11656,7 @@ namespace {
         /**
          * Set the current request instance.
          *
-         * @param \Symfony\Component\HttpFoundation\Request $request
+         * @param \Illuminate\Http\Request $request
          * @return void 
          * @static 
          */
@@ -11782,23 +11670,12 @@ namespace {
     class Validator extends \Illuminate\Support\Facades\Validator{
         
         /**
-         * Create a new Validator factory instance.
-         *
-         * @param \Symfony\Component\Translation\TranslatorInterface $translator
-         * @param \Illuminate\Container\Container $container
-         * @return void 
-         * @static 
-         */
-        public static function __construct($translator, $container = null){
-            \Illuminate\Validation\Factory::__construct($translator, $container);
-        }
-        
-        /**
          * Create a new Validator instance.
          *
          * @param array $data
          * @param array $rules
          * @param array $messages
+         * @param array $customAttributes
          * @return \Illuminate\Validation\Validator 
          * @static 
          */
@@ -11892,19 +11769,6 @@ namespace {
     class View extends \Illuminate\Support\Facades\View{
         
         /**
-         * Create a new view factory instance.
-         *
-         * @param \Illuminate\View\Engines\EngineResolver $engines
-         * @param \Illuminate\View\ViewFinderInterface $finder
-         * @param \Illuminate\Events\Dispatcher $events
-         * @return void 
-         * @static 
-         */
-        public static function __construct($engines, $finder, $events){
-            \Illuminate\View\Factory::__construct($engines, $finder, $events);
-        }
-        
-        /**
          * Get the evaluated view contents for the given view.
          *
          * @param string $view
@@ -11942,6 +11806,18 @@ namespace {
         }
         
         /**
+         * Add an alias for a view.
+         *
+         * @param string $view
+         * @param string $alias
+         * @return void 
+         * @static 
+         */
+        public static function alias($view, $alias){
+            \Illuminate\View\Factory::alias($view, $alias);
+        }
+        
+        /**
          * Determine if a given view exists.
          *
          * @param string $view
@@ -11964,6 +11840,18 @@ namespace {
          */
         public static function renderEach($view, $data, $iterator, $empty = 'raw|'){
             return \Illuminate\View\Factory::renderEach($view, $data, $iterator, $empty);
+        }
+        
+        /**
+         * Get the appropriate view engine for the given path.
+         *
+         * @param string $path
+         * @return \Illuminate\View\Engines\EngineInterface 
+         * @throws \InvalidArgumentException
+         * @static 
+         */
+        public static function getEngineFromPath($path){
+            return \Illuminate\View\Factory::getEngineFromPath($path);
         }
         
         /**
@@ -12006,6 +11894,7 @@ namespace {
          *
          * @param array|string $views
          * @param \Closure|string $callback
+         * @param int|null $priority
          * @return array 
          * @static 
          */
@@ -12233,6 +12122,7 @@ namespace {
         /**
          * Set the view finder instance.
          *
+         * @param \Illuminate\View\ViewFinderInterface $finder
          * @return void 
          * @static 
          */
@@ -12340,26 +12230,6 @@ namespace {
     class Debugbar extends \Barryvdh\Debugbar\Facade{
         
         /**
-         * 
-         *
-         * @param \Illuminate\Foundation\Application $app
-         * @static 
-         */
-        public static function __construct($app = null){
-            \Barryvdh\Debugbar\LaravelDebugbar::__construct($app);
-        }
-        
-        /**
-         * Check if the Debugbar is enabled
-         *
-         * @return boolean 
-         * @static 
-         */
-        public static function isEnabled(){
-            return \Barryvdh\Debugbar\LaravelDebugbar::isEnabled();
-        }
-        
-        /**
          * Enable the Debugbar and boot, if not already booted.
          *
          * @static 
@@ -12369,33 +12239,12 @@ namespace {
         }
         
         /**
-         * Disable the Debugbar
-         *
-         * @static 
-         */
-        public static function disable(){
-            return \Barryvdh\Debugbar\LaravelDebugbar::disable();
-        }
-        
-        /**
          * Boot the debugbar (add collectors, renderer and listener)
          *
          * @static 
          */
         public static function boot(){
             return \Barryvdh\Debugbar\LaravelDebugbar::boot();
-        }
-        
-        /**
-         * Modify the response and inject the debugbar (or data in headers)
-         *
-         * @param \Illuminate\Http\Request $request
-         * @param \Symfony\Component\HttpFoundation\Response $response
-         * @return \Symfony\Component\HttpFoundation\Response 
-         * @static 
-         */
-        public static function modifyResponse($request, $response){
-            return \Barryvdh\Debugbar\LaravelDebugbar::modifyResponse($request, $response);
         }
         
         /**
@@ -12429,6 +12278,80 @@ namespace {
         }
         
         /**
+         * Adds an exception to be profiled in the debug bar
+         *
+         * @param \Barryvdh\Debugbar\Exception $e
+         * @static 
+         */
+        public static function addException($e){
+            return \Barryvdh\Debugbar\LaravelDebugbar::addException($e);
+        }
+        
+        /**
+         * Returns a JavascriptRenderer for this instance
+         *
+         * @param string $baseUrl
+         * @param string $basePathng
+         * @return \Barryvdh\Debugbar\JavascriptRenderer 
+         * @static 
+         */
+        public static function getJavascriptRenderer($baseUrl = null, $basePath = null){
+            return \Barryvdh\Debugbar\LaravelDebugbar::getJavascriptRenderer($baseUrl, $basePath);
+        }
+        
+        /**
+         * Modify the response and inject the debugbar (or data in headers)
+         *
+         * @param \Illuminate\Http\Request $request
+         * @param \Symfony\Component\HttpFoundation\Response $response
+         * @return \Symfony\Component\HttpFoundation\Response 
+         * @static 
+         */
+        public static function modifyResponse($request, $response){
+            return \Barryvdh\Debugbar\LaravelDebugbar::modifyResponse($request, $response);
+        }
+        
+        /**
+         * Check if the Debugbar is enabled
+         *
+         * @return boolean 
+         * @static 
+         */
+        public static function isEnabled(){
+            return \Barryvdh\Debugbar\LaravelDebugbar::isEnabled();
+        }
+        
+        /**
+         * Collects the data from the collectors
+         *
+         * @return array 
+         * @static 
+         */
+        public static function collect(){
+            return \Barryvdh\Debugbar\LaravelDebugbar::collect();
+        }
+        
+        /**
+         * Injects the web debug toolbar into the given Response.
+         *
+         * @param \Symfony\Component\HttpFoundation\Response $response A Response instance
+         * Based on https://github.com/symfony/WebProfilerBundle/blob/master/EventListener/WebDebugToolbarListener.php
+         * @static 
+         */
+        public static function injectDebugbar($response){
+            return \Barryvdh\Debugbar\LaravelDebugbar::injectDebugbar($response);
+        }
+        
+        /**
+         * Disable the Debugbar
+         *
+         * @static 
+         */
+        public static function disable(){
+            return \Barryvdh\Debugbar\LaravelDebugbar::disable();
+        }
+        
+        /**
          * Adds a measure
          *
          * @param string $label
@@ -12444,45 +12367,11 @@ namespace {
          * Utility function to measure the execution of a Closure
          *
          * @param string $label
-         * @param \Closure|callable $closure
+         * @param \Closure $closure
          * @static 
          */
         public static function measure($label, $closure){
             return \Barryvdh\Debugbar\LaravelDebugbar::measure($label, $closure);
-        }
-        
-        /**
-         * Adds an exception to be profiled in the debug bar
-         *
-         * @param \Barryvdh\Debugbar\Exception $e
-         * @static 
-         */
-        public static function addException($e){
-            return \Barryvdh\Debugbar\LaravelDebugbar::addException($e);
-        }
-        
-        /**
-         * Adds a message to the MessagesCollector
-         * 
-         * A message can be anything from an object to a string
-         *
-         * @param mixed $message
-         * @param string $label
-         * @static 
-         */
-        public static function addMessage($message, $label = 'info'){
-            return \Barryvdh\Debugbar\LaravelDebugbar::addMessage($message, $label);
-        }
-        
-        /**
-         * Injects the web debug toolbar into the given Response.
-         *
-         * @param \Symfony\Component\HttpFoundation\Response $response A Response instance
-         * Based on https://github.com/symfony/WebProfilerBundle/blob/master/EventListener/WebDebugToolbarListener.php
-         * @static 
-         */
-        public static function injectDebugbar($response){
-            return \Barryvdh\Debugbar\LaravelDebugbar::injectDebugbar($response);
         }
         
         /**
@@ -12496,25 +12385,16 @@ namespace {
         }
         
         /**
-         * Collects the data from the collectors
+         * Adds a message to the MessagesCollector
+         * 
+         * A message can be anything from an object to a string
          *
-         * @return array 
+         * @param mixed $message
+         * @param string $label
          * @static 
          */
-        public static function collect(){
-            return \Barryvdh\Debugbar\LaravelDebugbar::collect();
-        }
-        
-        /**
-         * Magic calls for adding messages
-         *
-         * @param string $method
-         * @param array $args
-         * @return mixed|void 
-         * @static 
-         */
-        public static function __call($method, $args){
-            return \Barryvdh\Debugbar\LaravelDebugbar::__call($method, $args);
+        public static function addMessage($message, $label = 'info'){
+            return \Barryvdh\Debugbar\LaravelDebugbar::addMessage($message, $label);
         }
         
         /**
@@ -12774,19 +12654,6 @@ namespace {
         }
         
         /**
-         * Returns a JavascriptRenderer for this instance
-         *
-         * @param string $baseUrl
-         * @param string $basePathng
-         * @return \DebugBar\JavascriptRenderer 
-         * @static 
-         */
-        public static function getJavascriptRenderer($baseUrl = null, $basePath = null){
-            //Method inherited from \DebugBar\DebugBar            
-            return \Barryvdh\Debugbar\LaravelDebugbar::getJavascriptRenderer($baseUrl, $basePath);
-        }
-        
-        /**
          * 
          *
          * @static 
@@ -12830,15 +12697,6 @@ namespace {
 
 
     class Latchet extends \Sidney\Latchet\LatchetFacade{
-        
-        /**
-         * 
-         *
-         * @static 
-         */
-        public static function __construct($container = null){
-            \Sidney\Latchet\Latchet::__construct($container);
-        }
         
         /**
          * Create and add a new handler to the
@@ -12957,27 +12815,883 @@ namespace {
     }
 
 
-    class LxMPD extends \Dcarrith\LxMPD\LxMPD{
+    class LxMPD extends \Dcarrith\LxMPD\LxMPDFacade{
+        
+        /**
+         * Authenticate to the MPD server
+         *
+         * @return bool 
+         * @static 
+         */
+        public static function authenticate(){
+            return \Dcarrith\LxMPD\LxMPD::authenticate();
+        }
+        
+        /**
+         * Runs a given command with arguments
+         *
+         * @param string $command The command to execute
+         * @param string|array $args The command's argument(s)
+         * @param int $timeout The script's timeout, in seconds
+         * @return array Array of parsed output
+         * @static 
+         */
+        public static function runCommand($command, $args = array(), $timeout = null){
+            return \Dcarrith\LxMPD\LxMPD::runCommand($command, $args, $timeout);
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function refreshInfo(){
+            return \Dcarrith\LxMPD\LxMPD::refreshInfo();
+        }
+        
+        /**
+         * Excecuting the 'idle' function requires turning off timeouts, since it could take a long time
+         *
+         * @param array $subsystems An array of particular subsystems to watch
+         * @return string|array 
+         * @static 
+         */
+        public static function idle($subsystems = array()){
+            return \Dcarrith\LxMPD\LxMPD::idle($subsystems);
+        }
+        
+        /**
+         * GetFirstTrack gets the first track of an album
+         *
+         * @param \Dcarrith\LxMPD\scope_key  is to give scope to the find command
+         * @param \Dcarrith\LxMPD\scope_value  is the value of the scope
+         * @return \Dcarrith\LxMPD\firstTrack 
+         * @static 
+         */
+        public static function getFirstTrack($scope_key = 'album', $scope_value = null){
+            return \Dcarrith\LxMPD\LxMPD::getFirstTrack($scope_key, $scope_value);
+        }
+        
+        /**
+         * getEssentialTags combines the essential ID3 as well as MPD-specific tags
+         *
+         * @return array 
+         * @static 
+         */
+        public static function getEssentialTags(){
+            return \Dcarrith\LxMPD\LxMPD::getEssentialTags();
+        }
+        
+        /**
+         * reportOnMissingTags will find any tracks that are missing essentials tags and throws an exception
+         * 	that contains enough information to track down the missing tags so the user can fill them in
+         * with the id3 editor of their choice
+         *
+         * @param string $command is the command that was run which we want to pass through to the exception message
+         * @param array $tracks is the array of tracks to loop through
+         * @throws MPDException
+         * @return void 
+         * @static 
+         */
+        public static function reportOnMissingTags($command, $tracks){
+            \Dcarrith\LxMPD\LxMPD::reportOnMissingTags($command, $tracks);
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function filterOutUnwantedTags($tracks){
+            return \Dcarrith\LxMPD\LxMPD::filterOutUnwantedTags($tracks);
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function playlistExists($name){
+            return \Dcarrith\LxMPD\LxMPD::playlistExists($name);
+        }
+        
+        /**
+         * Checks whether the instance of LxMPD is connected to MPD
+         *
+         * @return bool 
+         * @static 
+         */
+        public static function isConnected(){
+            return \Dcarrith\LxMPD\LxMPD::isConnected();
+        }
         
     }
 
 
-    class LetId3 extends \Dcarrith\LetId3\LetId3{
+    class LetID3 extends \Dcarrith\LetId3\LetId3Facade{
+        
+        /**
+         * Parses the APIC and picture id3 data into the
+         * corresponding properties and then returns the data
+         *
+         * @param array $id3 - the analyzed id3 data array
+         * @return \Dcarrith\LetId3\the binary picture data
+         * @static 
+         */
+        public static function getAlbumArtData($id3){
+            return \Dcarrith\LetId3\LetId3::getAlbumArtData($id3);
+        }
+        
+        /**
+         * Recursive function for parsing out select tags from
+         * the analyzed id3 data array into the corresponding
+         * magic properties
+         *
+         * @param array $id3 - the analyzed id3 data array
+         * @param array $target - the array of tags that are of interest
+         * @return void 
+         * @static 
+         */
+        public static function parseEssentialTagData($id3, $target = null){
+            \Dcarrith\LetId3\LetId3::parseEssentialTagData($id3, $target);
+        }
+        
+        /**
+         * Cleans up a tag so that it's stored properly
+         *
+         * @param string $tag - a tag value
+         * @return \Dcarrith\LetId3\cleaned up tag
+         * @static 
+         */
+        public static function clean($tag){
+            return \Dcarrith\LetId3\LetId3::clean($tag);
+        }
+        
+        /**
+         * Traditional get method that will utilize the magic __get method
+         *
+         * @param string $key
+         * @return \Dcarrith\LetId3\value at $this->_data[$key] if exists
+         * @static 
+         */
+        public static function get($key){
+            return \Dcarrith\LetId3\LetId3::get($key);
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function getHelperAppsDir(){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::getHelperAppsDir();
+        }
+        
+        /**
+         * 
+         *
+         * @return \GetId3\type 
+         * @static 
+         */
+        public static function version(){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::version();
+        }
+        
+        /**
+         * 
+         *
+         * @return \GetId3\type 
+         * @static 
+         */
+        public static function fread_buffer_size(){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::fread_buffer_size();
+        }
+        
+        /**
+         * public: setOption
+         *
+         * @param \GetId3\type $optArray
+         * @return boolean 
+         * @static 
+         */
+        public static function setOption($optArray){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::setOption($optArray);
+        }
+        
+        /**
+         * 
+         *
+         * @param \GetId3\type $filename
+         * @return boolean 
+         * @throws DefaultException
+         * @static 
+         */
+        public static function openfile($filename){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::openfile($filename);
+        }
+        
+        /**
+         * public: analyze file
+         *
+         * @param \GetId3\type $filename
+         * @return \GetId3\type 
+         * @throws Exception
+         * @static 
+         */
+        public static function analyze($filename){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::analyze($filename);
+        }
+        
+        /**
+         * private: warning handling
+         *
+         * @param string $message
+         * @return boolean 
+         * @static 
+         */
+        public static function warning($message){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::warning($message);
+        }
+        
+        /**
+         * 
+         *
+         * @staticvar array $format_info
+         * @return array array containing information about all supported formats
+         * @static 
+         */
+        public static function GetFileFormatArray(){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::GetFileFormatArray();
+        }
+        
+        /**
+         * 
+         *
+         * @param \GetId3\type $filedata
+         * @param \GetId3\type $filename
+         * @return string|boolean 
+         * @static 
+         */
+        public static function GetFileFormat($filedata, $filename = ''){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::GetFileFormat($filedata, $filename);
+        }
+        
+        /**
+         * 
+         *
+         * @param \GetId3\type $array
+         * @param \GetId3\type $encoding
+         * @return \GetId3\type converts array to $encoding charset from $this->encoding
+         * @static 
+         */
+        public static function CharConvert($array, $encoding){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::CharConvert($array, $encoding);
+        }
+        
+        /**
+         * 
+         *
+         * @staticvar array $tags
+         * @return boolean 
+         * @static 
+         */
+        public static function HandleAllTags(){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::HandleAllTags();
+        }
+        
+        /**
+         * 
+         *
+         * @param \GetId3\type $algorithm
+         * @return boolean 
+         * @static 
+         */
+        public static function getHashdata($algorithm){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::getHashdata($algorithm);
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function ChannelsBitratePlaytimeCalculations(){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::ChannelsBitratePlaytimeCalculations();
+        }
+        
+        /**
+         * 
+         *
+         * @return boolean 
+         * @static 
+         */
+        public static function CalculateCompressionRatioVideo(){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::CalculateCompressionRatioVideo();
+        }
+        
+        /**
+         * 
+         *
+         * @return boolean 
+         * @static 
+         */
+        public static function CalculateCompressionRatioAudio(){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::CalculateCompressionRatioAudio();
+        }
+        
+        /**
+         * 
+         *
+         * @return boolean 
+         * @static 
+         */
+        public static function CalculateReplayGain(){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::CalculateReplayGain();
+        }
+        
+        /**
+         * 
+         *
+         * @return boolean 
+         * @static 
+         */
+        public static function ProcessAudioStreams(){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::ProcessAudioStreams();
+        }
+        
+        /**
+         * 
+         *
+         * @return \GetId3\type 
+         * @static 
+         */
+        public static function GetId3_tempnam(){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::GetId3_tempnam();
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function getTempDir(){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::getTempDir();
+        }
+        
+        /**
+         * 
+         *
+         * @return \GetId3\type 
+         * @static 
+         */
+        public static function environmentIsWindows(){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::environmentIsWindows();
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function getIncludePath(){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::getIncludePath();
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function getEncoding(){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::getEncoding();
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function setEncoding($encoding){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::setEncoding($encoding);
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function getEncodingId3v1(){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::getEncodingId3v1();
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function setEncodingId3v1($encoding_id3v1){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::setEncodingId3v1($encoding_id3v1);
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function getOptionTagId3v1(){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::getOptionTagId3v1();
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function setOptionTagId3v1($option_tag_id3v1){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::setOptionTagId3v1($option_tag_id3v1);
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function getOptionTagId3v2(){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::getOptionTagId3v2();
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function setOptionTagId3v2($option_tag_id3v2){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::setOptionTagId3v2($option_tag_id3v2);
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function getOptionTagLyrics3(){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::getOptionTagLyrics3();
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function setOptionTagLyrics3($option_tag_lyrics3){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::setOptionTagLyrics3($option_tag_lyrics3);
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function getOptionTagApetag(){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::getOptionTagApetag();
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function setOptionTagApetag($option_tag_apetag){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::setOptionTagApetag($option_tag_apetag);
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function getOptionTagsProcess(){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::getOptionTagsProcess();
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function setOptionTagsProcess($option_tags_process){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::setOptionTagsProcess($option_tags_process);
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function getOptionTagsHtml(){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::getOptionTagsHtml();
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function setOptionTagsHtml($option_tags_html){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::setOptionTagsHtml($option_tags_html);
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function getOptionExtraInfo(){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::getOptionExtraInfo();
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function setOptionExtraInfo($option_extra_info){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::setOptionExtraInfo($option_extra_info);
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function getOptionSaveAttachments(){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::getOptionSaveAttachments();
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function setOptionSaveAttachments($option_save_attachments){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::setOptionSaveAttachments($option_save_attachments);
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function getOptionMD5Data(){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::getOptionMD5Data();
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function setOptionMD5Data($option_md5_data){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::setOptionMD5Data($option_md5_data);
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function getOptionMD5DataDource(){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::getOptionMD5DataDource();
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function setOptionMD5DataSource($option_md5_data_source){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::setOptionMD5DataSource($option_md5_data_source);
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function getOptionSha1Data(){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::getOptionSha1Data();
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function setOptionSha1Data($option_sha1_data){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::setOptionSha1Data($option_sha1_data);
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function getOptionMax2gbCheck(){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::getOptionMax2gbCheck();
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function setOptionMax2gbCheck($option_max_2gb_check){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::setOptionMax2gbCheck($option_max_2gb_check);
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function getOptionFreadBufferSize(){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::getOptionFreadBufferSize();
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function setOptionFreadBufferSize($option_fread_buffer_size){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::setOptionFreadBufferSize($option_fread_buffer_size);
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function getFilename(){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::getFilename();
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function setFilename($filename){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::setFilename($filename);
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function getFp(){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::getFp();
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function setFp($fp){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::setFp($fp);
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function getInfo(){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::getInfo();
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function setInfo($info = array()){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::setInfo($info);
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function addInfo($key, $info){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::addInfo($key, $info);
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function getStartupError(){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::getStartupError();
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function hasStartupError(){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::hasStartupError();
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function setStartupError($startup_error){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::setStartupError($startup_error);
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function addStartupError($startup_error){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::addStartupError($startup_error);
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function getStartupWarning(){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::getStartupWarning();
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function hasStartupWarning(){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::hasStartupWarning();
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function setStartupWarning($startup_warning){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::setStartupWarning($startup_warning);
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function addStartupWarning($startup_warning){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::addStartupWarning($startup_warning);
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function getMemoryLimit(){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::getMemoryLimit();
+        }
+        
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function setMemoryLimit($memory_limit){
+            //Method inherited from \GetId3\GetId3Core            
+            return \Dcarrith\LetId3\LetId3::setMemoryLimit($memory_limit);
+        }
         
     }
 
 
     class Image extends \Intervention\Image\Facades\Image{
-        
-        /**
-         * Creates new instance of Image Manager
-         *
-         * @param array $config
-         * @static 
-         */
-        public static function __construct($config = array()){
-            \Intervention\Image\ImageManager::__construct($config);
-        }
         
         /**
          * Overrides configuration settings
@@ -12993,7 +13707,7 @@ namespace {
          * Initiates an Image instance from different input types
          *
          * @param mixed $data
-         * @return \Intervention\Image\Intervention\Image\Image 
+         * @return \Intervention\Image\Image 
          * @static 
          */
         public static function make($data){
@@ -13006,7 +13720,7 @@ namespace {
          * @param integer $width
          * @param integer $height
          * @param mixed $background
-         * @return \Intervention\Image\Intervention\Image\Image 
+         * @return \Intervention\Image\Image 
          * @static 
          */
         public static function canvas($width, $height, $background = null){
