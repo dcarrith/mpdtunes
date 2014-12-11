@@ -2,6 +2,8 @@
 
 return array(
 
+	'cipher' => MCRYPT_RIJNDAEL_256,
+
 	'profiler' => true,
 
 	/*
@@ -112,6 +114,7 @@ return array(
  		'Dcarrith\CIZip\CIZipServiceProvider',
  		'Dcarrith\LxMPD\LxMPDServiceProvider',
  		'Dcarrith\LetId3\LetId3ServiceProvider',
+		'Dcarrith\Queuel\QueuelServiceProvider',
  		'Way\Generators\GeneratorsServiceProvider',
 		'Barryvdh\Debugbar\ServiceProvider',
 		'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
@@ -187,8 +190,9 @@ return array(
  		'CIZip'	=> 'Dcarrith\CIZip\CIZip',
 		'Debugbar' => 'Barryvdh\Debugbar\Facade',
 		'Latchet' => 'Sidney\Latchet\LatchetFacade',
- 		'LxMPD' => 'Dcarrith\LxMPD\LxMPD',
- 		'LetId3' => 'Dcarrith\LetId3\LetId3',
+ 		'LxMPD' => 'Dcarrith\LxMPD\LxMPDFacade',
+ 		'LetID3' => 'Dcarrith\LetId3\LetId3Facade',
+		'Queue' => 'Dcarrith\Queuel\QueuelFacade',
 		'Image' => 'Intervention\Image\Facades\Image',
 	),
 
