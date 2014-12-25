@@ -1,9 +1,0 @@
-This patch was created with this command from htdocs:
-
-diff -u public/includes/js/plupload_v2.0.0-beta/js/jquery.plupload.queue/css/jquery.plupload.queue.css public/includes/css/jquery.plupload.v2.0.0-beta.queue.css > public/includes/css/jquery.plupload.v2.0.0-beta.queue.css.patch
-
-
-
-This patch can be applied from within the public/includes/css directory with this command:
-
-patch jquery.plupload.v2.0.0-beta.queue.css < jquery.plupload.v2.0.0-beta.queue.css.patch 

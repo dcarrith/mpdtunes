@@ -1586,6 +1586,7 @@ $('body').on('click', '#create_theme_save', function(evt, ui) {
 
 	var theme_name 			= $('#theme_name').val();
 	var icon_color			= $('#icon_color').val();
+	var icon_disc			= $('#icon_disc').val();
 	var bars_letter_code 		= $('#bars_letter_code').val();
 	var buttons_letter_code 	= $('#buttons_letter_code').val();
 	var body_letter_code 		= $('#body_letter_code').val();
@@ -1602,7 +1603,7 @@ $('body').on('click', '#create_theme_save', function(evt, ui) {
 		   type: "POST",
 		   url: "/settings/create/theme",
 		   async: true,
-		   data: "theme_name="+theme_name+"&icon_color="+icon_color+"&bars_letter_code="+bars_letter_code+"&buttons_letter_code="+buttons_letter_code+"&body_letter_code="+body_letter_code+"&controls_letter_code="+controls_letter_code+"&action_letter_code="+action_letter_code+"&active_state_letter_code="+active_state_letter_code,
+		   data: "theme_name="+theme_name+"&icon_color="+icon_color+"&icon_disc="+icon_disc+"&bars_letter_code="+bars_letter_code+"&buttons_letter_code="+buttons_letter_code+"&body_letter_code="+body_letter_code+"&controls_letter_code="+controls_letter_code+"&action_letter_code="+action_letter_code+"&active_state_letter_code="+active_state_letter_code,
 		   success: function(msg){
 
 				$.mobile.loading( "hide" );
@@ -2135,9 +2136,14 @@ $( 'body' ).on( 'click', '#settingsPopupMenu ul div[data-role="collapsible-set"]
 				   success: function(msg){
 
 					saved = $.parseJSON(msg);
-
+				
+					//alert(JSON.stringify(theme));	
+					//alert(JSON.stringify(saved));
+	
 					var current_theme = new Object;
 
+					current_theme.icon 	= theme.icon;
+					current_theme.disc	= theme.disc;
 					current_theme.body 	= theme.body;
 					current_theme.bars 	= theme.bars;
 					current_theme.buttons 	= theme.buttons;
@@ -2145,6 +2151,8 @@ $( 'body' ).on( 'click', '#settingsPopupMenu ul div[data-role="collapsible-set"]
 					current_theme.actions 	= theme.actions;
 					current_theme.active 	= theme.active;
 
+					theme.icon		= saved.icon;
+					theme.disc		= saved.disc;
 					theme.body 		= saved.body;
 					theme.bars 		= saved.bars;
 					theme.buttons 		= saved.buttons;
@@ -2155,6 +2163,30 @@ $( 'body' ).on( 'click', '#settingsPopupMenu ul div[data-role="collapsible-set"]
 					//alert("theme.body: "+theme.body+"\ntheme.bars: "+theme.bars+"\ntheme.buttons: "+theme.buttons+"\ntheme.controls: "+theme.controls+"\ntheme.actions: "+theme.actions+"\ntheme.active: "+theme.active);
 					
 					$.mobile.loadingMessageTheme = theme.bars;
+
+					// Remove the ui-alt-icon class if the newly set theme uses white icons
+					if(( current_theme.icon === 'b' ) && ( theme.icon !== 'b' )) {
+
+						$('.inner-body').removeClass('ui-alt-icon');		
+					}
+
+					// Add the ui-alt-icon class if the newly set theme uses black icons 
+					if(( current_theme.icon === 'w' ) && ( theme.icon === 'b' )) {
+
+						$('.inner-body').addClass('ui-alt-icon');		
+					}
+	
+					// Add the ui-nodisc-icon class if the newly set theme does not use the inner disc
+					if(( current_theme.disc === 'y' ) && ( theme.disc !== 'y' )) {
+
+						$('.inner-body').addClass('ui-nodisc-icon');		
+					}
+
+					// Remove the ui-nodisc-icon class if the newly set theme uses the inner disc
+					if(( current_theme.disc === 'n' ) && ( theme.disc === 'y' )) {
+
+						$('.inner-body').removeClass('ui-nodisc-icon');		
+					}
 
 					// Update the data-theme attribute and relevant css classes of the prev button element
 					$('#prev').attr('data-theme', theme.controls)

@@ -20,7 +20,7 @@ var usersStationId = <?php echo $station->id; ?>;
 
 <?php if( $profiling ) : ?>
 
-	// If debug is enabled then we need to turn off the ajax loading so the profiling can work 
+	// If debug is enabled then we need to turn off the ajax loading so the profiling can work
 	// for each controller and not just the home/index controller
 	$.mobile.ajaxEnabled = false;
 
@@ -32,6 +32,8 @@ var defaultDialogTransition = "pop";
 // This is the global theme object to be used in the javascript of the application
 var theme = new Object;
 
+theme.icon	= '<?php echo $theme_icon; 	?>';
+theme.disc	= '<?php echo $theme_disc; 	?>';
 theme.body 	= '<?php echo $theme_body; 	?>';
 theme.bars 	= '<?php echo $theme_bars; 	?>';
 theme.buttons 	= '<?php echo $theme_buttons; 	?>';
@@ -45,7 +47,7 @@ $.mobile.loadingMessageTheme = theme.bars;
 // set the style to use for the active button state (button hover will give the desired effect
 $.mobile.activeBtnClass = 'ui-btn-hover-'+theme.active;
 
-// The playlist was generated server side as a JSON style string which will 
+// The playlist was generated server side as a JSON style string which will
 // automatically be a JSON object when evaluated by JavaScript (so no need to parse)
 var playlist = <?php echo(($json_playlist == "") ? '""' : $json_playlist); ?>;
 
@@ -80,7 +82,7 @@ var just_swiped_right = false;
 var mode = "streaming";
 
 <?php if( isset( $mode )) : ?>
-	
+
 	mode = '<?php echo $mode; ?>';
 
 <?php endif; ?>
@@ -145,7 +147,7 @@ var inactivePlayerSelector = "#playerTwo";
 
 var primary_player = 1;
 var primary_player_id = "playerOne";
-var secondary_player_id = "playerTwo";	
+var secondary_player_id = "playerTwo";
 var primary_audio_id = "jp_audio_0";
 var secondary_audio_id = "jp_audio_1";
 var track_position = 0;
@@ -180,7 +182,7 @@ var repeat_album = false;
 // This is for future use
 var paused_position = 0;
 
-// These two variables are used to try to keep things in sync when removing items from the queue 
+// These two variables are used to try to keep things in sync when removing items from the queue
 // (and hence, the aud element's playlist)
 var playlist_index_offset = 0;
 var removed_from_queue = Array();
@@ -250,5 +252,5 @@ var max_track_title_string_length 	= 32;
 var max_album_name_string_length 	= 32;
 
 var recaptcha_public_key = '<?php echo $recaptcha_public_key; ?>';
- 
+
 </script>

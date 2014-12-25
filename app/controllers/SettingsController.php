@@ -286,7 +286,9 @@ class SettingsController extends MPDTunesController {
 			}
 		}
 
-		$this->data['icon_color_options'] = array('on'=>'White', 'off'=>'Black');
+		$this->data['icon_color_options'] = array('w'=>'White', 'b'=>'Black');
+
+		$this->data['icon_disc_options'] = array('y'=>'Yes', 'n'=>'No');
 
 		$this->firephp->log($this->data, "data");
 
@@ -305,6 +307,7 @@ class SettingsController extends MPDTunesController {
 			case 'theme':
 
 				$icon_color			= Request::get('icon_color');
+				$icon_disc			= Request::get('icon_disc');
 				$theme_name 			= Request::get('theme_name');
 				$bars_letter_code 		= Request::get('bars_letter_code');
 				$buttons_letter_code 		= Request::get('buttons_letter_code');
@@ -314,6 +317,7 @@ class SettingsController extends MPDTunesController {
 				$active_state_letter_code 	= Request::get('active_state_letter_code');
 
 				$this->firephp->log($icon_color, "icon_color");
+				$this->firephp->log($icon_disc, "icon_disc");
 				$this->firephp->log($theme_name, "name");
 				$this->firephp->log($bars_letter_code, "bars");
 				$this->firephp->log($buttons_letter_code, "buttons");
@@ -325,7 +329,8 @@ class SettingsController extends MPDTunesController {
 				$theme = new Theme();
 				$theme->name = $theme_name;
 				$theme->creator_id = $user_id;
-				$theme->icon = (($icon_color == "Black") ? 'b' : 'w');
+				$theme->icon = $icon_color;
+				$theme->disc = $icon_disc;
 				$theme->bars = $bars_letter_code;
 				$theme->buttons = $buttons_letter_code;
 				$theme->body = $body_letter_code;

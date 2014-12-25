@@ -7,19 +7,19 @@
 	{{ flush() }}
 
 	<body>
-		<div id="player" class="audioWrapper">
-			
+
+		<div class="inner-body {{ $theme_classes }}">
+
+			<div id="player" class="audioWrapper">
+
+			</div>
+
+		  	@yield('content')
+
+			{{ flush() }}
+
+			@include('partials.htmlFooter')
+
 		</div>
-
-		<!--<div id="playerTwo" class="audioWrapper">
-			
-		</div>-->
-
-	  	@yield('content')
-
-		{{ flush() }}
-
-		@include('partials.htmlFooter')
-	
 	</body>
 </html>

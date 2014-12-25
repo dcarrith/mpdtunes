@@ -19,6 +19,7 @@ $lang['controls']			= "Controls";
 $lang['action'] 			= "Action";
 $lang['active_state']			= "Active State";
 $lang['icon_color']			= "Icon Color";
+$lang['icon_disc']			= "Use Icon Disc";
 $lang['save'] 				= "Save";
 $lang['cancel']				= "Cancel";
 $lang['field_is_required']		= "The field '%s' is required";
@@ -33,4 +34,4 @@ $lang['yes']				= "Yes";
 $lang['no']				= "No";
 
 return $lang;
-?> 
+?>

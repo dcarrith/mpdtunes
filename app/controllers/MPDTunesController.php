@@ -71,6 +71,8 @@ class MPDTunesController extends BaseController {
 
 		if ($this->preferences) {
 
+			$this->firephp->log($this->preferences->theme->toArray(), "this->preferences->theme->toArray()");
+
 			if (!Cache::has('theme'.Session::getId())) {
 
 				$this->theme = Cache::rememberForever('theme'.Session::getId(), function() {
@@ -86,6 +88,17 @@ class MPDTunesController extends BaseController {
 			$this->data['theme_id'] = $this->theme->id;
 
 			$this->data['currrent_theme_id'] = $this->theme->id;
+
+			// Determine which icon class to use for the outer container
+			$this->data['theme_classes'] = ($this->theme->icon === 'b') ? 'ui-alt-icon' : '';
+
+			$this->data['theme_classes'] .= ($this->theme->disc === 'n') ? ' ui-nodisc-icon' : '';
+
+			// The color of the icon will be black or white
+			$this->data['theme_icon'] = $this->theme->icon;
+
+			// Whether or not to show a transparent disc on the icons
+			$this->data['theme_disc'] = $this->theme->disc;
 
 			// Header and footer bars, navigation control bars, and main player controls section
 			$this->data['theme_bars'] = $this->theme->bars;

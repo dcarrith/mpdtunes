@@ -3,9 +3,9 @@
 class Langurator {
 
 	public static function getLocalizedWords($page){
-        	
+
 		$words = array();
-       
+
 		switch($page) {
 
 			case 'account':
@@ -50,8 +50,8 @@ class Langurator {
 				$words['artists_i18n']				= Lang::get($page.'.artists');
 				break;
 
-			case 'base': 
-                		
+			case 'base':
+
                 		$words['back_i18n']				= Lang::get($page.'.back');
                 		$words['home_i18n']				= Lang::get($page.'.home');
                 		$words['scroll_up_i18n']			= Lang::get($page.'.scroll_up');
@@ -99,12 +99,12 @@ class Langurator {
 				break;
 
 			case 'login':
- 
+
                 		$words['username_i18n']				= Lang::get($page.'.username');
                 		$words['password_i18n']				= Lang::get($page.'.password');
                 		$words['login_i18n']				= Lang::get($page.'.login');
                 		$words['register_i18n']				= Lang::get($page.'.register');
-                		$words['meta_description_content_i18n']		= Lang::get($page.'.meta_description_content');   
+                		$words['meta_description_content_i18n']		= Lang::get($page.'.meta_description_content');
 				break;
 
 			case 'payments':
@@ -134,10 +134,10 @@ class Langurator {
                 		$words['credit_card_number_i18n']          	= Lang::get($page.'.credit_card_number');
                 		$words['credit_card_expiration_date_i18n'] 	= Lang::get($page.'.credit_card_expiration_date');
                 		$words['credit_card_ccv_i18n']             	= Lang::get($page.'.credit_card_ccv');
-	
+
                 		$words['subscription_account_level_i18n']  	= Lang::get($page.'.subscription_account_level');
-				break;		
-				
+				break;
+
 			case 'playlists':
 
 				$words['playlists_i18n']   			= Lang::get($page.'.playlists');
@@ -146,7 +146,7 @@ class Langurator {
 				$words['playlist_with_that_name_exists_i18n']	= Lang::get($page.'.playlist_with_that_name_exists');
 				$words['playlist_name_max_length_i18n']		= Lang::get($page.'.playlist_name_max_length');
 				$words['save_i18n'] 				= Lang::get($page.'.save');
-				$words['cancel_i18n'] 				= Lang::get($page.'.cancel');				
+				$words['cancel_i18n'] 				= Lang::get($page.'.cancel');
 				$words['saved_successfully_i18n']  		= Lang::get($page.'.saved_successfully');
 				break;
 
@@ -160,7 +160,7 @@ class Langurator {
                 		$words['cancel_i18n']				= Lang::get($page.'.cancel');
 				$words['saved_successfully_i18n']  		= Lang::get($page.'.saved_successfully');
 				break;
-			
+
 			case 'recaptcha':
 
                         	$words['instructions_visual_i18n'] 		= Lang::get($page.'.instructions_visual');
@@ -182,7 +182,7 @@ class Langurator {
         	                $words['password_i18n']				= Lang::get($page.'.password');
         	                $words['password_confirm_i18n']			= Lang::get($page.'.password_confirm');
         	                $words['submit_i18n']				= Lang::get($page.'.submit');
-        	                $words['cancel_i18n']				= Lang::get($page.'.cancel');	
+        	                $words['cancel_i18n']				= Lang::get($page.'.cancel');
 				$words['refresh_captcha_i18n']			= Lang::get($page.'.refresh_captcha');
         	                $words['switch_type_audio_i18n']		= Lang::get($page.'.switch_type_audio');
         	                $words['switch_type_image_i18n']		= Lang::get($page.'.switch_type_image');
@@ -191,12 +191,12 @@ class Langurator {
         	                $words['enter_the_two_words_above_i18n']	= Lang::get($page.'.enter_the_two_words_above');
         	                $words['enter_the_numbers_you_hear_i18n']	= Lang::get($page.'.enter_the_numbers_you_hear');
         	                $words['meta_description_content_i18n']		= Lang::get($page.'.meta_description_content');
-				$words['success_message_first_half_i18n']	= Lang::get($page.'.success_message_first_half');	
-				$words['success_message_second_half_i18n']	= Lang::get($page.'.success_message_second_half');	
+				$words['success_message_first_half_i18n']	= Lang::get($page.'.success_message_first_half');
+				$words['success_message_second_half_i18n']	= Lang::get($page.'.success_message_second_half');
 				$words['registration_complete_i18n']		= Lang::get($page.'.registration_complete');
 				break;
 
-			case 'settings': 
+			case 'settings':
 
 		                $words['clear_playlist_i18n']              	= Lang::get($page.'.clear_playlist');
                 		$words['theme_i18n']                       	= Lang::get($page.'.theme');
@@ -216,6 +216,7 @@ class Langurator {
 				$words['action_i18n']				= Lang::get($page.'.action');
 				$words['active_state_i18n']			= Lang::get($page.'.active_state');
 				$words['icon_color_i18n']			= Lang::get($page.'.icon_color');
+				$words['icon_disc_i18n']			= Lang::get($page.'.icon_disc');
 				$words['save_i18n']                        	= Lang::get($page.'.save');
                 		$words['cancel_i18n']                      	= Lang::get($page.'.cancel');
                 		$words['refresh_i18n']                     	= Lang::get($page.'.refresh');
@@ -237,7 +238,7 @@ class Langurator {
                 		$words['station_description_i18n']		= Lang::get($page.'.station_description');
                 		$words['save_i18n']				= Lang::get($page.'.save');
                 		$words['cancel_i18n']				= Lang::get($page.'.cancel');
-                		$words['saved_successfully_i18n']		= Lang::get($page.'.saved_successfully'); 
+                		$words['saved_successfully_i18n']		= Lang::get($page.'.saved_successfully');
  	             		$words['cant_be_changed_i18n'] 			= Lang::get($page.'.cant_be_changed');
 				$words['url_special_note_i18n'] 		= Lang::get($page.'.must_be_online');
                 		$words['icon_jpg_gif_or_png_i18n'] 		= Lang::get($page.'.icon_jpg_gif_or_png');
@@ -247,7 +248,7 @@ class Langurator {
         			$words['saved_successfully_i18n']		= Lang::get($page.'.saved_successfully');
 				$words['add_stream_to_queue_i18n']		= Lang::get($page.'.add_stream_to_queue');
 				break;
-	
+
 			case 'tracks':
 
                	 		$words['tracks_i18n']				= Lang::get($page.'.tracks');
@@ -266,9 +267,9 @@ class Langurator {
 
 			case 'users':
 
-				break;	
-			
-			default: 
+				break;
+
+			default:
 
 				break;
 		}

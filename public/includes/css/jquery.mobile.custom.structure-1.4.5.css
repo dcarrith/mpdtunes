@@ -1,5 +1,5 @@
 /*
-* jQuery Mobile v1.4.2
+* jQuery Mobile v1.4.5
 * http://jquerymobile.com
 *
 * Copyright 2010, 2014 jQuery Foundation, Inc. and other contributors
@@ -247,7 +247,9 @@ div.ui-mobile-viewport {
 	-ms-user-select: none;
 	user-select: none;
 }
-.ui-btn-icon-notext {
+.ui-btn-icon-notext,
+.ui-header button.ui-btn.ui-btn-icon-notext,
+.ui-footer button.ui-btn.ui-btn-icon-notext {
 	padding: 0;
 	width: 1.75em;
 	height: 1.75em;
@@ -267,6 +269,11 @@ div.ui-mobile-viewport {
 	display: inline-block;
 	vertical-align: middle;
 }
+.ui-header .ui-controlgroup .ui-btn-icon-notext,
+.ui-footer .ui-controlgroup .ui-btn-icon-notext {
+    font-size: 12.5px;
+}
+
 /* To ensure same top and left/right position when ui-btn-left/right are added to something other than buttons. */
 .ui-header .ui-btn-left,
 .ui-header .ui-btn-right {
@@ -388,7 +395,9 @@ button.ui-btn,
 	-moz-appearance: none;
 	width: 100%;
 }
-button.ui-btn-inline {
+button.ui-btn-inline,
+.ui-header button.ui-btn,
+.ui-footer button.ui-btn {
 	width: auto;
 }
 /* Firefox adds a 1px border in a button element. We negate this to make sure they have the same height as other buttons in controlgroups. */
@@ -479,7 +488,6 @@ button.ui-btn-icon-notext,
 		width: 78%;
 		-webkit-box-sizing: border-box;
 		-moz-box-sizing: border-box;
-		-ms-box-sizing: border-box;
 		box-sizing: border-box;
 	}
 	/* ui-hide-label deprecated in 1.4. TODO: Remove in 1.5 */
@@ -493,6 +501,9 @@ button.ui-btn-icon-notext,
 	.ui-field-contain > label ~ .ui-btn-inline {
 		width: auto;
 		margin-right: .625em;
+	}
+	.ui-field-contain > label ~ .ui-btn-inline.ui-btn-icon-notext {
+		width: 1.75em;
 	}
 }
 
@@ -1148,136 +1159,6 @@ button.ui-btn-icon-notext,
 }
 
 
-.ui-controlgroup,
-fieldset.ui-controlgroup {
-	padding: 0;
-	margin: .5em 0;
-}
-.ui-field-contain .ui-controlgroup,
-.ui-field-contain fieldset.ui-controlgroup {
-	margin: 0;
-}
-.ui-mini .ui-controlgroup-label {
-	font-size: 16px;
-}
-.ui-controlgroup.ui-mini .ui-btn-icon-notext,
-.ui-controlgroup .ui-mini.ui-btn-icon-notext {
-	font-size: inherit;
-}
-.ui-controlgroup-controls .ui-btn,
-.ui-controlgroup-controls .ui-checkbox,
-.ui-controlgroup-controls .ui-radio,
-.ui-controlgroup-controls .ui-select {
-	margin: 0;
-}
-.ui-controlgroup-controls .ui-btn:focus,
-.ui-controlgroup-controls .ui-btn.ui-focus {
-	z-index: 1;
-}
-.ui-controlgroup-controls li {
-	list-style: none;
-}
-.ui-controlgroup-horizontal .ui-controlgroup-controls {
-	display: inline-block;
-	vertical-align: middle;
-}
-.ui-controlgroup-horizontal .ui-controlgroup-controls:before,
-.ui-controlgroup-horizontal .ui-controlgroup-controls:after {
-	content: "";
-	display: table;
-}
-.ui-controlgroup-horizontal .ui-controlgroup-controls:after {
-	clear: both;
-}
-.ui-controlgroup-horizontal .ui-controlgroup-controls > .ui-btn,
-.ui-controlgroup-horizontal .ui-controlgroup-controls li > .ui-btn,
-.ui-controlgroup-horizontal .ui-controlgroup-controls .ui-checkbox,
-.ui-controlgroup-horizontal .ui-controlgroup-controls .ui-radio,
-.ui-controlgroup-horizontal .ui-controlgroup-controls .ui-select {
-	float: left;
-	clear: none;
-}
-.ui-controlgroup-horizontal .ui-controlgroup-controls button.ui-btn,
-.ui-controlgroup-controls .ui-btn-icon-notext {
-	width: auto;
-}
-.ui-controlgroup-horizontal .ui-controlgroup-controls .ui-btn-icon-notext,
-.ui-controlgroup-horizontal .ui-controlgroup-controls button.ui-btn-icon-notext {
-	width: 1.5em;
-}
- .ui-controlgroup-controls .ui-btn-icon-notext {
-	height: auto;
-	padding: .7em 1em;
-}
-.ui-controlgroup-vertical .ui-controlgroup-controls .ui-btn {
-	border-bottom-width: 0;
-}
-.ui-controlgroup-vertical .ui-controlgroup-controls .ui-btn.ui-last-child {
-	border-bottom-width: 1px;
-}
-.ui-controlgroup-horizontal .ui-controlgroup-controls .ui-btn {
-	border-right-width: 0;
-}
-.ui-controlgroup-horizontal .ui-controlgroup-controls .ui-btn.ui-last-child {
-	border-right-width: 1px;
-}
-.ui-controlgroup-controls .ui-btn-corner-all,
-.ui-controlgroup-controls .ui-btn.ui-corner-all {
-	-webkit-border-radius: 0;
-	border-radius: 0;
-}
-.ui-controlgroup-controls,
-.ui-controlgroup-controls .ui-radio,
-.ui-controlgroup-controls .ui-checkbox,
-.ui-controlgroup-controls .ui-select,
-.ui-controlgroup-controls li {
-	-webkit-border-radius: inherit;
-	border-radius: inherit;
-}
-.ui-controlgroup-vertical .ui-btn.ui-first-child {
-	-webkit-border-top-left-radius: inherit;
-	border-top-left-radius: inherit;
-	-webkit-border-top-right-radius: inherit;
-	border-top-right-radius: inherit;
-}
-.ui-controlgroup-vertical .ui-btn.ui-last-child {
-	-webkit-border-bottom-left-radius: inherit;
-	border-bottom-left-radius: inherit;
-	-webkit-border-bottom-right-radius: inherit;
-	border-bottom-right-radius: inherit;
-}
-.ui-controlgroup-horizontal .ui-btn.ui-first-child {
-	-webkit-border-top-left-radius: inherit;
-	border-top-left-radius: inherit;
-	-webkit-border-bottom-left-radius: inherit;
-	border-bottom-left-radius: inherit;
-}
-.ui-controlgroup-horizontal .ui-btn.ui-last-child {
-	-webkit-border-top-right-radius: inherit;
-	border-top-right-radius: inherit;
-	-webkit-border-bottom-right-radius: inherit;
-	border-bottom-right-radius: inherit;
-}
-.ui-controlgroup-controls a.ui-shadow:not(:focus),
-.ui-controlgroup-controls button.ui-shadow:not(:focus),
-.ui-controlgroup-controls div.ui-shadow:not(.ui-focus) {
-	-moz-box-shadow: none;
-	-webkit-box-shadow: none;
-	box-shadow: none;
-}
-/* Fixes legend not wrapping on IE10 */
-.ui-controlgroup-label legend {
-	max-width: 100%;
-}
-.ui-controlgroup-controls > label {
-	position: absolute !important;
-	height: 1px;
-	width: 1px;
-	overflow: hidden;
-	clip: rect(1px,1px,1px,1px);
-}
-
-
 .ui-dialog {
 	 background: none !important; /* this is to ensure that dialog theming does not apply (by default at least) on the page div */
 }
@@ -1731,7 +1612,6 @@ input.ui-slider-input {
 	appearance: none;
 	-webkit-box-sizing: content-box;
 	-moz-box-sizing: content-box;
-	-ms-box-sizing: content-box;
 	box-sizing: content-box;
 }
 .ui-slider-input::-webkit-outer-spin-button,
@@ -1867,6 +1747,9 @@ html .ui-popup .ui-field-contain div.ui-slider-switch {
 	border-width: 1px;
 	border-style: solid;
 }
+.ui-mini {
+	margin: .446em;
+}
 .ui-input-text input,
 .ui-input-search input,
 textarea.ui-input-text {
@@ -1876,7 +1759,6 @@ textarea.ui-input-text {
 	width: 100%;
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
-	-ms-box-sizing: border-box;
 	box-sizing: border-box;
 	outline: 0;
 }
@@ -2443,177 +2325,4 @@ ol.ui-listview > li img:first-child + * ~ * {
 	-moz-animation-name: fadein;
 	animation-duration: 225ms;
 	animation-name: fadein;
-}
-
-
-/* Dimensions related to the popup arrow
------------------------------------------------------------------------------------------------------------*/
-/* desired triangle height: 10px */
-
-/**
- * guide for the arrow - its width, height, and offset are theme-dependent and
- * should be expessed as left, right, top, bottom, so that the element bearing
- * such a class becomes stretched inside its parent position: relative element.
- * The left/top/right/bottom specified below should reflect the corresponding
- * border radii and so it leaves room for the shadow:
- *     ..--------------------..
- *   ."        ^ top           ".
- *  /          v                 \
- * |     +------------------+     |
- * |     |                  |     |
- * | left|                  |right|
- * |<--->|                  |<--->|
- * |     +------------------+     |
- *  \          ^                 /
- *   `.        v bottom        .'
- *     ""--------------------""
- * The idea is that the top/left of the arrow container box does not move to a
- * coordinate smaller than the top/left of the guide and the right/bottom of
- * the arrow container box does not move to a coordinate larger than the
- * bottom/right of the guide. This will help us avoid the following situation:
- *        ..--------------------..
- *      ."        ^ top           ".
- *   /|/          v                 \
- *  / |     +------------------+     |
- *  \ |     |                  |     |
- *   \| left|                  |right|
- *    |<--->|                  |<--->|
- *    |     +------------------+     |
- *     \          ^                 /
- *      `.        v bottom        .'
- *        ""--------------------""
- * The arrow should not receive a top/left coordinate such that it is too close
- * to one of the corners, because then at first the shadow of the arrow and,
- * given a coordinate even closer to the corner, even the body of the arrow will
- * "stick out" of the corner of the popup. The guide provides a hint to the
- * arrow positioning code as to which range of values is acceptable for the
- * arrow container's top/left coordinate.
- **/
-
-.ui-popup-arrow-container {
-	width: 20px;
-	height: 20px;
-}
-
-/* aside from the "infinities" (-1000,2000), triangle height is used */
-.ui-popup-arrow-container.ui-popup-arrow-l {
-	left: -10px;
-	clip: rect(-1000px,10px,2000px,-1000px);
-}
-
-.ui-popup-arrow-container.ui-popup-arrow-t {
-	top: -10px;
-	clip: rect(-1000px,2000px,10px,-1000px);
-}
-
-.ui-popup-arrow-container.ui-popup-arrow-r {
-	right: -10px;
-	clip: rect(-1000px,2000px,2000px,10px);
-}
-
-.ui-popup-arrow-container.ui-popup-arrow-b {
-	bottom: -10px;
-	clip: rect(10px,2000px,1000px,-1000px);
-}
-
-/**
- * For each side, the arrow is twice the desired size and its corner is aligned
- * with the edge of the container:
- *                                           
- *           /\         /\                +----+       /\
- *          /  \       /  \               | /\ |top   /  \
- *      +----+  \     /  +----+       +-->|/  \|     /    \
- *  left| /  |   \   /   |  \ |right  |   |    |    /      \
- *      |/   |    \ /    |   \|       |  /|    |\  /        \
- *      |\   |    / \    |   /|       | / +----+ \ \ +----+ /
- *      | \  |   /   \   |  / |       | \        /  \|    |/
- *      +----+  /     \  +----+       |  \      /    |    |
- *       ^  \  /       \  /  ^        |   \    /  +->|\  /|
- *       |   \/         \/   |        |    \  /   |  | \/ |bottom
- *       |                   |        |     \/    |  +----+
- *       +-------------------+--------+-----------+
- *                           |
- *                    arrow container
- *                     (clips arrow)
- **/
-
-.ui-popup-arrow-container .ui-popup-arrow {
-	/* (4*desired triangle height)/sqrt(2) - does not account for border - centred within the outer rectangle */
-	width: 28.284271247px;
-	height: 28.284271247px;
-	border-width: 1px;
-	border-style: solid;
-}
-
-.ui-popup-arrow-container.ui-popup-arrow-t .ui-popup-arrow {
-	left: -4.142135623px;
-	top: 5.857864376px;
-}
-
-.ui-popup-arrow-container.ui-popup-arrow-b .ui-popup-arrow {
-	left: -4.142135623px;
-	top: -14.142135623px;
-}
-
-.ui-popup-arrow-container.ui-popup-arrow-l .ui-popup-arrow {
-	left: 5.857864376px;
-	top: -4.142135623px;
-}
-
-.ui-popup-arrow-container.ui-popup-arrow-r .ui-popup-arrow {
-	left: -14.142135623px;
-	top: -4.142135623px;
-}
-
-/* Fix rotation center for oldIE - see http://www.useragentman.com/IETransformsTranslator/ */
-.ui-popup-arrow-container.ui-popup-arrow-t.ie .ui-popup-arrow {
-    margin-left: -5.857864376269049px;
-    margin-top: -7.0710678118654755px;
-}
-.ui-popup-arrow-container.ui-popup-arrow-b.ie .ui-popup-arrow {
-    margin-left: -5.857864376269049px;
-    margin-top: -4.142135623730951px;
-}
- 
-.ui-popup-arrow-container.ui-popup-arrow-l.ie .ui-popup-arrow {
-    margin-left: -7.0710678118654755px;
-    margin-top: -5.857864376269049px;
-}
-.ui-popup-arrow-container.ui-popup-arrow-r.ie .ui-popup-arrow {
-    margin-left: -4.142135623730951px;
-    margin-top: -5.857864376269049px;
-}
-
-/* structure */
-.ui-popup > .ui-popup-arrow-guide {
-	position: absolute;
-	left: 0;
-	right: 0;
-	top: 0;
-	bottom: 0;
-	visibility: hidden;
-}
-
-.ui-popup-arrow-container {
-	position: absolute;
-}
-
-.ui-popup-arrow {
-	-webkit-transform: rotate(45deg);
-	-moz-transform: rotate(45deg);
-	-ms-transform: rotate(45deg);
-	transform: rotate(45deg);
-	position: absolute;
-	overflow: hidden;
-	box-sizing: border-box;
-}
-
-.ui-popup-arrow-container.ie .ui-popup-arrow {
-	-ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=0.7071067811865474, M12=-0.7071067811865477, M21=0.7071067811865477, M22=0.7071067811865474, SizingMethod='auto expand')";
-	filter: progid:DXImageTransform.Microsoft.Matrix(
-	      	M11=0.7071067811865474,
-        	M12=-0.7071067811865477,
-        	M21=0.7071067811865477,
-        	M22=0.7071067811865474,
-        	SizingMethod='auto expand');
 }

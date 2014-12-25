@@ -15,6 +15,8 @@ class CreateThemesTable extends Migration {
 		/*
 			CREATE TABLE IF NOT EXISTS mpdtunes.themes (
   				id int(11) NOT NULL AUTO_INCREMENT COMMENT 'the auto-incrementing primary key of the themes table',
+  				icon varchar(1) DEFAULT 'b',
+  				disc varchar(1) DEFAULT 'n',
   				bars varchar(3) DEFAULT 'a',
   				buttons varchar(3) DEFAULT 'a',
   				body varchar(3) DEFAULT 'a',
@@ -29,12 +31,13 @@ class CreateThemesTable extends Migration {
   				KEY ind_mpdtunes_themes_name (name),
   				KEY ind_mpdtunes_themes_creator_id (creator_id)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
-		*/		
+		*/
 
                 Schema::create('themes', function(Blueprint $table) {
 
                         $table->increments('id');
-                        $table->string('icon', 1)->default('b');
+                        $table->string('icon', 1)->default('w');
+                        $table->string('disc', 1)->default('y');
 			$table->string('bars', 3)->default('a');
                         $table->string('buttons', 3)->default('a');
                         $table->string('body', 3)->default('a');
@@ -86,7 +89,7 @@ class CreateThemesTable extends Migration {
                                 'controls' => 'b',
                                 'actions' => 'a',
                                 'active' => 'a',
-                                'name' => 'Greyish Blue and Charcoal', 
+                                'name' => 'Greyish Blue and Charcoal',
                                 'creator_id' => '1'
                         )
                 );
@@ -101,7 +104,7 @@ class CreateThemesTable extends Migration {
                                 'controls' => 'c',
                                 'actions' => 'a',
                                 'active' => 'a',
-                                'name' => 'White and Charcoal', 
+                                'name' => 'White and Charcoal',
                                 'creator_id' => '1'
                         )
                 );
@@ -116,7 +119,7 @@ class CreateThemesTable extends Migration {
                                 'controls' => 'd',
                                 'actions' => 'a',
                                 'active' => 'a',
-                                'name' => 'Light Grey and Charcoal', 
+                                'name' => 'Light Grey and Charcoal',
                                 'creator_id' => '1'
                         )
                 );
@@ -131,7 +134,7 @@ class CreateThemesTable extends Migration {
                                 'controls' => 'e',
                                 'actions' => 'a',
                                 'active' => 'a',
-                                'name' => 'Yellow and Charcoal', 
+                                'name' => 'Yellow and Charcoal',
                                 'creator_id' => '1'
                         )
                 );
@@ -146,7 +149,7 @@ class CreateThemesTable extends Migration {
                                 'controls' => 'g',
                                 'actions' => 'a',
                                 'active' => 'a',
-                                'name' => 'True Green and Charcoal', 
+                                'name' => 'True Green and Charcoal',
                                 'creator_id' => '1'
                         )
                 );
@@ -161,7 +164,7 @@ class CreateThemesTable extends Migration {
                                 'controls' => 'h',
                                 'actions' => 'a',
                                 'active' => 'a',
-                                'name' => 'Hunter Green and Charcoal', 
+                                'name' => 'Hunter Green and Charcoal',
                                 'creator_id' => '1'
                         )
                 );
@@ -176,7 +179,7 @@ class CreateThemesTable extends Migration {
                                 'controls' => 'i',
                                 'actions' => 'a',
                                 'active' => 'a',
-                                'name' => 'Celadon Green and Charcoal', 
+                                'name' => 'Celadon Green and Charcoal',
                                 'creator_id' => '1'
                         )
                 );
@@ -191,7 +194,7 @@ class CreateThemesTable extends Migration {
                                 'controls' => 'j',
                                 'actions' => 'a',
                                 'active' => 'a',
-                                'name' => 'True Blue and Charcoal', 
+                                'name' => 'True Blue and Charcoal',
                                 'creator_id' => '1'
                         )
                 );
@@ -206,7 +209,7 @@ class CreateThemesTable extends Migration {
                                 'controls' => 'k',
                                 'actions' => 'a',
                                 'active' => 'a',
-                                'name' => 'Skyline Blue and Charcoal', 
+                                'name' => 'Skyline Blue and Charcoal',
                                 'creator_id' => '1'
                         )
                 );
@@ -221,7 +224,7 @@ class CreateThemesTable extends Migration {
                                 'controls' => 'l',
                                 'actions' => 'f',
                                 'active' => 'f',
-                                'name' => 'Greyish Blue and Black', 
+                                'name' => 'Greyish Blue and Black',
                                 'creator_id' => '1'
                         )
                 );
@@ -236,7 +239,7 @@ class CreateThemesTable extends Migration {
                                 'controls' => 'f',
                                 'actions' => 'k',
                                 'active' => 'k',
-                                'name' => 'Black and Skyline Blue', 
+                                'name' => 'Black and Skyline Blue',
                                 'creator_id' => '1'
                         )
                 );
